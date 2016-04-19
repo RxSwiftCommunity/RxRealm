@@ -5,5 +5,6 @@ target 'RxRealm_Example', :exclusive => true do
   platform :ios, '8.3'
   pod 'RxRealm', :path => '../'
   pod 'RxSwift'
+  pod 'RxCocoa'
   pod 'RealmSwift'
 end
