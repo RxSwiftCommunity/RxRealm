@@ -30,7 +30,7 @@ public extension NotificationEmitter where Self: CollectionType {
                     return
                 }
                 
-                if let value = value, case let _ = ObservableType.self as? ArrayType {
+                if let value = value, case _ = ObservableType.self as? ArrayType {
                     observer.onNext(Array(value) as! ObservableType)
                     return
                 }
