@@ -12,7 +12,7 @@ public protocol NotificationEmitter {
     func addNotification(_: (value: Self?, error: NSError?) -> Void) -> NotificationToken
 }
 
-public protocol ArrayType {}
+private protocol ArrayType {}
 extension Array: ArrayType {}
 
 public extension NotificationEmitter where Self: CollectionType {
