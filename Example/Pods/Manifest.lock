@@ -1,0 +1,27 @@
+PODS:
+  - Realm (0.98.8):
+    - Realm/Headers (= 0.98.8)
+  - Realm/Headers (0.98.8)
+  - RealmSwift (0.98.8):
+    - Realm (= 0.98.8)
+  - RxRealm (0.1.0):
+    - RealmSwift
+    - RxSwift
+  - RxSwift (2.4)
+
+DEPENDENCIES:
+  - RealmSwift
+  - RxRealm (from `../`)
+  - RxSwift
+
+EXTERNAL SOURCES:
+  RxRealm:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Realm: 0e293bb62999730599efc3048896bbd4f2e43bcd
+  RealmSwift: 064262d38113f23ff3508fb20a0a922e696bec01
+  RxRealm: 5b53b62a9a973cf62a78b784ee7957dfb0b8dd4e
+  RxSwift: 67b9ef4e8b34fb394e200e754c6a09cc16559f94
+
+COCOAPODS: 0.39.0

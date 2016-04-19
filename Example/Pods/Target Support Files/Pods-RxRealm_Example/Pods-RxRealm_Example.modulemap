@@ -1,0 +1,6 @@
+framework module Pods_RxRealm_Example {
+  umbrella header "Pods-RxRealm_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
