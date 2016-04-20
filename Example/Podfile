@@ -8,3 +8,7 @@ target 'RxRealm_Example', :exclusive => true do
   pod 'RxCocoa'
   pod 'RealmSwift'
 end
+
+target 'RxRealm_Tests', :exclusive => true do
+  pod 'RxTests'
+end
