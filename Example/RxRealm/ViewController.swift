@@ -15,29 +15,28 @@ class Lap: Object {
 //view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
-    let formatter: NSDateFormatter = {
-        let f = NSDateFormatter()
-        f.timeStyle = .LongStyle
-        return f
-    }()
-    
+        
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        //reset realm
-        let realm = try! Realm()
-        try! realm.write {
-            realm.deleteAll()
-        }
         
-        //results as observable
-        let laps = realm.objects(Lap).sorted("time", ascending: false).asObservable()
+        let realm = try! Realm()
 
-        //bind to table
-        laps.bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {[weak self] row, element, cell in
-            cell.textLabel!.text = self!.formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
+        //Observable<Results<Lap>>
+        let lapCount = realm.objects(Lap).asObservable().map {laps in "\(laps.count) laps"}
+        lapCount.subscribeNext {[unowned self]text in
+            self.title = text
+        }.addDisposableTo(bag)
+        
+        //Observable<Array<Lap>>
+        let laps = realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
+        
+        laps.map {array in
+            return array.prefix(3) //get array slice of last 3 items
+        }
+        .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
+            cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
         }.addDisposableTo(bag)
 
         //start adding laps
