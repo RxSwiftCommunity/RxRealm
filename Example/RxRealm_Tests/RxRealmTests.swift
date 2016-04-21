@@ -1,9 +1,7 @@
 //
-//  RxRealm_Tests.swift
-//  RxRealm_Tests
+//  RxRealm extensions
 //
-//  Created by Marin Todorov on 4/21/16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
+//  Copyright (c) 2016 RxSwiftCommunity. All rights reserved.
 //
 
 import XCTest
@@ -38,50 +36,91 @@ class RxRealm_Tests: XCTestCase {
         bag = nil
         super.tearDown()
     }
+
+    private func clearRealm(realm: Realm) {
+        try! realm.write {
+            realm.deleteAll()
+        }
+    }
+    
+    private func addObject(realm: Realm, text: String) {
+        try! realm.write {
+            realm.add(Message(text))
+        }
+    }
+    
+    func testEmittedResultsValues() {
+        let expectation1 = expectationWithDescription("Results<Message> first")
+        let expectation2 = expectationWithDescription("Results<Message> second")
+        
+        let realm = try! Realm()
+        clearRealm(realm)
+        
+        let scheduler = TestScheduler(initialClock: 0)
+        let observer = scheduler.createObserver(Results<Message>)
+        
+        let messages$ = realm.objects(Message).asObservable().shareReplay(1)
+        messages$.subscribeNext {messages in
+            switch messages.count {
+            case 1: expectation1.fulfill()
+            case 2: expectation2.fulfill()
+            default: XCTFail("Unexpected value emitted by Observable")
+            }
+            }.addDisposableTo(bag)
+        
+        messages$.subscribe(observer).addDisposableTo(bag)
+
+        addObject(realm, text: "first")
+        
+        performSelector(#selector(addSecondMessage), withObject: nil, afterDelay: 0.1)
+        
+        scheduler.start()
+        
+        waitForExpectationsWithTimeout(0.5) {error in
+            XCTAssertTrue(error == nil)
+            XCTAssertEqual(observer.events.count, 2)
+            let results = observer.events.last!.value.element!
+            XCTAssertTrue(results.first! == Message("first"))
+            XCTAssertTrue(results.last! == Message("second"))
+        }
+    }
     
     func testEmittedArrayValues() {
         let expectation1 = expectationWithDescription("Array<Message> first")
         let expectation2 = expectationWithDescription("Array<Message> second")
         
         let realm = try! Realm()
-        try! realm.write {
-            realm.deleteAll()
-        }
+        clearRealm(realm)
         
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>)
 
         let messages$ = realm.objects(Message).asObservableArray().shareReplay(1)
         messages$.subscribeNext {messages in
-            if messages.count == 1 && messages.first! == Message("first") {
-                expectation1.fulfill()
-            }
-            if messages.count == 2 && messages.first! == Message("first")
-                && messages.last! == Message("second"){
-                expectation2.fulfill()
+            switch messages.count {
+            case 1: expectation1.fulfill()
+            case 2: expectation2.fulfill()
+            default: XCTFail("Unexpected value emitted by Observable")
             }
         }.addDisposableTo(bag)
         
         messages$.subscribe(observer).addDisposableTo(bag)
         
-        try! realm.write {
-            realm.add(Message("first"))
-        }
+        addObject(realm, text: "first")
 
         performSelector(#selector(addSecondMessage), withObject: nil, afterDelay: 0.1)
 
         scheduler.start()
         
-        waitForExpectationsWithTimeout(10) {error in
+        waitForExpectationsWithTimeout(0.5) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 2)
+            XCTAssertTrue(observer.events.first!.value.element! == [Message("first")])
+            XCTAssertTrue(observer.events.last!.value.element! == [Message("first"), Message("second")])
         }
     }
     
     func addSecondMessage() {
-        let realm = try! Realm()
-        try! realm.write {
-            realm.add(Message("second"))
-        }
+        addObject(try! Realm(), text: "second")
     }
 }
