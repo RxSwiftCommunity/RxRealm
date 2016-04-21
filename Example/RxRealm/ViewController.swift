@@ -33,7 +33,7 @@ class ViewController: UIViewController {
         let laps = realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
         
         laps.map {array in
-            return array.prefix(3) //get array slice of last 3 items
+            return array.prefix(3) //get array slice of the 3 most recent items
         }
         .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
             cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))

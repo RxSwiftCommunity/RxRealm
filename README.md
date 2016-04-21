@@ -6,33 +6,69 @@
 
 ## Usage
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+This library is a very thin wrapper around the reactive classes __RealmSwift__ provides: `Results`, `List` and `AnyRealmCollection`. 
+
+The extension adds two  methods to all of the above classes:
+
+### asObservable()
+`asObservable()` - emits every time the collection changes:
+
+```swift
+let realm = try! Realm()
+realm.objects(Lap).asObservable()
+  .map {laps in "\(laps.count) laps"}
+  .subscribeNext { text  in
+    print(text)
+  }
+```
+
+### asObservableArray()
+`asObservableArray()` - fetches the a snapshot of a Realm collection and converts it to an array value (for example if you want to use array methods on the collection):
+
+```swift
+let realm = try! Realm()
+realm.objects(Lap).asObservableArray()
+  .map {array in
+    return array.prefix(3) //get array slice of first 3 items
+  }
+  .subscribeNext { text  in
+    print(text)
+  }
+```
+
+
+## Example app
+
+To run the example project, clone the repo, and run `pod install` from the Example directory first. The app uses RxSwift, RxCocoa using RealmSwift, RxRealm to observe Results from Realm.
 
 ## Requirements
 
-This library depends on __RxSwift__ and __RealmSwift__. If you use Cocoapods these dependancies are managed automatically.
+This library depends on both __RxSwift__ and __RealmSwift__.
 
 ## Installation
 
-RxRealm is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+### CocoaPods
+RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```ruby
 pod "RxRealm"
 ```
 
+### Cartage
+
+Coming soon (feel free to send a PR)
+
+### Source
+
+You can grab the __RxRealm.swift__ file from this repo and include it in your project.
+
 ## Author
 
-This library belongs to RxSwiftCommunity and is based on the work of [@fpillet](https://github.com/fpillet)
+This library belongs to _RxSwiftCommunity_ and is based on the work of [@fpillet](https://github.com/fpillet)
 
 ## TODO
 
-- defo add tests
-- make pr to rxcocoa to add native support for rx_event to `NSGestureRecognizer` and remove the implementation from this repo
-
-## Thanks
-
-Everyone in the RxSwift Slack channel 💯
+* Carthage
 
 ## License
 
