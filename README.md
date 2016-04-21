@@ -29,7 +29,7 @@ realm.objects(Lap).asObservable()
 let realm = try! Realm()
 realm.objects(Lap).asObservableArray()
   .map {array in
-    return array.prefix(3) //get array slice of first 3 items
+    return array.prefix(3) //slice of first 3 items
   }
   .subscribeNext { text  in
     print(text)
