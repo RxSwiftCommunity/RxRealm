@@ -21,10 +21,6 @@ Pod::Spec.new do |s|
 
   s.source_files = 'Pod/Classes/*.swift'
 
-  s.resource_bundles = {
-    'RxRealm' => ['RxRealm/Assets/*.png']
-  }
-
   s.frameworks = 'Foundation'
   s.dependency 'RealmSwift'
   s.dependency 'RxSwift'
