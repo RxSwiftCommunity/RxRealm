@@ -17,7 +17,7 @@ extension Array: ArrayType {}
 
 public extension NotificationEmitter where Self: CollectionType {
     
-    private func observable<ObservableType>() -> Observable<ObservableType> {
+    private func observable<T>() -> Observable<T> {
         return Observable.create {observer in
             let token = self.addNotification {value, error in
                 if let error = error {
@@ -25,13 +25,13 @@ public extension NotificationEmitter where Self: CollectionType {
                     return
                 }
                 
-                if let value = value as? ObservableType {
+                if let value = value as? T {
                     observer.onNext(value)
                     return
                 }
                 
-                if let value = value, case _ = ObservableType.self as? ArrayType {
-                    observer.onNext(Array(value) as! ObservableType)
+                if let value = value, case _ = T.self as? ArrayType {
+                    observer.onNext(Array(value) as! T)
                     return
                 }
                 
