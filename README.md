@@ -54,7 +54,7 @@ RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, s
 pod "RxRealm"
 ```
 
-### Cartage
+### Carthage
 
 Coming soon (feel free to send a PR)
 
