@@ -16,12 +16,9 @@ extension List: NotificationEmitter {}
 extension AnyRealmCollection: NotificationEmitter {}
 extension Results: NotificationEmitter {}
 
-private protocol ArrayType {}
-extension Array: ArrayType {}
-
 public extension NotificationEmitter where Self: RealmCollectionType {
     
-    private func observable<T>() -> Observable<T> {
+    public func asObservable() -> Observable<Self> {
         return Observable.create {observer in
             let token = self.addNotificationBlock {changeset in
                 
@@ -39,17 +36,7 @@ public extension NotificationEmitter where Self: RealmCollectionType {
                     return
                 }
 
-                if let value = value as? T {
-                    observer.onNext(value)
-                    return
-                }
-                
-                if case _ = T.self as? ArrayType {
-                    observer.onNext(Array(value) as! T)
-                    return
-                }
-                
-                fatalError("Unexpected Observable type")
+                observer.onNext(value)
             }
             
             return AnonymousDisposable {
@@ -59,10 +46,6 @@ public extension NotificationEmitter where Self: RealmCollectionType {
     }
     
     public func asObservableArray() -> Observable<Array<Self.Generator.Element>> {
-        return observable()
-    }
-    
-    public func asObservable() -> Observable<Self> {
-        return observable()
+        return asObservable().map { Array($0) }
     }
 }
