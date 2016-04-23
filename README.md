@@ -1,5 +1,3 @@
-*[WIP] We'll hold on an official release as we convert the lib to the new fine grained notifications from Realm.*
-
 # RxRealm
 
 [![Version](https://img.shields.io/cocoapods/v/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
@@ -8,9 +6,9 @@
 
 ## Usage
 
-This library is a very thin wrapper around the reactive classes __RealmSwift__ provides: `Results`, `List` and `AnyRealmCollection`. 
+This library is a very thin wrapper around the reactive collection types __RealmSwift__ provides: `Results`, `List` and `AnyRealmCollection`. 
 
-The extension adds two  methods to all of the above classes:
+The extension adds two  methods to all of the above:
 
 ### asObservable()
 `asObservable()` - emits every time the collection changes:
@@ -58,9 +56,9 @@ pod "RxRealm"
 
 ### Carthage
 
-Coming soon (feel free to send a PR)
+Feel free to send a PR
 
-### Source
+### As Source
 
 You can grab the __RxRealm.swift__ file from this repo and include it in your project.
 
@@ -71,6 +69,8 @@ This library belongs to _RxSwiftCommunity_ and is based on the work of [@fpillet
 ## TODO
 
 * Carthage
+* Add `asObservable()` to the Realm class
+* Test add platforms and add compatibility for the pod
 
 ## License
 
