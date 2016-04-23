@@ -1,4 +1,4 @@
-[WIP] We'll hold on an official release as we convert the lib to the new fine grained notifications from Realm.
+*[WIP] We'll hold on an official release as we convert the lib to the new fine grained notifications from Realm.*
 
 # RxRealm
 
