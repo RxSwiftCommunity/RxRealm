@@ -1,3 +1,5 @@
+[WIP] We'll hold on an official release as we convert the lib to the new fine grained notifications from Realm.
+
 # RxRealm
 
 [![Version](https://img.shields.io/cocoapods/v/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
