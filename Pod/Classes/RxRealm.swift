@@ -9,28 +9,42 @@ import RealmSwift
 import RxSwift
 
 public protocol NotificationEmitter {
-    func addNotification(_: (value: Self?, error: NSError?) -> Void) -> NotificationToken
+    func addNotificationBlock(block: (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 }
+
+extension List: NotificationEmitter {}
+extension AnyRealmCollection: NotificationEmitter {}
+extension Results: NotificationEmitter {}
 
 private protocol ArrayType {}
 extension Array: ArrayType {}
 
-public extension NotificationEmitter where Self: CollectionType {
+public extension NotificationEmitter where Self: RealmCollectionType {
     
     private func observable<T>() -> Observable<T> {
         return Observable.create {observer in
-            let token = self.addNotification {value, error in
-                if let error = error {
+            let token = self.addNotificationBlock {changeset in
+                
+                let value: Self
+                
+                switch changeset {
+                case .Initial(let latestValue):
+                    value = latestValue
+                    
+                case .Update(let latestValue, _, _, _):
+                    value = latestValue
+                    
+                case .Error(let error):
                     observer.onError(error)
                     return
                 }
-                
+
                 if let value = value as? T {
                     observer.onNext(value)
                     return
                 }
                 
-                if let value = value, case _ = T.self as? ArrayType {
+                if case _ = T.self as? ArrayType {
                     observer.onNext(Array(value) as! T)
                     return
                 }
@@ -50,25 +64,5 @@ public extension NotificationEmitter where Self: CollectionType {
     
     public func asObservable() -> Observable<Self> {
         return observable()
-    }
-}
-
-extension List: NotificationEmitter {
-    public func addNotification(block: (value: List?, error: NSError?) -> Void) -> NotificationToken {
-        return addNotificationBlock {list in
-            block(value: list, error: nil)
-        }
-    }
-}
-
-extension AnyRealmCollection: NotificationEmitter {
-    public func addNotification(block: (value: AnyRealmCollection?, error: NSError?) -> Void) -> NotificationToken {
-        return addNotificationBlock(block)
-    }
-}
-
-extension Results: NotificationEmitter {
-    public func addNotification(block: (value: Results?, error: NSError?) -> Void) -> NotificationToken {
-        return addNotificationBlock(block)
     }
 }
