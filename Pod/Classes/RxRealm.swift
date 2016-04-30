@@ -15,6 +15,7 @@ public protocol NotificationEmitter {
 extension List: NotificationEmitter {}
 extension AnyRealmCollection: NotificationEmitter {}
 extension Results: NotificationEmitter {}
+extension LinkingObjects: NotificationEmitter {}
 
 public struct RealmChangeset {
     public let deleted: [Int]
