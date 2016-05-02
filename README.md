@@ -6,9 +6,9 @@
 
 ## Usage
 
-This library is a very thin wrapper around the reactive collection types __RealmSwift__ provides: `Results`, `List` and `AnyRealmCollection`. 
+This library is a very thin wrapper around the reactive collection types that  __RealmSwift__ provides.
 
-The extension adds these methods to all of the above:
+The extension adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` these methods:
 
 #### asObservable()
 `asObservable()` - emits every time the collection changes:
@@ -62,9 +62,11 @@ realm.objects(Lap).asObservableChangeset()
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first. The app uses RxSwift, RxCocoa using RealmSwift, RxRealm to observe Results from Realm.
 
+Further you're welcome to peak into the __RxRealmTests__ folder of the example app, which features the library's unit tests.
+
 ## Installation
 
-This library depends on both __RxSwift__ and __RealmSwift__ 0.99+.
+This library depends on both __RxSwift__ and __RealmSwift__ 0.100+.
 
 #### CocoaPods
 RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
@@ -81,17 +83,14 @@ Feel free to send a PR
 
 You can grab the __RxRealm.swift__ file from this repo and include it in your project.
 
-## Author
-
-This library belongs to _RxSwiftCommunity_ and is based on the work of [@fpillet](https://github.com/fpillet)
-
 ## TODO
 
 * Carthage
 * Add `asObservable()` to the Realm class
 * Test add platforms and add compatibility for the pod
-* Document the source code
 
 ## License
+
+This library belongs to _RxSwiftCommunity_.
 
 RxRealm is available under the MIT license. See the LICENSE file for more info.

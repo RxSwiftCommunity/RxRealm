@@ -6,6 +6,7 @@
 
 import XCTest
 
+import Pods_RxRealm_Tests
 import RxSwift
 import RealmSwift
 import RxRealm
@@ -14,18 +15,6 @@ import RxTests
 func delay(delay: Double, closure: () -> Void) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
                    dispatch_get_main_queue(), closure)
-}
-
-class Message: Object, Equatable {
-    dynamic var text = ""
-    convenience init(_ text: String) {
-        self.init()
-        self.text = text
-    }
-}
-
-func ==(lhs: Message, rhs: Message) -> Bool {
-    return lhs.text == rhs.text
 }
 
 class RxRealm_Tests: XCTestCase {
