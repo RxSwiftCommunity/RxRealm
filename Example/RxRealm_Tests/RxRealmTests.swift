@@ -17,6 +17,12 @@ func delay(delay: Double, closure: () -> Void) {
                    dispatch_get_main_queue(), closure)
 }
 
+func delayInBackground(delay: Double, closure: () -> Void) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
+                   dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), closure)
+}
+
+
 class RxRealm_Tests: XCTestCase {
     
     private func realmInMemory(name: String) -> Realm {
@@ -109,8 +115,9 @@ class RxRealm_Tests: XCTestCase {
         waitForExpectationsWithTimeout(0.5) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 2)
-            XCTAssertTrue(observer.events.first!.value.element! == [Message("first(Array)")])
-            XCTAssertTrue(observer.events.last!.value.element! == [Message("first(Array)"), Message("second(Array)")])
+            
+            XCTAssertTrue(observer.events[0].value.element!.equalTo([Message("first(Array)")]))
+            XCTAssertTrue(observer.events[1].value.element!.equalTo([Message("first(Array)"), Message("second(Array)")]))
         }
     }
     

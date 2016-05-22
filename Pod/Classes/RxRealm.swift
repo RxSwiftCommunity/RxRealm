@@ -8,7 +8,20 @@ import Foundation
 import RealmSwift
 import RxSwift
 
+/**
+ `NotificationEmitter` is a faux protocol to allow for Realm's collections to be handled in a generic way.
+ 
+  All collections already include a `addNotificationBlock(_:)` method - making them conform to `NotificationEmitter` just makes it easier to add Rx methods to them.
+ 
+  The methods of essence in this protocol are `asObservable(...)`, which allow for observing for changes on Realm's collections.
+*/
 public protocol NotificationEmitter {
+    
+    /**
+     Returns a `NotificationToken`, which while retained enables change notifications for the current collection.
+     
+     - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
+     */
     func addNotificationBlock(block: (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 }
 
@@ -62,6 +75,7 @@ public extension NotificationEmitter where Self: RealmCollectionType {
             }
             
             return AnonymousDisposable {
+                observer.onCompleted()
                 token.stop()
             }
         }
@@ -103,6 +117,7 @@ public extension NotificationEmitter where Self: RealmCollectionType {
             }
             
             return AnonymousDisposable {
+                observer.onCompleted()
                 token.stop()
             }
         }
@@ -122,4 +137,34 @@ public extension NotificationEmitter where Self: RealmCollectionType {
     public func asObservableArrayChangeset() -> Observable<(Array<Self.Generator.Element>, RealmChangeset?)> {
         return asObservableChangeset().map { (Array($0), $1) }
     }
+}
+
+public extension Realm {
+    
+    /**
+     Returns an `Observable<(Realm, Notification)>` that emits each time the Realm emits a notification.
+     
+     The Observable you will get emits a tuple made out of:
+     
+     * the realm that emitted the event
+     * the notification type: this can be either `.DidChange` which occurs after a refresh or a write transaction ends, 
+     or `.RefreshRequired` which happens when a write transaction occurs from a different thread on the same realm file
+     
+     For more information look up: [Notification](https://realm.io/docs/swift/latest/api/Enums/Notification.html)
+     
+     - returns: `Observable<(Realm, Notification)>`, which you can subscribe to.
+     */
+    public func asObservable() -> Observable<(Realm, Notification)> {
+        return Observable.create {observer in
+            let token = self.addNotificationBlock {(notification: Notification, realm: Realm) in
+                observer.onNext(realm, notification)
+            }
+            
+            return AnonymousDisposable {
+                observer.onCompleted()
+                token.stop()
+            }
+        }
+    }
+
 }
