@@ -1,14 +1,19 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
-target 'RxRealm_Example', :exclusive => true do
-  platform :ios, '8.3'
+target 'RxRealm_Example' do
+  platform :ios, '8.0'
   pod 'RxRealm', :path => '../'
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'RealmSwift'
 end
 
-target 'RxRealm_Tests', :exclusive => true do
+target 'RxRealm_Tests' do
   pod 'RxTests'
+
+  pod 'RxRealm', :path => '../'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+  pod 'RealmSwift'
 end
