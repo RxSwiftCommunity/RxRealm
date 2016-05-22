@@ -19,6 +19,7 @@
 		9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB7A491CC834340077C44D /* RxRealmTests.swift */; };
 		9CEC5B361CD692A600B43868 /* RxRealmListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC5B351CD692A600B43868 /* RxRealmListTests.swift */; };
 		9CEC5B381CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC5B371CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift */; };
+		9CFB8DC21CF22BA4004BC090 /* RxRealmRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFB8DC11CF22BA4004BC090 /* RxRealmRealmTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		9CEB7A4B1CC834340077C44D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CEC5B351CD692A600B43868 /* RxRealmListTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmListTests.swift; sourceTree = "<group>"; };
 		9CEC5B371CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmLinkingObjectsTests.swift; sourceTree = "<group>"; };
+		9CFB8DC11CF22BA4004BC090 /* RxRealmRealmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmRealmTests.swift; sourceTree = "<group>"; };
 		C6335D7593EFC541DC2AADFB /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D049E54B5A4BBE6132D399BD /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		D6D601A254F004DB43C99FD7 /* Pods-RxRealm_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RxRealm_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-RxRealm_Example/Pods-RxRealm_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 				9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */,
 				9CEC5B351CD692A600B43868 /* RxRealmListTests.swift */,
 				9CEC5B371CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift */,
+				9CFB8DC11CF22BA4004BC090 /* RxRealmRealmTests.swift */,
 				9CEB7A4B1CC834340077C44D /* Info.plist */,
 			);
 			name = RxRealmTests;
@@ -373,6 +376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */,
+				9CFB8DC21CF22BA4004BC090 /* RxRealmRealmTests.swift in Sources */,
 				9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */,
 				9CEC5B381CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift in Sources */,
 				9CBA077C1CD4A68000ABF96E /* TestModels.swift in Sources */,

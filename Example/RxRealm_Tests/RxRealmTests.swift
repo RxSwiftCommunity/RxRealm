@@ -17,6 +17,12 @@ func delay(delay: Double, closure: () -> Void) {
                    dispatch_get_main_queue(), closure)
 }
 
+func delayInBackground(delay: Double, closure: () -> Void) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
+                   dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), closure)
+}
+
+
 class RxRealm_Tests: XCTestCase {
     
     private func realmInMemory(name: String) -> Realm {
