@@ -11,7 +11,7 @@ import Foundation
 import RealmSwift
 
 //MARK: Message
-class Message: Object, Equatable {
+class Message: Object {
     
     dynamic var text = ""
     
@@ -24,12 +24,23 @@ class Message: Object, Equatable {
     }
 }
 
+extension Array where Element: Message {
+    func equalTo(to: [Message]) -> Bool {
+        guard count == to.count else {return false}
+        let (result, _) = reduce((true, 0)) {acc, el in
+            guard acc.0 && self[acc.1] == to[acc.1] else {return (false, 0)}
+            return (true, acc.1+1)
+        }
+        return result
+    }
+}
+
 func ==(lhs: Message, rhs: Message) -> Bool {
     return lhs.text == rhs.text
 }
 
 //MARK: User
-class User: Object, Equatable {
+class User: Object {
     dynamic var name = ""
     dynamic var lastMessage: Message?
     

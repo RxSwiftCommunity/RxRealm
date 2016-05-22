@@ -109,8 +109,9 @@ class RxRealm_Tests: XCTestCase {
         waitForExpectationsWithTimeout(0.5) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 2)
-            XCTAssertTrue(observer.events.first!.value.element! == [Message("first(Array)")])
-            XCTAssertTrue(observer.events.last!.value.element! == [Message("first(Array)"), Message("second(Array)")])
+            
+            XCTAssertTrue(observer.events[0].value.element!.equalTo([Message("first(Array)")]))
+            XCTAssertTrue(observer.events[1].value.element!.equalTo([Message("first(Array)"), Message("second(Array)")]))
         }
     }
     
