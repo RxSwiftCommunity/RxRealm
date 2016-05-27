@@ -1,0 +1,2 @@
+github "realm/realm-cocoa" ~> 1.0
+github "ReactiveX/RxSwift"
