@@ -67,7 +67,7 @@ Further you're welcome to peak into the __RxRealmTests__ folder of the example a
 
 ## Installation
 
-This library depends on both __RxSwift__ and __RealmSwift__ 0.100+.
+This library depends on both __RxSwift__ and __RealmSwift__ 1.0+.
 
 #### CocoaPods
 RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
