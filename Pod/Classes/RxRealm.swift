@@ -44,6 +44,12 @@ public struct RealmChangeset {
     
     /// the indexes in the collection that were modified
     public let updated: [Int]
+
+    public init(deleted: [Int], inserted: [Int], updated: [Int]) {
+        self.deleted = deleted
+        self.inserted = inserted
+        self.updated = updated
+    }
 }
 
 public extension NotificationEmitter where Self: RealmCollectionType {

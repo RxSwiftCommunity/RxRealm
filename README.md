@@ -1,5 +1,6 @@
 # RxRealm
 
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Version](https://img.shields.io/cocoapods/v/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 [![License](https://img.shields.io/cocoapods/l/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 [![Platform](https://img.shields.io/cocoapods/p/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
@@ -77,7 +78,20 @@ pod "RxRealm"
 
 #### Carthage
 
-Feel free to send a PR
+RxRealm is available through [Carthage](https://github.com/Carthage/Carthage). You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
+
+```bash
+$ brew update
+$ brew install carthage
+```
+
+To integrate RxRealm into your Xcode project using Carthage, specify it in your `Cartfile`:
+
+```ogdl
+github "RxSwiftCommunity/RxRealm" ~> 1.0
+```
+
+Run `carthage update` to build the framework and drag the built `RxRealm.framework` into your Xcode project.
 
 #### As Source
 
