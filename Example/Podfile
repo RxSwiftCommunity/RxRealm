@@ -6,7 +6,7 @@ target 'RxRealm_Example' do
   pod 'RxRealm', :path => '../'
   pod 'RxSwift'
   pod 'RxCocoa'
-  pod 'RealmSwift'
+  pod 'RealmSwift', '~> 1.0'
 end
 
 target 'RxRealm_Tests' do
@@ -15,5 +15,5 @@ target 'RxRealm_Tests' do
   pod 'RxRealm', :path => '../'
   pod 'RxSwift'
   pod 'RxCocoa'
-  pod 'RealmSwift'
+  pod 'RealmSwift', '~> 1.0'
 end
