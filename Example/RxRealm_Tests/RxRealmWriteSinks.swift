@@ -239,7 +239,7 @@ class RxRealmWriteSinks: XCTestCase {
     }
     
     func testRxAddObjectsInBackground() {
-        let expectation = expectationWithDescription("Message1")
+        let expectation = expectationWithDescription("All writes successful")
         var conf = Realm.Configuration()
         conf.deleteRealmIfMigrationNeeded = true
         
@@ -301,10 +301,10 @@ class RxRealmWriteSinks: XCTestCase {
         
         waitForExpectationsWithTimeout(5.0, handler: {error in
             let finalResult = observer.events.last!.value.element!
-            XCTAssertTrue(finalResult.count == 6)
+            XCTAssertTrue(finalResult.count == 6, "The final amount of objects in realm are not correct")
             XCTAssertTrue((try! Realm()).objects(Message).sorted("text")
                 .reduce("", combine: { acc, el in acc + el.text
-            }) == "123456" /*😈*/)
+            }) == "123456" /*😈*/, "The final list of objects is not the one expected")
         })
     }
 }
