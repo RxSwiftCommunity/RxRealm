@@ -10,10 +10,9 @@ target 'RxRealm_Example' do
 end
 
 target 'RxRealm_Tests' do
+  platform :ios, '8.0'
   pod 'RxTests'
-
   pod 'RxRealm', :path => '../'
   pod 'RxSwift'
-  pod 'RxCocoa'
   pod 'RealmSwift', '~> 1.0'
 end
