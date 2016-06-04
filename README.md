@@ -7,9 +7,11 @@
 
 ## Usage
 
-This library is a very thin wrapper around the reactive collection types that  __RealmSwift__ provides.
+This library is a thin wrapper around __RealmSwift__.
 
-The extension adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` these methods:
+### Observing collections
+
+RxRealm adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` these methods:
 
 #### asObservable()
 `asObservable()` - emits every time the collection changes:
@@ -59,7 +61,60 @@ realm.objects(Lap).asObservableChangeset()
 
 `asObservableArrayChangeset()` combines the result of `asObservableArray()` and `asObservableChangeset()` returning an `Observable<Array<T>, RealmChangeset?>`.
 
-#### Example app
+### Write transactions
+
+#### rx_add()
+
+__write to existing realm reference)__ You can add newly created objects to a realm that you already have initialized:
+
+```swift
+let realm = try! Realm()
+[Message("hello"), Message("world")].toObservable()
+  .subscribe(realm.rx_add())
+```
+
+Be careful, this will retain your realm until the `Observable` completes or errors out.
+
+__write to the default realm)__ You can leave it to RxRealm to grab the default Realm on any thread your subscribe and write objects to it:
+
+```swift
+[Message("hello"), Message("world")].toObservable()
+  .observeOn(  ..you can switch threads if you want )
+  .subscribe(Realm.rx_add())
+```
+
+__write to a specific realm)__ If you want to switch threads and don't use the default realm, provide a `Realm.Configuration`:
+
+```swift
+var conf = Realm.Configuration()
+... custom configuration settings ...
+
+[Message("hello"), Message("world")].toObservable()
+  .observeOn(  ..you can switch threads if you want )
+  .subscribe(Realm.rx_add(conf))
+```
+
+#### rx_delete()
+
+__delete from existing realm reference)__ Delete objects from existing realm reference:
+
+```swift
+let realm = try! Realm()
+realm.objects(Messages).asObservable()
+  .subscribe(realm.rx_delete())
+```
+
+Be careful, this will retain your realm until the `Observable` completes or errors out.
+
+__delete automatically from objects' realm)__ You can leave it to RxRealm to grab the Realm from the first object and use it:
+
+```swift
+someCollectionOfPersistedObjects.toObservable()
+  .subscribe(Realm.rx_delete())
+```
+
+
+## Example app
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first. The app uses RxSwift, RxCocoa using RealmSwift, RxRealm to observe Results from Realm.
 
@@ -95,12 +150,10 @@ Run `carthage update` to build the framework and drag the built `RxRealm.framewo
 
 #### As Source
 
-You can grab the __RxRealm.swift__ file from this repo and include it in your project.
+You can grab the files in `Pod/Classes` from this repo and include it in your project.
 
 ## TODO
 
-* Carthage
-* Add `asObservable()` to the Realm class
 * Test add platforms and add compatibility for the pod
 
 ## License
