@@ -172,5 +172,46 @@ public extension Realm {
             }
         }
     }
-
+    
+    /**
+     Returns bindable sink wich adds objects in sequence to Realm
+     */
+    public func rx_add<O: SequenceType where O.Generator.Element: Object>() -> AnyObserver<O> {
+        return RealmObserver(realm: self, binding: { (realm, element) in
+            try! realm.write {
+                realm.add(element)
+            }
+        }).asObserver()
+    }
+    
+    /**
+     Returns bindable sink wich adds object to Realm
+     */
+    public func rx_add<O: Object>() -> AnyObserver<O> {
+        return RealmObserver(realm: self, binding: { (realm, element) in
+            try! realm.write {
+                realm.add(element)
+            }
+        }).asObserver()
+    }
+    /**
+     Returns bindable sink wich deletes objects in sequence from Realm
+     */
+    public func rx_delete<S: SequenceType where S.Generator.Element: Object>() -> AnyObserver<S> {
+        return RealmObserver(realm: self, binding: { (realm, elements) in
+            try! realm.write {
+                realm.delete(elements)
+            }
+        }).asObserver()
+    }
+    /**
+     Returns bindable sink wich deletes object from Realm
+     */
+    public func rx_delete<O: Object>() -> AnyObserver<O> {
+        return RealmObserver(realm: self, binding: { (realm, elements) in
+            try! realm.write {
+                realm.delete(elements)
+            }
+        }).asObserver()
+    }
 }

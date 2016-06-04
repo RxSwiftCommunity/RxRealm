@@ -23,7 +23,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TPT-xF-Ac2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="583" y="408"/>
+            <point key="canvasLocation" x="437" y="408"/>
         </scene>
         <!--Laps-->
         <scene sceneID="a6N-Ca-nv4">
@@ -69,8 +69,13 @@
                             <constraint firstAttribute="trailing" secondItem="qxX-wD-rRB" secondAttribute="trailing" id="up0-J9-hv1"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Laps" id="jFi-RK-D49"/>
+                    <navigationItem key="navigationItem" title="Laps" id="jFi-RK-D49">
+                        <barButtonItem key="leftBarButtonItem" title="Add 2 Items" id="p1A-1o-I0K"/>
+                        <barButtonItem key="rightBarButtonItem" title="Add 1 Item" id="uD5-Ry-VOl"/>
+                    </navigationItem>
                     <connections>
+                        <outlet property="addOneItemButton" destination="uD5-Ry-VOl" id="JnR-RB-BU5"/>
+                        <outlet property="addTwoItemsButton" destination="p1A-1o-I0K" id="PMh-Po-uvs"/>
                         <outlet property="tableView" destination="qxX-wD-rRB" id="tPk-dL-JBY"/>
                     </connections>
                 </viewController>

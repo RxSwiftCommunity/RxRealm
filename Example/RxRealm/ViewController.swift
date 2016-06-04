@@ -15,13 +15,16 @@ class Lap: Object {
 //view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
-        
+    let realm = try! Realm()
+    
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var addOneItemButton: UIBarButtonItem!
+    @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let realm = try! Realm()
+        
 
         //Observable<Results<Lap>>
         let lapCount = realm.objects(Lap).asObservable().map {laps in "\(laps.count) laps"}
@@ -32,23 +35,25 @@ class ViewController: UIViewController {
         //Observable<Array<Lap>>
         let laps = realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
         
-        laps.map {array in
-            return array.prefix(3) //get array slice of the 3 most recent items
-        }
+        laps
         .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
             cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
         }.addDisposableTo(bag)
 
-        //start adding laps
-        addLap()
-    }
-    
-    func addLap() {
-        let realm = try! Realm()
-        try! realm.write {
-            realm.add(Lap())
-        }
+        
+        addOneItemButton.rx_tap
+            .map {
+                return Lap()
+            }
+            .bindTo(realm.rx_add())
+            .addDisposableTo(bag)
+        
+        addTwoItemsButton.rx_tap
+            .map {
+                return [Lap(), Lap()]
+            }
+            .bindTo(realm.rx_add())
+            .addDisposableTo(bag)
 
-        performSelector(#selector(addLap), withObject: nil, afterDelay: Double(arc4random_uniform(3) + 2))
     }
 }
