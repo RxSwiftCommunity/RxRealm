@@ -53,3 +53,21 @@ class User: Object {
 func ==(lhs: User, rhs: User) -> Bool {
     return lhs.name == rhs.name
 }
+
+//MARK: UniqueObject
+class UniqueObject: Object {
+    dynamic var id = 0
+    
+    convenience init(_ id: Int) {
+        self.init()
+        self.id = id
+    }
+    
+    override class func primaryKey() -> String? {
+        return "id"
+    }
+}
+
+func ==(lhs: UniqueObject, rhs: UniqueObject) -> Bool {
+    return lhs.id == rhs.id
+}

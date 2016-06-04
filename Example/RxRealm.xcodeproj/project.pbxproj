@@ -14,6 +14,7 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
+		9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */; };
 		9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */; };
 		9CBA077C1CD4A68000ABF96E /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA077A1CD4A62300ABF96E /* TestModels.swift */; };
 		9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB7A491CC834340077C44D /* RxRealmTests.swift */; };
@@ -44,6 +45,7 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		69375A1E91DF8BF5A1D8E7AE /* Pods_RxRealm_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RxRealm_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		74D9A8127363946A03ABDCFB /* RxRealm.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RxRealm.podspec; path = ../RxRealm.podspec; sourceTree = "<group>"; };
+		9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmWriteSinks.swift; sourceTree = "<group>"; };
 		9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmResultsTests.swift; sourceTree = "<group>"; };
 		9CBA077A1CD4A62300ABF96E /* TestModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestModels.swift; sourceTree = "<group>"; };
 		9CEB7A471CC834340077C44D /* RxRealm_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RxRealm_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -156,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				9CBA077A1CD4A62300ABF96E /* TestModels.swift */,
+				9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */,
 				9CEB7A491CC834340077C44D /* RxRealmTests.swift */,
 				9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */,
 				9CEC5B351CD692A600B43868 /* RxRealmListTests.swift */,
@@ -174,12 +177,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "RxRealm_Example" */;
 			buildPhases = (
-				327D603D4690007E8B638B0E /* 📦 Check Pods Manifest.lock */,
+				327D603D4690007E8B638B0E /* [CP] Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				7986DE64790C01CA0573C129 /* 📦 Embed Pods Frameworks */,
-				70C190BAB54D5CB1641CCE04 /* 📦 Copy Pods Resources */,
+				7986DE64790C01CA0573C129 /* [CP] Embed Pods Frameworks */,
+				70C190BAB54D5CB1641CCE04 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -194,12 +197,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9CEB7A501CC834340077C44D /* Build configuration list for PBXNativeTarget "RxRealm_Tests" */;
 			buildPhases = (
-				47EF88764B0DDD36B74C66E8 /* 📦 Check Pods Manifest.lock */,
+				47EF88764B0DDD36B74C66E8 /* [CP] Check Pods Manifest.lock */,
 				9CEB7A431CC834340077C44D /* Sources */,
 				9CEB7A441CC834340077C44D /* Frameworks */,
 				9CEB7A451CC834340077C44D /* Resources */,
-				051741DAB4D8631AD7E12258 /* 📦 Embed Pods Frameworks */,
-				87796072080EEF71421C3ED1 /* 📦 Copy Pods Resources */,
+				051741DAB4D8631AD7E12258 /* [CP] Embed Pods Frameworks */,
+				87796072080EEF71421C3ED1 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -269,14 +272,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		051741DAB4D8631AD7E12258 /* 📦 Embed Pods Frameworks */ = {
+		051741DAB4D8631AD7E12258 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,14 +287,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RxRealm_Tests/Pods-RxRealm_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		327D603D4690007E8B638B0E /* 📦 Check Pods Manifest.lock */ = {
+		327D603D4690007E8B638B0E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -299,14 +302,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		47EF88764B0DDD36B74C66E8 /* 📦 Check Pods Manifest.lock */ = {
+		47EF88764B0DDD36B74C66E8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -314,14 +317,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		70C190BAB54D5CB1641CCE04 /* 📦 Copy Pods Resources */ = {
+		70C190BAB54D5CB1641CCE04 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -329,14 +332,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RxRealm_Example/Pods-RxRealm_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7986DE64790C01CA0573C129 /* 📦 Embed Pods Frameworks */ = {
+		7986DE64790C01CA0573C129 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,14 +347,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RxRealm_Example/Pods-RxRealm_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		87796072080EEF71421C3ED1 /* 📦 Copy Pods Resources */ = {
+		87796072080EEF71421C3ED1 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -376,6 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */,
+				9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */,
 				9CFB8DC21CF22BA4004BC090 /* RxRealmRealmTests.swift in Sources */,
 				9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */,
 				9CEC5B381CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift in Sources */,

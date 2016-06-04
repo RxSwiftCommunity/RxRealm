@@ -24,36 +24,36 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-
-        //Observable<Results<Lap>>
-        let lapCount = realm.objects(Lap).asObservable().map {laps in "\(laps.count) laps"}
-        lapCount.subscribeNext {[unowned self]text in
-            self.title = text
-        }.addDisposableTo(bag)
-        
-        //Observable<Array<Lap>>
-        let laps = realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
-        
-        laps
-        .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
-            cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
-        }.addDisposableTo(bag)
-
-        
-        addOneItemButton.rx_tap
-            .map {
-                return Lap()
+        /*
+         Observable<Results<Lap>> - wrap Results as observable
+         */
+        realm.objects(Lap).asObservable()
+            .map {laps in "\(laps.count) laps"}
+            .subscribeNext {[unowned self]text in
+                self.title = text
             }
-            .bindTo(realm.rx_add())
+            .addDisposableTo(bag)
+        
+        /* 
+         Observable<Array<Lap>> - convert Results to Array and wrap as observable
+         */
+        realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
+            .map {array in array.prefix(5) }
+            .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
+                cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
+            }.addDisposableTo(bag)
+
+        /*
+         Use bindable sinks to add objects
+         */
+        addOneItemButton.rx_tap
+            .map { Lap() }
+            .bindTo(Realm.rx_add())
             .addDisposableTo(bag)
         
         addTwoItemsButton.rx_tap
-            .map {
-                return [Lap(), Lap()]
-            }
-            .bindTo(realm.rx_add())
+            .map { [Lap(), Lap()] }
+            .bindTo(Realm.rx_add())
             .addDisposableTo(bag)
-
     }
 }
