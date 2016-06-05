@@ -9,7 +9,6 @@
 import XCTest
 
 import RxSwift
-import RxCocoa
 import RealmSwift
 import RxRealm
 import RxTests
