@@ -150,7 +150,7 @@ Run `carthage update` to build the framework and drag the built `RxRealm.framewo
 
 #### As Source
 
-You can grab the files in `Pod/Classes` from this repo and include it in your project.
+You can grab the files in `Pod/Classes` from this repo and include them in your project.
 
 ## TODO
 
