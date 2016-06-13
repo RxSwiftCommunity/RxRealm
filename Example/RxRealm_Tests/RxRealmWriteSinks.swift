@@ -255,8 +255,7 @@ class RxRealmWriteSinks: XCTestCase {
             .subscribe(observer).addDisposableTo(bag)
 
         messages$
-            .doOnNext {e in print("el: \(e)")}
-            .filter {$0.count == 6}
+            .filter {$0.count == 8}
             .subscribeNext {_ in expectation.fulfill() }
             .addDisposableTo(bag)
         
@@ -294,13 +293,26 @@ class RxRealmWriteSinks: XCTestCase {
             .subscribe( Realm.rx_add(conf) )
             .addDisposableTo(bag)
         
+        // subscribe on current/write on a realm in background
+        [[Message("7"), Message("8")]].toObservable()
+            .observeOn( ConcurrentDispatchQueueScheduler(
+                queue: dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0)))
+            .subscribeNext {messages in
+                let realm = try! Realm(configuration: conf)
+                try! realm.write {
+                    realm.add(messages)
+                }
+            }
+            .addDisposableTo(bag)
+        
+        
         waitForExpectationsWithTimeout(5.0, handler: {error in
             XCTAssertNil(error)
             let finalResult = observer.events.last!.value.element!
-            XCTAssertTrue(finalResult.count == 6, "The final amount of objects in realm are not correct")
+            XCTAssertTrue(finalResult.count == 8, "The final amount of objects in realm are not correct")
             XCTAssertTrue((try! Realm(configuration: conf)).objects(Message).sorted("text")
                 .reduce("", combine: { acc, el in acc + el.text
-                }) == "123456" /*😈*/, "The final list of objects is not the one expected")
+                }) == "12345678" /*😈*/, "The final list of objects is not the one expected")
         })
     }
 }
