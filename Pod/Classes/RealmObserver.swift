@@ -11,7 +11,8 @@ import RxSwift
 import RealmSwift
 
 /**
- `RealmObserver` retains target realm object until it receives a .Completed or .Error event.
+ `RealmObserver` retains target realm object until it receives a .Completed or .Error event
+  or the observer is being deinitialized
  */
 class RealmObserver<E>: ObserverType {
     var realm: Realm?
@@ -30,14 +31,14 @@ class RealmObserver<E>: ObserverType {
     }
     
     /**
-     Binds next element realm.
+     Binds next element
      */
     func on(event: Event<E>) {
         switch event {
         case .Next(let element):
             //this will "cache" the realm on this thread, until completed/errored
             if let configuration = configuration where realm == nil {
-                realm = try! Realm()
+                realm = try! Realm(configuration: configuration)
             }
             
             guard let realm = realm else {
@@ -53,9 +54,9 @@ class RealmObserver<E>: ObserverType {
         }
     }
     /**
-     Erases type of observer.
+     Erases the type of observer
      
-     - returns: type erased observer.
+     - returns: AnyObserver, type erased observer
      */
     func asObserver() -> AnyObserver<E> {
         return AnyObserver(eventHandler: on)

@@ -237,31 +237,30 @@ class RxRealmWriteSinks: XCTestCase {
         XCTAssertTrue(observer.events[0].value.element!.isEmpty)
     }
     
-    func testRxAddObjectsInBackground() {
-        let expectation = expectationWithDescription("All writes successful")
-        var conf = Realm.Configuration()
-        conf.deleteRealmIfMigrationNeeded = true
+    func testRxAddObjectsInBg() {
+        let expectation = expectationWithDescription("All writes completed")
         
-        let realm = try! Realm(configuration: conf)
-        try! realm.write {
-            realm.deleteAll()
-        }
+        let realm = realmInMemory(#function)
+        var conf  = Realm.Configuration()
+        conf.inMemoryIdentifier = #function
         
         let bag = DisposeBag()
-
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Array<Message>)
         
-        let messages$ = realm.objects(Message).asObservableArray().shareReplay(1)
+        let scheduler = TestScheduler(initialClock: 0)
+        let observer = scheduler.createObserver(Results<Message>)
+        
+        let messages$ = realm.objects(Message).asObservable().shareReplay(1)
         
         messages$
+            .subscribe(observer).addDisposableTo(bag)
+
+        messages$
+            .doOnNext {e in print("el: \(e)")}
             .filter {$0.count == 6}
             .subscribeNext {_ in expectation.fulfill() }
             .addDisposableTo(bag)
         
-        messages$
-            .subscribe(observer)
-            .addDisposableTo(bag)
+        scheduler.start()
         
         // subscribe/write on current thread
         [Message("1")].toObservable()
@@ -282,7 +281,6 @@ class RxRealmWriteSinks: XCTestCase {
             .subscribe( Realm.rx_add(conf) )
             .addDisposableTo(bag)
 
-        // subscribe on current/write on background
         [Message("4")].toObservable()
             .observeOn( ConcurrentDispatchQueueScheduler(
                 queue: dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0)))
@@ -295,15 +293,14 @@ class RxRealmWriteSinks: XCTestCase {
                 queue: dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0)))
             .subscribe( Realm.rx_add(conf) )
             .addDisposableTo(bag)
-
-        scheduler.start()
         
         waitForExpectationsWithTimeout(5.0, handler: {error in
+            XCTAssertNil(error)
             let finalResult = observer.events.last!.value.element!
             XCTAssertTrue(finalResult.count == 6, "The final amount of objects in realm are not correct")
-            XCTAssertTrue((try! Realm()).objects(Message).sorted("text")
+            XCTAssertTrue((try! Realm(configuration: conf)).objects(Message).sorted("text")
                 .reduce("", combine: { acc, el in acc + el.text
-            }) == "123456" /*😈*/, "The final list of objects is not the one expected")
+                }) == "123456" /*😈*/, "The final list of objects is not the one expected")
         })
     }
 }
