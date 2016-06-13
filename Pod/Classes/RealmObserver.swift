@@ -38,7 +38,9 @@ class RealmObserver<E>: ObserverType {
         case .Next(let element):
             //this will "cache" the realm on this thread, until completed/errored
             if let configuration = configuration where realm == nil {
-                realm = try! Realm(configuration: configuration)
+                let realm = try! Realm(configuration: configuration)
+                binding(realm, element)
+                return;
             }
             
             guard let realm = realm else {
