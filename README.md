@@ -94,6 +94,19 @@ var conf = Realm.Configuration()
   .subscribe(Realm.rx_add(conf))
 ```
 
+If you want to create yourself the Realm on a different thread than the subscription you can do that too (allows you to error handle):
+
+```swift
+[Message("hello"), Message("world")].toObservable()
+  .observeOn(  ..you can switch threads if you want )
+  .subscribeNext {messages in
+    let realm = try! Realm()
+    try! realm.write {
+      realm.add(messages)
+    }
+  }
+```
+
 #### rx_delete()
 
 __delete from existing realm reference)__ Delete objects from existing realm reference:
