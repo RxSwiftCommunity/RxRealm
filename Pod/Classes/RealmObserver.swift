@@ -47,7 +47,7 @@ class RealmObserver<E>: ObserverType {
             
             binding(realm, element)
         
-        case .Error(let error):
+        case .Error:
             realm = nil
         case .Completed:
             realm = nil
