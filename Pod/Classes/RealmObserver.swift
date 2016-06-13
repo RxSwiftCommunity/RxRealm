@@ -11,38 +11,58 @@ import RxSwift
 import RealmSwift
 
 /**
- `RealmObserver` doesn't retain target realm object and in case owned realm object is released, element isn't bound.
- 
+ `RealmObserver` retains target realm object until it receives a .Completed or .Error event
+  or the observer is being deinitialized
  */
 class RealmObserver<E>: ObserverType {
-    weak var realm: Realm?
+    var realm: Realm?
+    var configuration: Realm.Configuration?
+    
     let binding: (Realm, E) -> Void
     
     init(realm: Realm, binding: (Realm, E) -> Void) {
         self.realm = realm
         self.binding = binding
     }
+
+    init(configuration: Realm.Configuration, binding: (Realm, E) -> Void) {
+        self.configuration = configuration
+        self.binding = binding
+    }
+    
     /**
-     Binds next element realm.
+     Binds next element
      */
     func on(event: Event<E>) {
         switch event {
         case .Next(let element):
-            if let realm = realm {
-                binding(realm, element)
+            //this will "cache" the realm on this thread, until completed/errored
+            if let configuration = configuration where realm == nil {
+                realm = try! Realm(configuration: configuration)
             }
+            
+            guard let realm = realm else {
+                fatalError("No realm in RealmObserver at time of a .Next event")
+            }
+            
+            binding(realm, element)
+        
         case .Error(let error):
-            print("Binding error to Realm: \(error)")
+            realm = nil
         case .Completed:
-            break
+            realm = nil
         }
     }
     /**
-     Erases type of observer.
+     Erases the type of observer
      
-     - returns: type erased observer.
+     - returns: AnyObserver, type erased observer
      */
     func asObserver() -> AnyObserver<E> {
         return AnyObserver(eventHandler: on)
+    }
+    
+    deinit {
+        realm = nil
     }
 }
