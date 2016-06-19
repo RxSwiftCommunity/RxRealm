@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88524DF21D169BA2003491F8 /* RealmObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88524DF11D169BA2003491F8 /* RealmObserver.swift */; };
+		88524DF31D169BA2003491F8 /* RealmObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88524DF11D169BA2003491F8 /* RealmObserver.swift */; };
 		9F1E94AA1CF8E98F00BC469B /* RxRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1E94A81CF8E98F00BC469B /* RxRealm.swift */; };
 		9F1E94AC1CF8E9C500BC469B /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F1E94AB1CF8E9C500BC469B /* Realm.framework */; };
 		9F1E94AE1CF8E9C700BC469B /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F1E94AD1CF8E9C700BC469B /* RealmSwift.framework */; };
@@ -18,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		88524DF11D169BA2003491F8 /* RealmObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmObserver.swift; sourceTree = "<group>"; };
 		9F0BE4231CF8DB4B00919282 /* RxRealm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RxRealm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F1E94A81CF8E98F00BC469B /* RxRealm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealm.swift; sourceTree = "<group>"; };
 		9F1E94AB1CF8E9C500BC469B /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
@@ -78,6 +81,7 @@
 		9F1E94A61CF8E98F00BC469B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				88524DF11D169BA2003491F8 /* RealmObserver.swift */,
 				9F1E94A81CF8E98F00BC469B /* RxRealm.swift */,
 			);
 			name = Classes;
@@ -227,6 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F1E94AA1CF8E98F00BC469B /* RxRealm.swift in Sources */,
+				88524DF21D169BA2003491F8 /* RealmObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F1E94C51CF8EB1F00BC469B /* RxRealm.swift in Sources */,
+				88524DF31D169BA2003491F8 /* RealmObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +458,7 @@
 				9F1E94BF1CF8EA4500BC469B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
