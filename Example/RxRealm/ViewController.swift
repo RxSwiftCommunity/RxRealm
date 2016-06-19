@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     let realm = try! Realm()
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var addOneItemButton: UIBarButtonItem!
+    @IBOutlet weak var deleteLastItemButton: UIBarButtonItem!
     @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
     
     override func viewDidLoad() {
@@ -42,18 +42,23 @@ class ViewController: UIViewController {
             .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
                 cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
             }.addDisposableTo(bag)
-
-        /*
-         Use bindable sinks to add objects
-         */
-        addOneItemButton.rx_tap
-            .map { Lap() }
-            .bindTo(Realm.rx_add())
-            .addDisposableTo(bag)
         
+        /*
+         Use bindable sink to add objects
+         */
         addTwoItemsButton.rx_tap
             .map { [Lap(), Lap()] }
             .bindTo(Realm.rx_add())
+            .addDisposableTo(bag)
+        
+        /*
+         Use bindable sink to delete objects
+         */
+        deleteLastItemButton.rx_tap
+            .map {[unowned self] in self.realm.objects(Lap).sorted("time", ascending: false)}
+            .filter {$0.count > 0}
+            .map { $0.first! }
+            .bindTo(Realm.rx_delete())
             .addDisposableTo(bag)
     }
 }
