@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="WcY-qb-h1c">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="WcY-qb-h1c">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -37,12 +37,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="qxX-wD-rRB">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="qxX-wD-rRB">
                                 <rect key="frame" x="0.0" y="56" width="600" height="544"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" textLabel="ijb-6x-RWc" style="IBUITableViewCellStyleDefault" id="v8l-Hj-YG1">
-                                        <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="113.5" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="v8l-Hj-YG1" id="vN7-1S-thk">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
@@ -71,11 +71,11 @@
                     </view>
                     <navigationItem key="navigationItem" title="Laps" id="jFi-RK-D49">
                         <barButtonItem key="leftBarButtonItem" title="Add 2 Items" id="p1A-1o-I0K"/>
-                        <barButtonItem key="rightBarButtonItem" title="Add 1 Item" id="uD5-Ry-VOl"/>
+                        <barButtonItem key="rightBarButtonItem" title="Delete last" id="uD5-Ry-VOl"/>
                     </navigationItem>
                     <connections>
-                        <outlet property="addOneItemButton" destination="uD5-Ry-VOl" id="JnR-RB-BU5"/>
                         <outlet property="addTwoItemsButton" destination="p1A-1o-I0K" id="PMh-Po-uvs"/>
+                        <outlet property="deleteLastItemButton" destination="uD5-Ry-VOl" id="O82-Im-tX9"/>
                         <outlet property="tableView" destination="qxX-wD-rRB" id="tPk-dL-JBY"/>
                     </connections>
                 </viewController>
