@@ -33,11 +33,11 @@ class RealmObserver<E>: ObserverType {
     /**
      Binds next element
      */
-    func on(event: Event<E>) {
+    func on(_ event: Event<E>) {
         switch event {
-        case .Next(let element):
+        case .next(let element):
             //this will "cache" the realm on this thread, until completed/errored
-            if let configuration = configuration where realm == nil {
+            if let configuration = configuration, realm == nil {
                 let realm = try! Realm(configuration: configuration)
                 binding(realm, element)
                 return;
@@ -49,9 +49,9 @@ class RealmObserver<E>: ObserverType {
             
             binding(realm, element)
         
-        case .Error:
+        case .error:
             realm = nil
-        case .Completed:
+        case .completed:
             realm = nil
         }
     }

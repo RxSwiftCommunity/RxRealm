@@ -184,6 +184,7 @@
 				TargetAttributes = {
 					9F0BE4221CF8DB4B00919282 = {
 						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 0800;
 					};
 					9F1E94B71CF8EA4500BC469B = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -356,6 +357,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -377,6 +379,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
