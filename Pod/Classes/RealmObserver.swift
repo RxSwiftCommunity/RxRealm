@@ -20,12 +20,12 @@ class RealmObserver<E>: ObserverType {
     
     let binding: (Realm, E) -> Void
     
-    init(realm: Realm, binding: (Realm, E) -> Void) {
+    init(realm: Realm, binding: @escaping (Realm, E) -> Void) {
         self.realm = realm
         self.binding = binding
     }
 
-    init(configuration: Realm.Configuration, binding: (Realm, E) -> Void) {
+    init(configuration: Realm.Configuration, binding: @escaping (Realm, E) -> Void) {
         self.configuration = configuration
         self.binding = binding
     }

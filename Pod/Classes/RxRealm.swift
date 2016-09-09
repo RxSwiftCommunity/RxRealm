@@ -22,7 +22,7 @@ public protocol NotificationEmitter {
      
      - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
      */
-    func addNotificationBlock(block: (RealmCollectionChange<Self>) -> ()) -> NotificationToken
+    func addNotificationBlock(block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 }
 
 extension List: NotificationEmitter {}
