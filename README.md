@@ -9,6 +9,8 @@
 
 This library is a thin wrapper around __RealmSwift__.
 
+**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 1.1 - mind that some of these are pre-release software.
+
 ### Observing collections
 
 RxRealm adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` these methods:
@@ -18,7 +20,7 @@ RxRealm adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` the
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap).asObservable()
+realm.objects(Lap.self).asObservable()
   .map {laps in "\(laps.count) laps"}
   .subscribeNext { text  in
     print(text)
@@ -30,7 +32,7 @@ realm.objects(Lap).asObservable()
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap).asObservableArray()
+realm.objects(Lap.self).asObservableArray()
   .map {array in
     return array.prefix(3) //slice of first 3 items
   }
@@ -44,7 +46,7 @@ realm.objects(Lap).asObservableArray()
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap).asObservableChangeset()
+realm.objects(Lap.self).asObservableChangeset()
   .subscribeNext {result, changes in
     if let changes = changes {
 	  //it's an update
@@ -113,7 +115,7 @@ __delete from existing realm reference)__ Delete objects from existing realm ref
 
 ```swift
 let realm = try! Realm()
-realm.objects(Messages).asObservable()
+realm.objects(Messages.self).asObservable()
   .subscribe(realm.rx_delete())
 ```
 

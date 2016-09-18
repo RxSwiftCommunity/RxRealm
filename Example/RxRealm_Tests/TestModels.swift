@@ -15,7 +15,7 @@ class Message: Object {
     
     dynamic var text = ""
     
-    let recipients = List<User>()
+    var recipients = List<User>()
     let mentions = LinkingObjects(fromType: User.self, property: "lastMessage")
     
     convenience init(_ text: String) {
@@ -25,7 +25,7 @@ class Message: Object {
 }
 
 extension Array where Element: Message {
-    func equalTo(to: [Message]) -> Bool {
+    func equalTo(_ to: [Message]) -> Bool {
         guard count == to.count else {return false}
         let (result, _) = reduce((true, 0)) {acc, el in
             guard acc.0 && self[acc.1] == to[acc.1] else {return (false, 0)}

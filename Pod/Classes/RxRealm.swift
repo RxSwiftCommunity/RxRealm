@@ -44,12 +44,6 @@ public struct RealmChangeset {
     
     /// the indexes in the collection that were modified
     public let updated: [Int]
-
-    public init(deleted: [Int], inserted: [Int], updated: [Int]) {
-        self.deleted = deleted
-        self.inserted = inserted
-        self.updated = updated
-    }
 }
 
 public extension NotificationEmitter where Self: RealmCollection {
@@ -145,27 +139,28 @@ public extension NotificationEmitter where Self: RealmCollection {
     }
 }
 
-public extension Realm {
-    
+public extension Observable {
+
     /**
-     Returns an `Observable<(Realm, Notification)>` that emits each time the Realm emits a notification.
-     
+     Returns an `Observable<(Realm, Realm.Notification)>` that emits each time the Realm emits a notification.
+
      The Observable you will get emits a tuple made out of:
-     
+
      * the realm that emitted the event
-     * the notification type: this can be either `.DidChange` which occurs after a refresh or a write transaction ends, 
-     or `.RefreshRequired` which happens when a write transaction occurs from a different thread on the same realm file
-     
-     For more information look up: [Notification](https://realm.io/docs/swift/latest/api/Enums/Notification.html)
-     
-     - returns: `Observable<(Realm, Notification)>`, which you can subscribe to.
+     * the notification type: this can be either `.didChange` which occurs after a refresh or a write transaction ends,
+     or `.refreshRequired` which happens when a write transaction occurs from a different thread on the same realm file
+
+     For more information look up: [Realm.Notification](https://realm.io/docs/swift/latest/api/Enums/Notification.html)
+
+     - returns: `Observable<(Realm, Realm.Notification)>`, which you can subscribe to.
      */
-    public func asObservable() -> Observable<(Realm, Notification)> {
-        return Observable.create {observer in
-            let token = self.addNotificationBlock {(notification: Notification, realm: Realm) in
-                observer.onNext(realm, notification)
+    public static func from(_ realm: Realm, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Realm, Realm.Notification)> {
+
+        return Observable<(Realm, Realm.Notification)>.create {observer in
+            let token = realm.addNotificationBlock {(notification: Realm.Notification, realm: Realm) in
+                observer.onNext((realm, notification))
             }
-            
+
             return AnonymousDisposable {
                 observer.onCompleted()
                 token.stop()

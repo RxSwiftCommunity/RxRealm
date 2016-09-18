@@ -15,27 +15,27 @@ import RxTests
 
 class RxRealmLinkingObjectsTests: XCTestCase {
     
-    private func realmInMemory(name: String) -> Realm {
+    fileprivate func realmInMemory(_ name: String) -> Realm {
         var conf = Realm.Configuration()
         conf.inMemoryIdentifier = name
         return try! Realm(configuration: conf)
     }
     
-    private func clearRealm(realm: Realm) {
+    fileprivate func clearRealm(_ realm: Realm) {
         try! realm.write {
             realm.deleteAll()
         }
     }
     
     func testLinkingObjectsType() {
-        let expectation1 = expectationWithDescription("LinkingObjects<User> first")
+        let expectation1 = expectation(description: "LinkingObjects<User> first")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(LinkingObjects<User>)
+        let observer = scheduler.createObserver(LinkingObjects<User>.self)
         
         let message = Message("first")
         try! realm.write {
@@ -44,7 +44,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
         
         let users$ = message.mentions.asObservable().shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribeNext(expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$
             .subscribe(observer).addDisposableTo(bag)
         
@@ -65,7 +65,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectationsWithTimeout(0.5) {error in
+        waitForExpectations(timeout: 0.5) {error in
             //do tests here
             
             XCTAssertTrue(error == nil)
@@ -75,14 +75,14 @@ class RxRealmLinkingObjectsTests: XCTestCase {
     }
     
     func testLinkingObjectsTypeChangeset() {
-        let expectation1 = expectationWithDescription("LinkingObjects<User> first")
+        let expectation1 = expectation(description: "LinkingObjects<User> first")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String)
+        let observer = scheduler.createObserver(String.self)
         
         let message = Message("first")
         try! realm.write {
@@ -91,7 +91,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
         
         let users$ = message.mentions.asObservableChangeset().shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribeNext(expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$
             .map {linkingObjects, changes in
                 if let changes = changes {
@@ -119,7 +119,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectationsWithTimeout(0.5) {error in
+        waitForExpectations(timeout: 0.5) {error in
             //do tests here
             
             XCTAssertTrue(error == nil)

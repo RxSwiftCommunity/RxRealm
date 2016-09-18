@@ -11,56 +11,54 @@ import RealmSwift
 import RxRealm
 import RxTests
 
-func delay(delay: Double, closure: () -> Void) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
-                   dispatch_get_main_queue(), closure)
+func delay(_ delay: Double, closure: @escaping () -> Void) {
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
 }
 
-func delayInBackground(delay: Double, closure: () -> Void) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
-                   dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), closure)
+func delayInBackground(_ delay: Double, closure: @escaping () -> Void) {
+    DispatchQueue.global(qos: DispatchQoS.QoSClass.background).asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
 }
 
 
 class RxRealm_Tests: XCTestCase {
     
-    private func realmInMemory(name: String) -> Realm {
+    fileprivate func realmInMemory(_ name: String) -> Realm {
         var conf = Realm.Configuration()
         conf.inMemoryIdentifier = name
         return try! Realm(configuration: conf)
     }
     
-    private func clearRealm(realm: Realm) {
+    fileprivate func clearRealm(_ realm: Realm) {
         try! realm.write {
             realm.deleteAll()
         }
     }
     
-    private func addMessage(realm: Realm, text: String) {
+    fileprivate func addMessage(_ realm: Realm, text: String) {
         try! realm.write {
             realm.add(Message(text))
         }
     }
     
     func testEmittedResultsValues() {
-        let expectation1 = expectationWithDescription("Results<Message> first")
-        let expectation2 = expectationWithDescription("Results<Message> second")
+        let expectation1 = expectation(description: "Results<Message> first")
+        let expectation2 = expectation(description: "Results<Message> second")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Results<Message>)
+        let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = realm.objects(Message).asObservable().shareReplay(1)
-        messages$.subscribeNext {messages in
+        let messages$ = realm.objects(Message.self).asObservable().shareReplay(1)
+        messages$.subscribe(onNext: {messages in
             switch messages.count {
             case 1: expectation1.fulfill()
             case 2: expectation2.fulfill()
             default: XCTFail("Unexpected value emitted by Observable")
             }
-            }.addDisposableTo(bag)
+        }).addDisposableTo(bag)
         
         messages$.subscribe(observer).addDisposableTo(bag)
 
@@ -72,7 +70,7 @@ class RxRealm_Tests: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectationsWithTimeout(0.5) {error in
+        waitForExpectations(timeout: 0.5) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 2)
             let results = observer.events.last!.value.element!
@@ -82,24 +80,24 @@ class RxRealm_Tests: XCTestCase {
     }
     
     func testEmittedArrayValues() {
-        let expectation1 = expectationWithDescription("Array<Message> first")
-        let expectation2 = expectationWithDescription("Array<Message> second")
+        let expectation1 = expectation(description: "Array<Message> first")
+        let expectation2 = expectation(description: "Array<Message> second")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Array<Message>)
+        let observer = scheduler.createObserver(Array<Message>.self)
 
-        let messages$ = realm.objects(Message).asObservableArray().shareReplay(1)
-        messages$.subscribeNext {messages in
+        let messages$ = realm.objects(Message.self).asObservableArray().shareReplay(1)
+        messages$.subscribe(onNext: {messages in
             switch messages.count {
             case 1: expectation1.fulfill()
             case 2: expectation2.fulfill()
             default: XCTFail("Unexpected value emitted by Observable")
             }
-        }.addDisposableTo(bag)
+        }).addDisposableTo(bag)
         
         messages$.subscribe(observer).addDisposableTo(bag)
         
@@ -111,7 +109,7 @@ class RxRealm_Tests: XCTestCase {
 
         scheduler.start()
         
-        waitForExpectationsWithTimeout(0.5) {error in
+        waitForExpectations(timeout: 0.5) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 2)
             
@@ -121,24 +119,24 @@ class RxRealm_Tests: XCTestCase {
     }
     
     func testEmittedChangeset() {
-        let expectation1 = expectationWithDescription("did emit all changeset values")
+        let expectation1 = expectation(description: "did emit all changeset values")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String)
+        let observer = scheduler.createObserver(String.self)
 
         //initial data
         addMessage(realm, text: "first(Changeset)")
 
-        let messages$ = realm.objects(Message).asObservableChangeset().shareReplay(1)
+        let messages$ = realm.objects(Message.self).asObservableChangeset().shareReplay(1)
         messages$.scan(0) { count, _ in
             return count+1
         }
         .filter {$0 == 3}
-        .subscribeNext {_ in expectation1.fulfill() }
+        .subscribe(onNext: {_ in expectation1.fulfill() })
         .addDisposableTo(bag)
         
         messages$
@@ -158,8 +156,8 @@ class RxRealm_Tests: XCTestCase {
         //update
         delay(0.5) {
             try! realm.write {
-                realm.delete(realm.objects(Message).filter("text='first(Changeset)'").first!)
-                realm.objects(Message).filter("text='second(Changeset)'").first!.text = "third(Changeset)"
+                realm.delete(realm.objects(Message.self).filter("text='first(Changeset)'").first!)
+                realm.objects(Message.self).filter("text='second(Changeset)'").first!.text = "third(Changeset)"
             }
         }
         //coalesced
@@ -168,11 +166,11 @@ class RxRealm_Tests: XCTestCase {
         }
         delay(0.7) {
             try! realm.write {
-                realm.delete(realm.objects(Message).filter("text='first(Changeset)'").first!)
+                realm.delete(realm.objects(Message.self).filter("text='first(Changeset)'").first!)
             }
         }
         
-        waitForExpectationsWithTimeout(0.75) {error in
+        waitForExpectations(timeout: 0.75) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 3)
             XCTAssertEqual(observer.events[0].value.element!, "count:1")
@@ -182,24 +180,24 @@ class RxRealm_Tests: XCTestCase {
     }
 
     func testEmittedArrayChangeset() {
-        let expectation1 = expectationWithDescription("did emit all array changeset values")
+        let expectation1 = expectation(description: "did emit all array changeset values")
         
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
         
         let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String)
+        let observer = scheduler.createObserver(String.self)
         
         //initial data
         addMessage(realm, text: "first(ArrayChangeset)")
         
-        let messages$ = realm.objects(Message).asObservableArrayChangeset().shareReplay(1)
+        let messages$ = realm.objects(Message.self).asObservableArrayChangeset().shareReplay(1)
         messages$.scan(0) { count, _ in
             return count+1
             }
             .filter {$0 == 3}
-            .subscribeNext {_ in expectation1.fulfill() }
+            .subscribe(onNext: {_ in expectation1.fulfill() })
             .addDisposableTo(bag)
         
         messages$
@@ -219,8 +217,8 @@ class RxRealm_Tests: XCTestCase {
         //update
         delay(0.5) {
             try! realm.write {
-                realm.delete(realm.objects(Message).filter("text='first(ArrayChangeset)'").first!)
-                realm.objects(Message).filter("text='second(ArrayChangeset)'").first!.text = "third(ArrayChangeset)"
+                realm.delete(realm.objects(Message.self).filter("text='first(ArrayChangeset)'").first!)
+                realm.objects(Message.self).filter("text='second(ArrayChangeset)'").first!.text = "third(ArrayChangeset)"
             }
         }
         //coalesced
@@ -229,11 +227,11 @@ class RxRealm_Tests: XCTestCase {
         }
         delay(0.7) {
             try! realm.write {
-                realm.delete(realm.objects(Message).filter("text='first(ArrayChangeset)'").first!)
+                realm.delete(realm.objects(Message.self).filter("text='first(ArrayChangeset)'").first!)
             }
         }
         
-        waitForExpectationsWithTimeout(0.75) {error in
+        waitForExpectations(timeout: 0.75) {error in
             XCTAssertTrue(error == nil)
             XCTAssertEqual(observer.events.count, 3)
             XCTAssertEqual(observer.events[0].value.element!, "count:1")
