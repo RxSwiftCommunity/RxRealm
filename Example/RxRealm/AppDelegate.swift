@@ -2,9 +2,9 @@
 import UIKit
 import RealmSwift
 
-let formatter: NSDateFormatter = {
-    let f = NSDateFormatter()
-    f.timeStyle = .LongStyle
+let formatter: DateFormatter = {
+    let f = DateFormatter()
+    f.timeStyle = .long
     return f
 }()
 
@@ -13,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //reset the realm on each app launch
         let realm = try! Realm()
         try! realm.write {

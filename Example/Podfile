@@ -6,15 +6,12 @@ target 'RxRealm_Example' do
   pod 'RxRealm', :path => '../'
   pod 'RxSwift',    '~> 3.0.0-beta.1'
   pod 'RxCocoa',    '~> 3.0.0-beta.1'
-  pod 'RealmSwift', '~> 1.0'
+  pod 'RealmSwift', '~> 1.1'
 end
 
 target 'RxRealm_Tests' do
   platform :ios, '8.0'
-  pod 'RxTests',    '~> 3.0.0-beta.1'
-  pod 'RxRealm', :path => '../'
-  pod 'RxSwift',    '~> 3.0.0-beta.1'
-  pod 'RealmSwift', '~> 1.0'
+#  pod 'RxTests',    '~> 3.0.0-beta.1'
 end
 
 post_install do |installer|

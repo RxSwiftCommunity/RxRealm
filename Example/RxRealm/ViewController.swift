@@ -9,7 +9,7 @@ import RxRealm
 
 //realm model
 class Lap: Object {
-    dynamic var time: NSTimeInterval = NSDate().timeIntervalSinceReferenceDate
+    dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
 }
 
 //view controller
@@ -27,26 +27,27 @@ class ViewController: UIViewController {
         /*
          Observable<Results<Lap>> - wrap Results as observable
          */
-        realm.objects(Lap).asObservable()
-            .map {laps in "\(laps.count) laps"}
-            .subscribeNext {[unowned self]text in
-                self.title = text
+        realm.objects(Lap.self).asObservable()
+            .map {results in "laps: \(results.count)"}
+            .subscribe { event in
+                self.title = event.element
             }
             .addDisposableTo(bag)
-        
-        /* 
+
+        /*
          Observable<Array<Lap>> - convert Results to Array and wrap as observable
          */
-        realm.objects(Lap).sorted("time", ascending: false).asObservableArray()
+        realm.objects(Lap.self).sorted(byProperty: "time", ascending: false).asObservableArray()
             .map {array in array.prefix(5) }
-            .bindTo(tableView.rx_itemsWithCellIdentifier("Cell", cellType: UITableViewCell.self)) {row, element, cell in
-                cell.textLabel!.text = formatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: element.time))
-            }.addDisposableTo(bag)
+            .bindTo(tableView.rx.items(cellIdentifier: "Cell", cellType: UITableViewCell.self)) { (row, element, cell) in
+                cell.textLabel!.text = formatter.string(from: Date(timeIntervalSinceReferenceDate: element.time))
+            }
+            .addDisposableTo(bag)
         
         /*
          Use bindable sink to add objects
          */
-        addTwoItemsButton.rx_tap
+        addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
             .bindTo(Realm.rx_add())
             .addDisposableTo(bag)
@@ -54,8 +55,8 @@ class ViewController: UIViewController {
         /*
          Use bindable sink to delete objects
          */
-        deleteLastItemButton.rx_tap
-            .map {[unowned self] in self.realm.objects(Lap).sorted("time", ascending: false)}
+        deleteLastItemButton.rx.tap
+            .map {[unowned self] in self.realm.objects(Lap.self).sorted(byProperty: "time", ascending: false)}
             .filter {$0.count > 0}
             .map { $0.first! }
             .bindTo(Realm.rx_delete())
