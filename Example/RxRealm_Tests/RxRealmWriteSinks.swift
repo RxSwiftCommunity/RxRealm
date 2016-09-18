@@ -35,11 +35,11 @@ class RxRealmWriteSinks: XCTestCase {
             completed(0)
         ]
         
-        let rx_add: AnyObserver<Message> = realm.rx_add()
+        let rx_add: AnyObserver<Message> = realm.rx.add()
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = realm.objects(Message.self).asObservableArray().shareReplay(1)
+        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
         
         
         messages$.subscribe(observer)
@@ -77,11 +77,11 @@ class RxRealmWriteSinks: XCTestCase {
             completed(0)
         ]
         
-        let rx_add: AnyObserver<[Message]> = realm.rx_add()
+        let rx_add: AnyObserver<[Message]> = realm.rx.add()
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = realm.objects(Message.self).asObservableArray().shareReplay(1)
+        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
             .addDisposableTo(bag)
@@ -117,11 +117,11 @@ class RxRealmWriteSinks: XCTestCase {
             completed(2)
         ]
         
-        let rx_add: AnyObserver<[UniqueObject]> = realm.rx_add(update: true)
+        let rx_add: AnyObserver<[UniqueObject]> = realm.rx.add(update: true)
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<UniqueObject>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = realm.objects(UniqueObject.self).asObservableArray().shareReplay(1)
+        let messages$ = Observable.arrayFrom(realm.objects(UniqueObject.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
             .addDisposableTo(bag)
@@ -156,8 +156,8 @@ class RxRealmWriteSinks: XCTestCase {
         let realm = realmInMemory(#function)
         let element = Message("1")
         let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = realm.objects(Message.self).asObservableArray().shareReplay(1)
-        let rx_delete: AnyObserver<Message> = Realm.rx_delete()
+        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let rx_delete: AnyObserver<Message> = Realm.rx.delete()
         
         try! realm.write {
             realm.add(element)
@@ -199,8 +199,8 @@ class RxRealmWriteSinks: XCTestCase {
         let realm = realmInMemory(#function)
         let elements = [Message("1"), Message("1")]
         let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = realm.objects(Message.self).asObservableArray().shareReplay(1)
-        let rx_delete: AnyObserver<[Message]> = Realm.rx_delete()
+        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let rx_delete: AnyObserver<[Message]> = Realm.rx.delete()
         
         try! realm.write {
             realm.add(elements)
@@ -249,7 +249,7 @@ class RxRealmWriteSinks: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = realm.objects(Message.self).asObservable().shareReplay(1)
+        let messages$ = Observable.from(realm.objects(Message.self)).shareReplay(1)
         
         messages$
             .subscribe(observer).addDisposableTo(bag)
@@ -263,34 +263,34 @@ class RxRealmWriteSinks: XCTestCase {
         
         // subscribe/write on current thread
         Observable.from([Message("1")])
-            .subscribe( realm.rx_add() )
+            .subscribe( realm.rx.add() )
             .addDisposableTo(bag)
         
         delayInBackground(0.1, closure: {
             // subscribe/write on background thread
             let realm = try! Realm(configuration: conf)
             Observable.from([Message("2")])
-                .subscribe(realm.rx_add() )
+                .subscribe(realm.rx.add() )
                 .addDisposableTo(bag)
         })
         
         // subscribe on current/write on main
         Observable.from([Message("3")])
             .observeOn(MainScheduler.instance)
-            .subscribe( Realm.rx_add(configuration: conf) )
+            .subscribe( Realm.rx.add(configuration: conf) )
             .addDisposableTo(bag)
 
         Observable.from([Message("4")])
             .observeOn( ConcurrentDispatchQueueScheduler(
                 queue: DispatchQueue.global(qos: .background)))
-            .subscribe( Realm.rx_add(configuration: conf) )
+            .subscribe( Realm.rx.add(configuration: conf) )
             .addDisposableTo(bag)
 
         // subscribe on current/write on background
         Observable.from([[Message("5"), Message("6")]])
             .observeOn( ConcurrentDispatchQueueScheduler(
                 queue: DispatchQueue.global(qos: .background)))
-            .subscribe( Realm.rx_add(configuration: conf) )
+            .subscribe( Realm.rx.add(configuration: conf) )
             .addDisposableTo(bag)
         
         // subscribe on current/write on a realm in background

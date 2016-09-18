@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         /*
          Observable<Results<Lap>> - wrap Results as observable
          */
-        realm.objects(Lap.self).asObservable()
+        Observable.from(realm.objects(Lap.self))
             .map {results in "laps: \(results.count)"}
             .subscribe { event in
                 self.title = event.element
@@ -37,7 +37,8 @@ class ViewController: UIViewController {
         /*
          Observable<Array<Lap>> - convert Results to Array and wrap as observable
          */
-        realm.objects(Lap.self).sorted(byProperty: "time", ascending: false).asObservableArray()
+        Observable.from(realm.objects(Lap.self).sorted(byProperty: "time", ascending: false))
+            .map (Array.init)
             .map {array in array.prefix(5) }
             .bindTo(tableView.rx.items(cellIdentifier: "Cell", cellType: UITableViewCell.self)) { (row, element, cell) in
                 cell.textLabel!.text = formatter.string(from: Date(timeIntervalSinceReferenceDate: element.time))
@@ -49,7 +50,7 @@ class ViewController: UIViewController {
          */
         addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
-            .bindTo(Realm.rx_add())
+            .bindTo(Realm.rx.add())
             .addDisposableTo(bag)
         
         /*
@@ -59,7 +60,7 @@ class ViewController: UIViewController {
             .map {[unowned self] in self.realm.objects(Lap.self).sorted(byProperty: "time", ascending: false)}
             .filter {$0.count > 0}
             .map { $0.first! }
-            .bindTo(Realm.rx_delete())
+            .bindTo(Realm.rx.delete())
             .addDisposableTo(bag)
     }
 }

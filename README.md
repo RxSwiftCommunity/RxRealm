@@ -65,14 +65,14 @@ realm.objects(Lap.self).asObservableChangeset()
 
 ### Write transactions
 
-#### rx_add()
+#### rx.add()
 
 __write to existing realm reference)__ You can add newly created objects to a realm that you already have initialized:
 
 ```swift
 let realm = try! Realm()
 [Message("hello"), Message("world")].toObservable()
-  .subscribe(realm.rx_add())
+  .subscribe(realm.rx.add())
 ```
 
 Be careful, this will retain your realm until the `Observable` completes or errors out.
@@ -82,7 +82,7 @@ __write to the default realm)__ You can leave it to RxRealm to grab the default 
 ```swift
 [Message("hello"), Message("world")].toObservable()
   .observeOn(  ..you can switch threads if you want )
-  .subscribe(Realm.rx_add())
+  .subscribe(Realm.rx.add())
 ```
 
 __write to a specific realm)__ If you want to switch threads and don't use the default realm, provide a `Realm.Configuration`:
@@ -93,7 +93,7 @@ var conf = Realm.Configuration()
 
 [Message("hello"), Message("world")].toObservable()
   .observeOn(  ..you can switch threads if you want )
-  .subscribe(Realm.rx_add(conf))
+  .subscribe(Realm.rx.add(conf))
 ```
 
 If you want to create yourself the Realm on a different thread than the subscription you can do that too (allows you to error handle):

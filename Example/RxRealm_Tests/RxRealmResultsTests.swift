@@ -37,7 +37,7 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = realm.objects(Message.self).asObservable().shareReplay(1)
+        let messages$ = Observable.from(realm.objects(Message.self)).shareReplay(1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 4 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         messages$
@@ -83,7 +83,7 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(String.self)
         
-        let messages$ = realm.objects(Message.self).asObservableChangeset().shareReplay(1)
+        let messages$ = Observable.changesetFrom(realm.objects(Message.self)).shareReplay(1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         messages$

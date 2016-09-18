@@ -6,14 +6,6 @@
 //  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
-//
-//  RxRealmCollectionsTests.swift
-//  RxRealm
-//
-//  Created by Marin Todorov on 4/30/16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
-//
-
 import XCTest
 
 import RxSwift
@@ -50,7 +42,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = message.recipients.asObservable().shareReplay(1)
+        let users$ = Observable.from(message.recipients).shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$
@@ -94,7 +86,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = message.recipients.asObservableChangeset().shareReplay(1)
+        let users$ = Observable.changesetFrom(message.recipients).shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$
