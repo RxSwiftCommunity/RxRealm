@@ -182,10 +182,10 @@ public extension Realm {
      - param: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public static func rx_add<O: Sequence where O.Iterator.Element: Object>(
+    public static func rx_add<O: Sequence>(
         _ configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration,
-        update: Bool = false) -> AnyObserver<O> {
-        
+        update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
+  
         return RealmObserver(configuration: configuration) {realm, elements in
             try! realm.write {
                 realm.add(elements, update: update)
@@ -216,7 +216,7 @@ public extension Realm {
      - param: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public func rx_add<O: Sequence where O.Iterator.Element: Object>(update: Bool = false) -> AnyObserver<O> {
+    public func rx_add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
         return RealmObserver(realm: self) {realm, element in
             try! realm.write {
                 realm.add(element, update: update)
@@ -241,7 +241,7 @@ public extension Realm {
      Returns bindable sink wich deletes objects in sequence from Realm.
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public static func rx_delete<S: Sequence where S.Iterator.Element: Object>() -> AnyObserver<S> {
+    public static func rx_delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
         return AnyObserver {event in
 
             guard let elements = event.element,
@@ -280,7 +280,7 @@ public extension Realm {
      Returns bindable sink wich deletes objects in sequence from Realm.
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public func rx_delete<S: Sequence where S.Iterator.Element: Object>() -> AnyObserver<S> {
+    public func rx_delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
         return RealmObserver(realm: self, binding: { (realm, elements) in
             try! realm.write {
                 realm.delete(elements)
