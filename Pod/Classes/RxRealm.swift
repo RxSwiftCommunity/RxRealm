@@ -22,7 +22,7 @@ public protocol NotificationEmitter {
      
      - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
      */
-    func addNotificationBlock(block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
+    func addNotificationBlock(_ block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 }
 
 extension List: NotificationEmitter {}
@@ -66,13 +66,13 @@ public extension NotificationEmitter where Self: RealmCollection {
                 let value: Self
                 
                 switch changeset {
-                case .Initial(let latestValue):
+                case .initial(let latestValue):
                     value = latestValue
-                    
-                case .Update(let latestValue, _, _, _):
+
+                case .update(let latestValue, _, _, _):
                     value = latestValue
-                    
-                case .Error(let error):
+
+                case .error(let error):
                     observer.onError(error)
                     return
                 }
@@ -112,11 +112,11 @@ public extension NotificationEmitter where Self: RealmCollection {
             let token = self.addNotificationBlock {changeset in
                 
                 switch changeset {
-                case .Initial(let value):
+                case .initial(let value):
                     observer.onNext((value, nil))
-                case .Update(let value, let deletes, let inserts, let updates):
+                case .update(let value, let deletes, let inserts, let updates):
                     observer.onNext((value, RealmChangeset(deleted: deletes, inserted: inserts, updated: updates)))
-                case .Error(let error):
+                case .error(let error):
                     observer.onError(error)
                     return
                 }
@@ -148,7 +148,7 @@ public extension NotificationEmitter where Self: RealmCollection {
 public extension Realm {
     
     /**
-     Returns an `Observable<(Realm, Notification)>` that emits each time the Realm emits a notification.
+     Returns an `Observable<(Realm, Realm.Notification)>` that emits each time the Realm emits a notification.
      
      The Observable you will get emits a tuple made out of:
      
@@ -160,12 +160,12 @@ public extension Realm {
      
      - returns: `Observable<(Realm, Notification)>`, which you can subscribe to.
      */
-    public func asObservable() -> Observable<(Realm, RealmSwift.Notification)> {
+    public func asObservable() -> Observable<(Realm, Realm.Notification)> {
         return Observable.create {observer in
-            let token = self.addNotificationBlock {(notification: RealmSwift.Notification, realm: Realm) in
-                observer.onNext(realm, notification)
+            let token = self.addNotificationBlock {(notification: Realm.Notification, realm: Realm) in
+              observer.onNext((realm, notification))
             }
-            
+
             return Disposables.create {
                 observer.onCompleted()
                 token.stop()
