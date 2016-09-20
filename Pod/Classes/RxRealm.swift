@@ -99,7 +99,7 @@ public extension ObservableType where E: NotificationEmitter {
                 observer.onNext(value)
             }
 
-            return AnonymousDisposable {
+            return Disposables.create {
                 observer.onCompleted()
                 token.stop()
             }
@@ -135,7 +135,7 @@ public extension ObservableType where E: NotificationEmitter {
                 }
             }
 
-            return AnonymousDisposable {
+            return Disposables.create {
                 observer.onCompleted()
                 token.stop()
             }
@@ -180,7 +180,7 @@ public extension Observable {
                 observer.onNext((realm, notification))
             }
 
-            return AnonymousDisposable {
+            return Disposables.create {
                 observer.onCompleted()
                 token.stop()
             }
@@ -199,9 +199,9 @@ public extension Realm {
          - param: update - if set to `true` it will override existing objects with matching primary key
          - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
          */
-        public static func add<O: Sequence where O.Iterator.Element: Object>(
+        public static func add<O: Sequence>(
             configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration,
-            update: Bool = false) -> AnyObserver<O> {
+            update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
 
             return RealmObserver(configuration: configuration) {realm, elements in
                 try! realm.write {
@@ -232,7 +232,7 @@ public extension Realm {
          Returns bindable sink wich deletes objects in sequence from Realm.
          - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
          */
-        public static func delete<S: Sequence where S.Iterator.Element: Object>() -> AnyObserver<S> {
+        public static func delete<S: Sequence>() -> AnyObserver<S>  where S.Iterator.Element: Object {
             return AnyObserver {event in
 
                 guard let elements = event.element,
@@ -275,7 +275,7 @@ public extension Realm {
          - param: update - if set to `true` it will override existing objects with matching primary key
          - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
          */
-        public func add<O: Sequence where O.Iterator.Element: Object>(update update: Bool = false) -> AnyObserver<O> {
+        public func add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
             switch self {
             case .realm(let realm):
                 return RealmObserver(realm: realm) {realm, element in
@@ -291,7 +291,7 @@ public extension Realm {
          - param: update - if set to `true` it will override existing objects with matching primary key
          - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
          */
-        public func add<O: Object>(update update: Bool = false) -> AnyObserver<O> {
+        public func add<O: Object>(update: Bool = false) -> AnyObserver<O> {
             switch self {
             case .realm(let realm):
                 return RealmObserver(realm: realm) {realm, element in
@@ -306,7 +306,7 @@ public extension Realm {
          Returns bindable sink wich deletes objects in sequence from Realm.
          - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
          */
-        public func delete<S: Sequence where S.Iterator.Element: Object>() -> AnyObserver<S> {
+        public func delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
             switch self {
             case .realm(let realm):
                 return RealmObserver(realm: realm, binding: { (realm, elements) in
