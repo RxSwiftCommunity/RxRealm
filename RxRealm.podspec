@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "0.2.1"
+  s.version          = "0.2.3"
   s.summary          = "An Rx wrapper of Realm's collection type"
 
   s.description      = <<-DESC
