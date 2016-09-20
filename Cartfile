@@ -1,2 +1,2 @@
-github "realm/realm-cocoa.git" "master"
+github "realm/realm-cocoa.git" ~> 1.1.0
 github "ReactiveX/RxSwift" "master"
