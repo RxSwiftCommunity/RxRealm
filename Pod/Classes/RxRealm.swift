@@ -9,7 +9,7 @@ import RealmSwift
 import RxSwift
 
 /**
- `NotificationEmitter` is a faux protocol to allow for Realm's collections to be handled in a generic way.
+ `NotificationEmitter` is a protocol to allow for Realm's collections to be handled in a generic way.
  
   All collections already include a `addNotificationBlock(_:)` method - making them conform to `NotificationEmitter` just makes it easier to add Rx methods to them.
  
