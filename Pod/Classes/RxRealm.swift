@@ -153,8 +153,9 @@ public extension ObservableType where E: NotificationEmitter {
 
      - returns: `Observable<(Array<Self.Generator.Element>, RealmChangeset?)>`
      */
-    public static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(E, RealmChangeset?)> {
+    public static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Array<E.ElementType>, RealmChangeset?)> {
         return Observable.changesetFrom(collection, scheduler: scheduler)
+					.map { ($0.toArray(), $1) }
     }
 }
 
