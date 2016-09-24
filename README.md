@@ -9,123 +9,155 @@
 
 This library is a thin wrapper around __RealmSwift__.
 
-**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 1.1 - mind that some of these are pre-release software.
+**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 1.1 - keep in mind that some of these are pre-release software.
 
 ### Observing collections
 
-RxRealm adds to `Results`, `List`, `LinkingObjects` and `AnyRealmCollection` these methods:
+RxRealm can be used to create `Observable`s from objects of type `Results`, `List`, `LinkingObjects` or `AnyRealmCollection` as follows:
 
-#### asObservable()
-`asObservable()` - emits every time the collection changes:
+#### Observable.from(_:)
+Emits every time the collection changes
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap.self).asObservable()
-  .map {laps in "\(laps.count) laps"}
-  .subscribeNext { text  in
+let laps = realm.objects(Lap.self)
+
+Observable.from(laps)
+  .map { 
+    laps in "\(laps.count) laps"
+  }.subscribe(onNext: { text  in
     print(text)
-  }
+  })
 ```
 
-#### asObservableArray()
-`asObservableArray()` - fetches the a snapshot of a Realm collection and converts it to an array value (for example if you want to use array methods on the collection):
+#### Observable.arrayFrom(_:)
+Fetches the a snapshot of a Realm collection and converts it to an array value (for example if you want to use array methods on the collection)
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap.self).asObservableArray()
-  .map {array in
+let laps = realm.objects(Lap.self)
+
+Observable.arrayFrom(laps)
+  .map { array in
     return array.prefix(3) //slice of first 3 items
-  }
-  .subscribeNext { text  in
+  }.subscribe(onNext: { text  in
     print(text)
-  }
+  })
 ```
 
-#### asObservableChangeset()
-`asObservableChangeset()` - emits every time the collection changes and provides the exact indexes that has been deleted, inserted or updated:
+#### Observable.changesetFrom(_:)
+Emits every time the collection changes and provides the exact indexes that has been deleted, inserted or updated
 
 ```swift
 let realm = try! Realm()
-realm.objects(Lap.self).asObservableChangeset()
-  .subscribeNext {result, changes in
+let laps = realm.objects(Lap.self))
+
+Observable.changesetFrom(laps)
+  .subscribe(onNext: { results, changes in
     if let changes = changes {
-	  //it's an update
-	  print(result)
-	  print("deleted: \(changes.deleted) inserted: \(changes.inserted) updated: \(changes.updated)")
-	} else {
-	  //it's the initial data
-	  print(result)
-	}
+    // it's an update
+    print(results)
+    print("deleted: \(changes.deleted) inserted: \(changes.inserted) updated: \(changes.updated)")
+  } else {
+    // it's the initial data
+    print(results)
   }
+  })
 ```
 
-#### asObservableArrayChangeset()
+#### Observable.changesetArrayFrom(_:)
+Combines the result of `Observable.arrayFrom(_:)` and `Observable.changesetFrom(_:)` returning an `Observable<Array<T>, RealmChangeset?>`
 
-`asObservableArrayChangeset()` combines the result of `asObservableArray()` and `asObservableChangeset()` returning an `Observable<Array<T>, RealmChangeset?>`.
+```swift
+let realm = try! Realm()
+let laps = realm.objects(Lap.self))
 
-### Write transactions
+Observable.changesetFrom(laps)
+  .subscribe(onNext: { array, changes in
+    if let changes = changes {
+    // it's an update
+    print(array.first)
+    print("deleted: \(changes.deleted) inserted: \(changes.inserted) updated: \(changes.updated)")
+  } else {
+    // it's the initial data
+    print(array)
+  }
+  })
+```
+
+### Performing transactions
 
 #### rx.add()
+##### **Writing to an existing Realm reference**
 
-__write to existing realm reference)__ You can add newly created objects to a realm that you already have initialized:
+You can add newly created objects to a Realm that you already have initialized:
 
 ```swift
 let realm = try! Realm()
-[Message("hello"), Message("world")].toObservable()
+let messages = [Message("hello"), Message("world")]
+
+Observable.from(messages)
   .subscribe(realm.rx.add())
 ```
 
-Be careful, this will retain your realm until the `Observable` completes or errors out.
+Be careful, this will retain your Realm until the `Observable` completes or errors out.
 
-__write to the default realm)__ You can leave it to RxRealm to grab the default Realm on any thread your subscribe and write objects to it:
+##### **Writing to the default Realm**
+You can leave it to RxRealm to grab the default Realm on any thread your subscribe and write objects to it:
 
 ```swift
-[Message("hello"), Message("world")].toObservable()
-  .observeOn(  ..you can switch threads if you want )
+let messages = [Message("hello"), Message("world")]
+
+Observable.from(messages)
   .subscribe(Realm.rx.add())
 ```
 
-__write to a specific realm)__ If you want to switch threads and don't use the default realm, provide a `Realm.Configuration`:
+##### **Writing to a specific Realm**
+If you want to switch threads and not use the default Realm, provide a `Realm.Configuration`:
 
 ```swift
-var conf = Realm.Configuration()
-... custom configuration settings ...
+var config = Realm.Configuration()
+/* custom configuration settings */
 
-[Message("hello"), Message("world")].toObservable()
-  .observeOn(  ..you can switch threads if you want )
-  .subscribe(Realm.rx.add(conf))
+let messages = [Message("hello"), Message("world")]
+Observable.from(messages)
+  .observeOn( /* you can switch threads if you want to */ )     
+  .subscribe(Realm.rx.add(configuration: config))
 ```
 
-If you want to create yourself the Realm on a different thread than the subscription you can do that too (allows you to error handle):
+If you want to create a Realm on a different thread manually, allowing you to handle errors, you can do that too:
 
 ```swift
-[Message("hello"), Message("world")].toObservable()
-  .observeOn(  ..you can switch threads if you want )
-  .subscribeNext {messages in
+let messages = [Message("hello"), Message("world")]
+
+Observable.from(messages)
+  .observeOn( /* you can switch threads if you want to */ )
+  .subscribe(onNext: {messages in
     let realm = try! Realm()
     try! realm.write {
       realm.add(messages)
     }
-  }
+  })
 ```
 
-#### rx_delete()
+#### rx.delete()
 
-__delete from existing realm reference)__ Delete objects from existing realm reference:
-
+#####**Deleting from an existing realm reference**
 ```swift
 let realm = try! Realm()
-realm.objects(Messages.self).asObservable()
-  .subscribe(realm.rx_delete())
+let messages = realm.objects(Message.self)
+Observable.from(messages)
+  .subscribe(realm.rx.delete())
 ```
 
 Be careful, this will retain your realm until the `Observable` completes or errors out.
 
-__delete automatically from objects' realm)__ You can leave it to RxRealm to grab the Realm from the first object and use it:
+#####**Deleting from the object's realm automatically**
+You can leave it to RxRealm to grab the Realm from the first object and use it:
 
 ```swift
-someCollectionOfPersistedObjects.toObservable()
-  .subscribe(Realm.rx_delete())
+Observable.from(someCollectionOfPersistedObjects)
+  .subscribe(Realm.rx.delete())
 ```
 
 
