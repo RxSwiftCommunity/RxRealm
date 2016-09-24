@@ -72,7 +72,7 @@ Combines the result of `Observable.arrayFrom(_:)` and `Observable.changesetFrom(
 let realm = try! Realm()
 let laps = realm.objects(Lap.self))
 
-Observable.changesetFrom(laps)
+Observable.changesetArrayFrom(laps)
   .subscribe(onNext: { array, changes in
     if let changes = changes {
     // it's an update
