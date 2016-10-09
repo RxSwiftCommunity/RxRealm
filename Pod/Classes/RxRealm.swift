@@ -35,18 +35,21 @@ extension List: NotificationEmitter {
         return Array(self)
     }
 }
+
 extension AnyRealmCollection: NotificationEmitter {
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
     }
 }
+
 extension Results: NotificationEmitter {
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
     }
 }
+
 extension LinkingObjects: NotificationEmitter {
     public typealias ElementType = Element
     public func toArray() -> [Element] {
@@ -85,15 +88,15 @@ public extension ObservableType where E: NotificationEmitter {
                 let value: E
 
                 switch changeset {
-                case .initial(let latestValue):
-                    value = latestValue
+                    case .initial(let latestValue):
+                        value = latestValue
 
-                case .update(let latestValue, _, _, _):
-                    value = latestValue
+                    case .update(let latestValue, _, _, _):
+                        value = latestValue
 
-                case .error(let error):
-                    observer.onError(error)
-                    return
+                    case .error(let error):
+                        observer.onError(error)
+                        return
                 }
 
                 observer.onNext(value)
@@ -125,13 +128,13 @@ public extension ObservableType where E: NotificationEmitter {
             let token = collection.addNotificationBlock {changeset in
 
                 switch changeset {
-                case .initial(let value):
-                    observer.onNext((value, nil))
-                case .update(let value, let deletes, let inserts, let updates):
-                    observer.onNext((value, RealmChangeset(deleted: deletes, inserted: inserts, updated: updates)))
-                case .error(let error):
-                    observer.onError(error)
-                    return
+                    case .initial(let value):
+                        observer.onNext((value, nil))
+                    case .update(let value, let deletes, let inserts, let updates):
+                        observer.onNext((value, RealmChangeset(deleted: deletes, inserted: inserts, updated: updates)))
+                    case .error(let error):
+                        observer.onError(error)
+                        return
                 }
             }
 
@@ -155,7 +158,7 @@ public extension ObservableType where E: NotificationEmitter {
      */
     public static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Array<E.ElementType>, RealmChangeset?)> {
         return Observable.changesetFrom(collection, scheduler: scheduler)
-					.map { ($0.toArray(), $1) }
+            .map { ($0.toArray(), $1) }
     }
 }
 
@@ -278,12 +281,12 @@ public extension Realm {
          */
         public func add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
             switch self {
-            case .realm(let realm):
-                return RealmObserver(realm: realm) {realm, element in
-                    try! realm.write {
-                        realm.add(element, update: update)
-                    }
-                }.asObserver()
+                case .realm(let realm):
+                    return RealmObserver(realm: realm) {realm, element in
+                        try! realm.write {
+                            realm.add(element, update: update)
+                        }
+                    }.asObserver()
             }
         }
 
@@ -294,12 +297,12 @@ public extension Realm {
          */
         public func add<O: Object>(update: Bool = false) -> AnyObserver<O> {
             switch self {
-            case .realm(let realm):
-                return RealmObserver(realm: realm) {realm, element in
-                    try! realm.write {
-                        realm.add(element, update: update)
-                    }
-                }.asObserver()
+                case .realm(let realm):
+                    return RealmObserver(realm: realm) {realm, element in
+                        try! realm.write {
+                            realm.add(element, update: update)
+                        }
+                    }.asObserver()
             }
         }
 
@@ -309,23 +312,23 @@ public extension Realm {
          */
         public func delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
             switch self {
-            case .realm(let realm):
-                return RealmObserver(realm: realm, binding: { (realm, elements) in
-                    try! realm.write {
-                        realm.delete(elements)
-                    }
-                }).asObserver()
+                case .realm(let realm):
+                    return RealmObserver(realm: realm, binding: { (realm, elements) in
+                        try! realm.write {
+                            realm.delete(elements)
+                        }
+                    }).asObserver()
             }
         }
 
         public func delete<O: Object>() -> AnyObserver<O> {
             switch self {
-            case .realm(let realm):
-                return RealmObserver(realm: realm, binding: { (realm, elements) in
-                    try! realm.write {
-                        realm.delete(elements)
-                    }
-                }).asObserver()
+                case .realm(let realm):
+                    return RealmObserver(realm: realm, binding: { (realm, elements) in
+                        try! realm.write {
+                            realm.delete(elements)
+                        }
+                    }).asObserver()
             }
         }
     }

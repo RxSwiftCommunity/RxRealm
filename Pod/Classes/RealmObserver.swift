@@ -55,6 +55,7 @@ class RealmObserver<E>: ObserverType {
             realm = nil
         }
     }
+    
     /**
      Erases the type of observer
      
