@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "0.2.5"
-  s.summary          = "An Rx wrapper of Realm's collection type"
+  s.version          = "0.2.6"
+  s.summary          = "An Rx wrapper of Realm's collection type and write bidnings"
 
   s.description      = <<-DESC
     This is an Rx extension that provides an easy and straight-forward way
@@ -18,6 +18,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
+  s.watchos.deployment_target = '2.0'
 
   s.source_files = 'Pod/Classes/*.swift'
 
