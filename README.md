@@ -9,7 +9,20 @@
 
 This library is a thin wrapper around __RealmSwift__.
 
-**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 1.1 - keep in mind that some of these are pre-release software.
+**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 2.0 - keep in mind that some of these are pre-release software.
+
+**NB**: If you're using the RxRealm CocoaPod in a Swift 3 project add this snippet to the bottom of your project's Podfile. This will update your targets to use swift3:
+
+```
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+            config.build_settings['SWIFT_VERSION'] = '3.0'
+            config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.10'
+        end
+    end
+end
+```
 
 ### Observing collections
 
