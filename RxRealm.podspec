@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "0.2.3"
+  s.version          = "0.2.5"
   s.summary          = "An Rx wrapper of Realm's collection type"
 
   s.description      = <<-DESC
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Pod/Classes/*.swift'
 
   s.frameworks = 'Foundation'
-  s.dependency 'RealmSwift', '~> 1.1'
-  s.dependency 'RxSwift',    '~> 3.0.0-beta.1'
+  s.dependency 'RealmSwift', '~> 2.0'
+  s.dependency 'RxSwift',    '~> 3.0.0-beta.2'
 
 end
