@@ -11,7 +11,7 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTests
+import RxTest
 
 class RxRealmWriteSinks: XCTestCase {
     fileprivate func realmInMemoryConfiguration(_ name: String) -> Realm.Configuration {

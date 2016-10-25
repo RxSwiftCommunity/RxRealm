@@ -11,7 +11,7 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTests
+import RxTest
 
 class RxRealmRealmTests: XCTestCase {
     fileprivate func realmInMemory(_ name: String) -> Realm {
