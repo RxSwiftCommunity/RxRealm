@@ -67,6 +67,7 @@ class RxRealmObjectTests: XCTestCase {
             }
         }
 
+        //delete the object to trigger an error
         delay(0.3) {
             try! realm.write {
                 realm.delete(obj)
