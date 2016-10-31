@@ -192,7 +192,67 @@ public extension Observable {
     }
 }
 
+extension Realm: ReactiveCompatible {}
+
+extension Reactive where Base: Realm {
+
+    /**
+     Returns bindable sink wich adds object sequence to the current Realm
+     - param: update - if set to `true` it will override existing objects with matching primary key
+     - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
+     */
+    public func add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
+        return RealmObserver(realm: base) {realm, element in
+            try! realm.write {
+                realm.add(element, update: update)
+            }
+        }.asObserver()
+    }
+
+    /**
+     Returns bindable sink wich adds an object to Realm
+     - param: update - if set to `true` it will override existing objects with matching primary key
+     - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
+     */
+    public func add<O: Object>(update: Bool = false) -> AnyObserver<O> {
+        return RealmObserver(realm: base) {realm, element in
+            try! realm.write {
+                realm.add(element, update: update)
+            }
+        }.asObserver()
+    }
+
+    /**
+     Returns bindable sink wich deletes objects in sequence from Realm.
+     - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
+     */
+    public func delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
+        return RealmObserver(realm: base, binding: { (realm, elements) in
+            try! realm.write {
+                realm.delete(elements)
+            }
+        }).asObserver()
+    }
+
+    /**
+     Returns bindable sink wich deletes objects in sequence from Realm.
+     - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
+     */
+    public func delete<O: Object>() -> AnyObserver<O> {
+        return RealmObserver(realm: base, binding: { (realm, elements) in
+            try! realm.write {
+                realm.delete(elements)
+            }
+        }).asObserver()
+    }
+}
+
 public extension Realm {
+
+    //adds a static `rx` structure on the Realm type
+    static var rx: StaticRealmBinding.Type {
+        return StaticRealmBinding.self
+    }
 
     struct StaticRealmBinding {
 
@@ -269,75 +329,5 @@ public extension Realm {
                 }
             }
         }
-    }
-
-    enum RealmBinding {
-        case realm(Realm)
-
-        /**
-         Returns bindable sink wich adds object sequence to the current Realm
-         - param: update - if set to `true` it will override existing objects with matching primary key
-         - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
-         */
-        public func add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
-            switch self {
-                case .realm(let realm):
-                    return RealmObserver(realm: realm) {realm, element in
-                        try! realm.write {
-                            realm.add(element, update: update)
-                        }
-                    }.asObserver()
-            }
-        }
-
-        /**
-         Returns bindable sink wich adds an object to Realm
-         - param: update - if set to `true` it will override existing objects with matching primary key
-         - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
-         */
-        public func add<O: Object>(update: Bool = false) -> AnyObserver<O> {
-            switch self {
-                case .realm(let realm):
-                    return RealmObserver(realm: realm) {realm, element in
-                        try! realm.write {
-                            realm.add(element, update: update)
-                        }
-                    }.asObserver()
-            }
-        }
-
-        /**
-         Returns bindable sink wich deletes objects in sequence from Realm.
-         - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
-         */
-        public func delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
-            switch self {
-                case .realm(let realm):
-                    return RealmObserver(realm: realm, binding: { (realm, elements) in
-                        try! realm.write {
-                            realm.delete(elements)
-                        }
-                    }).asObserver()
-            }
-        }
-
-        public func delete<O: Object>() -> AnyObserver<O> {
-            switch self {
-                case .realm(let realm):
-                    return RealmObserver(realm: realm, binding: { (realm, elements) in
-                        try! realm.write {
-                            realm.delete(elements)
-                        }
-                    }).asObserver()
-            }
-        }
-    }
-
-    static var rx: StaticRealmBinding.Type {
-        return StaticRealmBinding.self
-    }
-
-    var rx: RealmBinding {
-        return RealmBinding.realm(self)
     }
 }
