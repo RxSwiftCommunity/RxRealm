@@ -8,6 +8,12 @@ import Foundation
 import RealmSwift
 import RxSwift
 
+public enum RxRealmError: Error {
+    case objectDeleted
+}
+
+//MARK: Realm Collections type extensions
+
 /**
  `NotificationEmitter` is a protocol to allow for Realm's collections to be handled in a generic way.
  
@@ -192,6 +198,8 @@ public extension Observable {
     }
 }
 
+//MARK: Realm type extensions
+
 extension Realm: ReactiveCompatible {}
 
 extension Reactive where Base: Realm {
@@ -327,6 +335,50 @@ public extension Realm {
                 try! realm.write {
                     realm.delete(element)
                 }
+            }
+        }
+    }
+}
+
+//MARK: Realm Object type extensions
+
+public extension Observable {
+
+    public static func from<T: Object>(_ object: T, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<T> {
+
+        guard let realm = object.realm else {
+            return Observable<T>.empty()
+        }
+        guard let primaryKeyName = type(of: object).primaryKey(),
+            let primaryKey = object.value(forKey: primaryKeyName) else {
+            fatalError("Presently you can't observe objects that don't have primary key.")
+        }
+
+        return Observable<T>.create {observer in
+            let objectQuery = realm.objects(type(of: object))
+                .filter("%K == %@", primaryKeyName, primaryKey)
+
+            let token = objectQuery.addNotificationBlock {changes in
+                switch changes {
+                case .initial(let results):
+                    if let latestObject = results.first {
+                        observer.onNext(latestObject)
+                    } else {
+                        observer.onError(RxRealmError.objectDeleted)
+                    }
+                case .update(let results, _, _, _):
+                    if let latestObject = results.first {
+                        observer.onNext(latestObject)
+                    } else {
+                        observer.onError(RxRealmError.objectDeleted)
+                    }
+                case .error(let error):
+                    observer.onError(error)
+                }
+            }
+
+            return Disposables.create {
+                token.stop()
             }
         }
     }

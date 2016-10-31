@@ -57,6 +57,7 @@ func ==(lhs: User, rhs: User) -> Bool {
 //MARK: UniqueObject
 class UniqueObject: Object {
     dynamic var id = 0
+    dynamic var name = ""
     
     convenience init(_ id: Int) {
         self.init()
