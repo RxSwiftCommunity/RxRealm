@@ -9,9 +9,7 @@
 
 This library is a thin wrapper around __RealmSwift__.
 
-**NB**: Currently this library uses the latest beta of RxSwift 3.0.0, latest beta of CocoaPods, and RealmSwift 2.0 - keep in mind that some of these are pre-release software.
-
-**NB**: If you're using the RxRealm CocoaPod in a Swift 3 project add this snippet to the bottom of your project's Podfile. This will update your targets to use swift3:
+**NB**: For Swift 3 projects add this snippet to the bottom of your project's Podfile. This will update your targets to use swift3:
 
 ```
 post_install do |installer|
@@ -97,6 +95,20 @@ Observable.changesetArrayFrom(laps)
   }
   })
 ```
+
+### Observing a single object
+
+There's a separate API to make it easier to observe single object (it creates `Results` behind the scenes):
+
+```swift
+Observable.from(ticker)
+    .map({ (ticker) -> String in
+        return "\(ticker.ticks) ticks"
+    })
+    .bindTo(footer.rx.text)
+```
+
+This API uses the primary key of the object to query the database for it and observe for change notifications. Observing objects without a primary key does not work.
 
 ### Performing transactions
 

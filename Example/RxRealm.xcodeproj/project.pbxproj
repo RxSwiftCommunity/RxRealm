@@ -15,6 +15,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */; };
+		9C4FE0611DC7B1FD00DF66A5 /* RxRealmObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4FE0601DC7B1FD00DF66A5 /* RxRealmObjectTests.swift */; };
 		9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */; };
 		9CBA077C1CD4A68000ABF96E /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA077A1CD4A62300ABF96E /* TestModels.swift */; };
 		9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB7A491CC834340077C44D /* RxRealmTests.swift */; };
@@ -46,6 +47,7 @@
 		69375A1E91DF8BF5A1D8E7AE /* Pods_RxRealm_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RxRealm_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		74D9A8127363946A03ABDCFB /* RxRealm.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RxRealm.podspec; path = ../RxRealm.podspec; sourceTree = "<group>"; };
 		9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmWriteSinks.swift; sourceTree = "<group>"; };
+		9C4FE0601DC7B1FD00DF66A5 /* RxRealmObjectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmObjectTests.swift; sourceTree = "<group>"; };
 		9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxRealmResultsTests.swift; sourceTree = "<group>"; };
 		9CBA077A1CD4A62300ABF96E /* TestModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestModels.swift; sourceTree = "<group>"; };
 		9CEB7A471CC834340077C44D /* RxRealm_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RxRealm_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -164,6 +166,7 @@
 				9CEC5B351CD692A600B43868 /* RxRealmListTests.swift */,
 				9CEC5B371CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift */,
 				9CFB8DC11CF22BA4004BC090 /* RxRealmRealmTests.swift */,
+				9C4FE0601DC7B1FD00DF66A5 /* RxRealmObjectTests.swift */,
 				9CEB7A4B1CC834340077C44D /* Info.plist */,
 			);
 			name = RxRealmTests;
@@ -221,7 +224,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -380,6 +383,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C4FE0611DC7B1FD00DF66A5 /* RxRealmObjectTests.swift in Sources */,
 				9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */,
 				9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */,
 				9CFB8DC21CF22BA4004BC090 /* RxRealmRealmTests.swift in Sources */,

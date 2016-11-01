@@ -12,16 +12,30 @@ class Lap: Object {
     dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
 }
 
+class TickCounter: Object {
+    dynamic var id = UUID().uuidString
+    dynamic var ticks: Int = 0
+    override static func primaryKey() -> String? {return "id"}
+}
+
 //view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
     let realm = try! Realm()
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var deleteLastItemButton: UIBarButtonItem!
+    @IBOutlet weak var tickItemButton: UIBarButtonItem!
     @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
 
     var laps: Results<Lap>!
+
+    let footer: UILabel = {
+        let l = UILabel()
+        l.textAlignment = .center
+        return l
+    }()
+
+    var ticker: TickCounter!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,15 +72,34 @@ class ViewController: UIViewController {
             .map { [Lap(), Lap()] }
             .bindTo(Realm.rx.add())
             .addDisposableTo(bag)
-        
+
         /*
-         Use bindable sink to delete objects
+         Create a ticker object
          */
-        deleteLastItemButton.rx.tap
-            .map {[unowned self] in self.realm.objects(Lap.self).sorted(byProperty: "time", ascending: false)}
-            .filter {$0.count > 0}
-            .map { $0.first! }
-            .bindTo(Realm.rx.delete())
+        ticker = TickCounter()
+        try! realm.write {
+            realm.add(ticker)
+        }
+
+        /*
+         Bind bar item to increasing the ticker
+         */
+        tickItemButton.rx.tap
+            .subscribe(onNext: {[unowned self] value in
+                try! self.realm.write {
+                    self.ticker.ticks += 1
+                }
+            })
+            .addDisposableTo(bag)
+
+        /*
+         Observing a single object
+         */
+        Observable.from(ticker)
+            .map({ (ticker) -> String in
+                return "\(ticker.ticks) ticks"
+            })
+            .bindTo(footer.rx.text)
             .addDisposableTo(bag)
     }
 }
@@ -82,6 +115,18 @@ extension ViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
         cell.textLabel?.text = formatter.string(from: Date(timeIntervalSinceReferenceDate: lap.time))
         return cell
+    }
+}
+
+extension ViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        Observable.from([laps[indexPath.row]])
+            .subscribe(Realm.rx.delete())
+            .addDisposableTo(bag)
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return footer
     }
 }
 
