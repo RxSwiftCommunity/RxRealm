@@ -334,19 +334,19 @@ extension Reactive where Base: Realm {
 
 //MARK: Realm Object type extensions
 
-public extension Observable {
+public extension ObservableType where E: Object {
 
-    public static func from<T: Object>(_ object: T, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<T> {
+    public static func from(_ object: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<E> {
 
         guard let realm = object.realm else {
-            return Observable<T>.empty()
+            return Observable<E>.empty()
         }
         guard let primaryKeyName = type(of: object).primaryKey(),
             let primaryKey = object.value(forKey: primaryKeyName) else {
-            fatalError("Presently you can't observe objects that don't have primary key.")
+            fatalError("At present you can't observe objects that don't have primary key.")
         }
 
-        return Observable<T>.create {observer in
+        return Observable<E>.create {observer in
             let objectQuery = realm.objects(type(of: object))
                 .filter("%K == %@", primaryKeyName, primaryKey)
 
