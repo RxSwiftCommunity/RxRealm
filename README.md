@@ -96,7 +96,7 @@ Observable.changesetArrayFrom(laps)
   })
 ```
 
-### Observing an object
+### Observing a single object
 
 There's a separate API to make it easier to observe single object (it creates `Results` behind the scenes):
 
@@ -107,6 +107,8 @@ Observable.from(ticker)
     })
     .bindTo(footer.rx.text)
 ```
+
+This API uses the primary key of the object to query the database for it and observe for change notifications. Observing objects without a primary key does not work.
 
 ### Performing transactions
 
