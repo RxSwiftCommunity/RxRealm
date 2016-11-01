@@ -336,7 +336,7 @@ extension Reactive where Base: Realm {
 
 public extension ObservableType where E: Object {
 
-    public static func from(_ object: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<E> {
+    public static func from(_ object: E) -> Observable<E> {
 
         guard let realm = object.realm else {
             return Observable<E>.empty()
