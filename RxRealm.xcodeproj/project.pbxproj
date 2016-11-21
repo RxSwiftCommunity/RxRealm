@@ -358,7 +358,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0.1;
 			};
 			name = Debug;
 		};
@@ -381,7 +380,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0.1;
 			};
 			name = Release;
 		};
@@ -407,7 +405,6 @@
 				PRODUCT_NAME = RxRealm;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0.1;
 			};
 			name = Debug;
 		};
@@ -433,7 +430,6 @@
 				PRODUCT_NAME = RxRealm;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0.1;
 			};
 			name = Release;
 		};
