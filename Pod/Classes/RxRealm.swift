@@ -351,7 +351,7 @@ public extension Observable where Element: Object {
         }
 
         return Observable<Element>.create {observer in
-            let objectQuery = realm.objects(Element)
+            let objectQuery = realm.objects(Element.self)
                 .filter("%K == %@", primaryKeyName, primaryKey)
 
             let token = objectQuery.addNotificationBlock {changes in
