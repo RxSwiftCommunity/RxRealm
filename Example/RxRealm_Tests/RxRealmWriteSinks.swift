@@ -40,19 +40,17 @@ class RxRealmWriteSinks: XCTestCase {
         let observer = scheduler.createObserver(Array<Message>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
         let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
-        
-        
+
         messages$.subscribe(observer)
             .addDisposableTo(bag)
         
-        messages$.subscribe(onNext: {
-            switch $0.count {
-            case 1:
-                expectation.fulfill()
-            default:
-                break
-            }
-        }).addDisposableTo(bag)
+        messages$
+            .subscribe(onNext: { messages in
+                if messages.count == 1 {
+                    expectation.fulfill()
+                }
+            })
+            .addDisposableTo(bag)
         
         observable
             .subscribe(rx_add)
@@ -60,12 +58,12 @@ class RxRealmWriteSinks: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectations(timeout: 0.1, handler: nil)
-        
-        
-        XCTAssertEqual(observer.events.count, 1)
-        XCTAssertEqual(observer.events[0].time, 0)
-        XCTAssertTrue(observer.events[0].value.element!.equalTo([Message("1")]))
+        waitForExpectations(timeout: 1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+            XCTAssertTrue(observer.events.last!.value.element!.equalTo([Message("1")]))
+        })
     }
     
     func testRxAddObjects() {
@@ -90,21 +88,19 @@ class RxRealmWriteSinks: XCTestCase {
             .addDisposableTo(bag)
         
         messages$.subscribe(onNext: {
-            switch $0.count {
-            case 2:
+            if $0.count == 2 {
                 expectation.fulfill()
-            default:
-                break
             }
         }).addDisposableTo(bag)
         
         scheduler.start()
         
-        waitForExpectations(timeout: 0.1, handler: nil)
-        
-        XCTAssertEqual(observer.events.count, 1)
-        XCTAssertEqual(observer.events[0].time, 0)
-        XCTAssertTrue(observer.events[0].value.element!.equalTo([Message("1"), Message("2")]))
+        waitForExpectations(timeout: 0.1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+            XCTAssertTrue(observer.events.last!.value.element!.equalTo([Message("1"), Message("2")]))
+        })
     }
     
     func testRxAddUpdateObjects() {
@@ -141,6 +137,7 @@ class RxRealmWriteSinks: XCTestCase {
         scheduler.start()
         
         waitForExpectations(timeout: 5, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
             //check that UniqueObject with id == 1 was overwritten
             XCTAssertTrue(observer.events.last!.value.element!.count == 3)
             XCTAssertTrue(observer.events.last!.value.element![0] == UniqueObject(1))
@@ -187,11 +184,12 @@ class RxRealmWriteSinks: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectations(timeout: 0.1, handler: nil)
-        
-        XCTAssertEqual(observer.events.count, 1)
-        XCTAssertEqual(observer.events[0].time, 0)
-        XCTAssertEqual(observer.events[0].value.element!, [Message]())
+        waitForExpectations(timeout: 0.1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+            XCTAssertEqual(observer.events.last!.value.element!, [Message]())
+        })
     }
     
     func testRxDeleteItems() {
@@ -230,11 +228,12 @@ class RxRealmWriteSinks: XCTestCase {
         
         scheduler.start()
         
-        waitForExpectations(timeout: 0.1, handler: nil)
-        
-        XCTAssertEqual(observer.events.count, 1)
-        XCTAssertEqual(observer.events[0].time, 0)
-        XCTAssertTrue(observer.events[0].value.element!.isEmpty)
+        waitForExpectations(timeout: 0.1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+            XCTAssertTrue(observer.events.last!.value.element!.isEmpty)
+        })
     }
     
     func testRxAddObjectsInBg() {

@@ -41,9 +41,8 @@ class RxRealm_Tests: XCTestCase {
     }
     
     func testEmittedResultsValues() {
-        let expectation1 = expectation(description: "Results<Message> first")
-        let expectation2 = expectation(description: "Results<Message> second")
-        
+        let expectation1 = expectation(description: "Results<Message>")
+
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
@@ -52,11 +51,9 @@ class RxRealm_Tests: XCTestCase {
         let observer = scheduler.createObserver(Results<Message>.self)
         
         let messages$ = Observable.from(realm.objects(Message.self)).shareReplay(1)
-        messages$.subscribe(onNext: {messages in
-            switch messages.count {
-            case 1: expectation1.fulfill()
-            case 2: expectation2.fulfill()
-            default: XCTFail("Unexpected value emitted by Observable")
+        messages$.subscribe(onNext: {
+            if $0.count == 2 {
+                expectation1.fulfill()
             }
         }).addDisposableTo(bag)
         
@@ -71,8 +68,8 @@ class RxRealm_Tests: XCTestCase {
         scheduler.start()
         
         waitForExpectations(timeout: 0.5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 2)
+            XCTAssertNil(error, "Error: \(error?.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
             let results = observer.events.last!.value.element!
             XCTAssertTrue(results.first! == Message("first(Results)"))
             XCTAssertTrue(results.last! == Message("second(Results)"))
@@ -80,9 +77,8 @@ class RxRealm_Tests: XCTestCase {
     }
     
     func testEmittedArrayValues() {
-        let expectation1 = expectation(description: "Array<Message> first")
-        let expectation2 = expectation(description: "Array<Message> second")
-        
+        let expectation1 = expectation(description: "Array<Message> expectation")
+
         let realm = realmInMemory(#function)
         clearRealm(realm)
         let bag = DisposeBag()
@@ -91,11 +87,9 @@ class RxRealm_Tests: XCTestCase {
         let observer = scheduler.createObserver(Array<Message>.self)
 
         let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
-        messages$.subscribe(onNext: {messages in
-            switch messages.count {
-            case 1: expectation1.fulfill()
-            case 2: expectation2.fulfill()
-            default: XCTFail("Unexpected value emitted by Observable")
+        messages$.subscribe(onNext: {
+            if $0.count == 2 {
+                expectation1.fulfill()
             }
         }).addDisposableTo(bag)
         
@@ -110,11 +104,10 @@ class RxRealm_Tests: XCTestCase {
         scheduler.start()
         
         waitForExpectations(timeout: 0.5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 2)
-            
-            XCTAssertTrue(observer.events[0].value.element!.equalTo([Message("first(Array)")]))
-            XCTAssertTrue(observer.events[1].value.element!.equalTo([Message("first(Array)"), Message("second(Array)")]))
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertTrue(observer.events[observer.events.count-2].value.element!.equalTo([Message("first(Array)")]))
+            XCTAssertTrue(observer.events[observer.events.count-1].value.element!.equalTo([Message("first(Array)"), Message("second(Array)")]))
         }
     }
     
