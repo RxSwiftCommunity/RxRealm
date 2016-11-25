@@ -334,20 +334,24 @@ extension Reactive where Base: Realm {
 
 //MARK: Realm Object type extensions
 
-public extension ObservableType where E: Object {
+public extension Observable where Element: Object {
 
-    public static func from(_ object: E) -> Observable<E> {
+    // until there is a built-in solution from Realm to observe a single object
+    // this handy method observes a single object by its primary key
+
+    public static func from(_ object: Element) -> Observable<Element> {
 
         guard let realm = object.realm else {
-            return Observable<E>.empty()
+            return Observable<Element>.empty()
         }
-        guard let primaryKeyName = type(of: object).primaryKey(),
+
+        guard let primaryKeyName = Element.primaryKey(),
             let primaryKey = object.value(forKey: primaryKeyName) else {
             fatalError("At present you can't observe objects that don't have primary key.")
         }
 
-        return Observable<E>.create {observer in
-            let objectQuery = realm.objects(type(of: object))
+        return Observable<Element>.create {observer in
+            let objectQuery = realm.objects(Element)
                 .filter("%K == %@", primaryKeyName, primaryKey)
 
             let token = objectQuery.addNotificationBlock {changes in
