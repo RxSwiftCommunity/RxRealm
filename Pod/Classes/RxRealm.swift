@@ -23,7 +23,7 @@ public enum RxRealmError: Error {
 */
 public protocol NotificationEmitter {
 
-    associatedtype ElementType
+    associatedtype ElementType: Object
 
     /**
      Returns a `NotificationToken`, which while retained enables change notifications for the current collection.
@@ -33,9 +33,14 @@ public protocol NotificationEmitter {
     func addNotificationBlock(_ block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 
     func toArray() -> [ElementType]
+
+    func toAnyCollection() -> AnyRealmCollection<ElementType>
 }
 
 extension List: NotificationEmitter {
+    public func toAnyCollection() -> AnyRealmCollection<T> {
+        return AnyRealmCollection<ElementType>(self)
+    }
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
@@ -43,6 +48,9 @@ extension List: NotificationEmitter {
 }
 
 extension AnyRealmCollection: NotificationEmitter {
+    public func toAnyCollection() -> AnyRealmCollection<T> {
+        return AnyRealmCollection<ElementType>(self)
+    }
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
@@ -50,6 +58,9 @@ extension AnyRealmCollection: NotificationEmitter {
 }
 
 extension Results: NotificationEmitter {
+    public func toAnyCollection() -> AnyRealmCollection<T> {
+        return AnyRealmCollection<ElementType>(self)
+    }
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
@@ -57,6 +68,9 @@ extension Results: NotificationEmitter {
 }
 
 extension LinkingObjects: NotificationEmitter {
+    public func toAnyCollection() -> AnyRealmCollection<T> {
+        return AnyRealmCollection<ElementType>(self)
+    }
     public typealias ElementType = Element
     public func toArray() -> [Element] {
         return Array(self)
@@ -79,7 +93,7 @@ public struct RealmChangeset {
     public let updated: [Int]
 }
 
-public extension ObservableType where E: NotificationEmitter {
+public extension ObservableType where E: NotificationEmitter, E.ElementType: Object {
 
     /**
      Returns an `Observable<Self>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
@@ -129,9 +143,9 @@ public extension ObservableType where E: NotificationEmitter {
 
      - returns: `Observable<(Self, RealmChangeset?)>`
      */
-    public static func changesetFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(E, RealmChangeset?)> {
+    public static func changesetFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
         return Observable.create {observer in
-            let token = collection.addNotificationBlock {changeset in
+            let token = collection.toAnyCollection().addNotificationBlock {changeset in
 
                 switch changeset {
                     case .initial(let value):
