@@ -1,7 +1,9 @@
 //
 //  RxRealm extensions
 //
-//  Copyright (c) 2016 RxSwiftCommunity. All rights reserved.
+//  Copyright (c) 2016 RxSwiftCommunity. All rights reserved. 
+//  Check the LICENSE file for details
+//  Created by Marin Todorov
 //
 
 import Foundation

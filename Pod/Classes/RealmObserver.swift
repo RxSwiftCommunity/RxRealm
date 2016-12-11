@@ -1,9 +1,8 @@
 //
-//  RealmObserver.swift
-//  Pods
+//  RxRealm extensions
 //
+//  Copyright (c) 2016 RxSwiftCommunity. All rights reserved.
 //  Created by sergdort on 6/3/16.
-//
 //
 
 import Foundation
