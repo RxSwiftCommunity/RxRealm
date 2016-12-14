@@ -184,6 +184,7 @@
 				TargetAttributes = {
 					9F0BE4221CF8DB4B00919282 = {
 						CreatedOnToolsVersion = 7.3.1;
+						ProvisioningStyle = Manual;
 					};
 					9F1E94B71CF8EA4500BC469B = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -342,6 +343,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -356,7 +358,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -364,6 +365,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -378,7 +380,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.RxSwiftCommunity.RxRealm;
 				PRODUCT_NAME = RxRealm;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -404,7 +405,6 @@
 				PRODUCT_NAME = RxRealm;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -430,7 +430,6 @@
 				PRODUCT_NAME = RxRealm;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
