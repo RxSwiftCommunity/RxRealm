@@ -9,19 +9,6 @@
 
 This library is a thin wrapper around __RealmSwift__.
 
-**NB**: For Swift 3 projects add this snippet to the bottom of your project's Podfile. This will update your targets to use swift3:
-
-```
-post_install do |installer|
-    installer.pods_project.targets.each do |target|
-        target.build_configurations.each do |config|
-            config.build_settings['SWIFT_VERSION'] = '3.0'
-            config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.10'
-        end
-    end
-end
-```
-
 ### Observing collections
 
 RxRealm can be used to create `Observable`s from objects of type `Results`, `List`, `LinkingObjects` or `AnyRealmCollection` as follows:
@@ -197,6 +184,9 @@ Further you're welcome to peak into the __RxRealmTests__ folder of the example a
 This library depends on both __RxSwift__ and __RealmSwift__ 1.0+.
 
 #### CocoaPods
+
+RxRealm requires CocoaPods 1.1.x or higher.
+
 RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```ruby
