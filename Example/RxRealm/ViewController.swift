@@ -35,7 +35,13 @@ class ViewController: UIViewController {
         return l
     }()
 
-    var ticker: TickCounter!
+    lazy var ticker: TickCounter = {
+        let ticker = TickCounter()
+        try! self.realm.write {
+            self.realm.add(ticker)
+        }
+        return ticker
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,14 +80,6 @@ class ViewController: UIViewController {
             .addDisposableTo(bag)
 
         /*
-         Create a ticker object
-         */
-        ticker = TickCounter()
-        try! realm.write {
-            realm.add(ticker)
-        }
-
-        /*
          Bind bar item to increasing the ticker
          */
         tickItemButton.rx.tap
@@ -96,9 +94,9 @@ class ViewController: UIViewController {
          Observing a single object
          */
         Observable.from(ticker)
-            .map({ (ticker) -> String in
+            .map{ (ticker) -> String in
                 return "\(ticker.ticks) ticks"
-            })
+            }
             .bindTo(footer.rx.text)
             .addDisposableTo(bag)
     }
@@ -115,6 +113,10 @@ extension ViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
         cell.textLabel?.text = formatter.string(from: Date(timeIntervalSinceReferenceDate: lap.time))
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Delete objects by tapping them, add ticks to trigger a footer update"
     }
 }
 
