@@ -6,12 +6,12 @@ target 'RxRealm_Example' do
   pod 'RxRealm', :path => '../'
   pod 'RxSwift',    '~> 3.1'
   pod 'RxCocoa',    '~> 3.1'
-  pod 'RealmSwift', '~> 2.1'
+  pod 'RealmSwift', '~> 2.2'
 end
 
 target 'RxRealm_Tests' do
   platform :ios, '8.0'
   pod 'RxTest',    '~> 3.1'
-  pod 'RealmSwift', '~> 2.1'
+  pod 'RealmSwift', '~> 2.2'
   pod 'RxRealm', :path => '../'
 end

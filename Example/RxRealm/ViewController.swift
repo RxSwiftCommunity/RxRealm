@@ -15,7 +15,7 @@ class Lap: Object {
 class TickCounter: Object {
     dynamic var id = UUID().uuidString
     dynamic var ticks: Int = 0
-    override static func primaryKey() -> String? {return "id"}
+    override static func primaryKey() -> String? { return "id" }
 }
 
 //view controller
@@ -46,7 +46,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        laps = realm.objects(Lap.self).sorted(byProperty: "time", ascending: false)
+        laps = realm.objects(Lap.self).sorted(byKeyPath: "time", ascending: false)
 
         /*
          Observable<Results<Lap>> - wrap Results as observable
@@ -61,7 +61,7 @@ class ViewController: UIViewController {
         /*
          Observable<Results<Lap>> - reacting to change sets
          */
-        Observable.changesetFrom(laps)
+        Observable.changeset(from: laps)
             .subscribe(onNext: {[unowned self] results, changes in
                 if let changes = changes {
                     self.tableView.applyChangeset(changes)
@@ -93,8 +93,8 @@ class ViewController: UIViewController {
         /*
          Observing a single object
          */
-        Observable.from(ticker)
-            .map{ (ticker) -> String in
+        Observable.from(object: ticker)
+            .map { ticker -> String in
                 return "\(ticker.ticks) ticks"
             }
             .bindTo(footer.rx.text)

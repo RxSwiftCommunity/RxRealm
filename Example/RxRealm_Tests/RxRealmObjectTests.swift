@@ -37,7 +37,7 @@ class RxRealmObjectTests: XCTestCase {
             realm.add(obj)
         }
 
-        let object$ = Observable<UniqueObject>.from(obj).shareReplay(1)
+        let object$ = Observable<UniqueObject>.from(object: obj).shareReplay(1)
         object$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 4 }.map {_ in ()}
             .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
@@ -82,6 +82,68 @@ class RxRealmObjectTests: XCTestCase {
             XCTAssertEqual(observer.events[2].value.element, "name:test2")
             XCTAssertNotNil(observer.events[3].value.error as? RxRealmError)
             XCTAssertEqual(observer.events[3].value.error as! RxRealmError , RxRealmError.objectDeleted)
+        }
+    }
+
+    func testObjectEmitsSynchronously() {
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        let scheduler = TestScheduler(initialClock: 0)
+        let observer = scheduler.createObserver(UniqueObject.self)
+
+        //create object
+        let idValue = 1024
+        let obj = UniqueObject(idValue)
+        try! realm.write {
+            realm.add(obj)
+        }
+
+        //test sync emit
+        Observable<UniqueObject>.from(object: obj, synchronousStart: true)
+            .subscribe(observer)
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer.events.count, 1)
+        XCTAssertEqual(observer.events[0].value.element!.id, idValue)
+    }
+
+    func testObjectEmitsAsynchronously() {
+        let expectation1 = expectation(description: "Object change")
+
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        let scheduler = TestScheduler(initialClock: 0)
+        let observer = scheduler.createObserver(UniqueObject.self)
+
+        //create object
+        let idValue = 1024
+        let obj = UniqueObject(idValue)
+        try! realm.write {
+            realm.add(obj)
+        }
+
+        //test async emit
+        let object$ = Observable<UniqueObject>.from(object: obj, synchronousStart: false)
+            .share()
+
+        object$
+            .subscribe(observer)
+            .addDisposableTo(bag)
+
+        object$
+            .subscribe(onNext: {_ in
+                expectation1.fulfill()
+            })
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer.events.count, 0)
+
+        waitForExpectations(timeout: 5) {error in
+            XCTAssertTrue(error == nil)
+            XCTAssertEqual(observer.events.count, 1)
+            XCTAssertEqual(observer.events[0].value.element!.id, idValue)
         }
     }
 
