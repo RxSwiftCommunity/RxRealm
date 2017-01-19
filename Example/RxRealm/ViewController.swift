@@ -21,8 +21,7 @@ class TickCounter: Object {
 //view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
-    let realm = try! Realm()
-    
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tickItemButton: UIBarButtonItem!
     @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
@@ -36,9 +35,10 @@ class ViewController: UIViewController {
     }()
 
     lazy var ticker: TickCounter = {
+        let realm = try! Realm()
         let ticker = TickCounter()
-        try! self.realm.write {
-            self.realm.add(ticker)
+        try! realm.write {
+            realm.add(ticker)
         }
         return ticker
     }()
@@ -46,12 +46,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let realm = try! Realm()
         laps = realm.objects(Lap.self).sorted(byKeyPath: "time", ascending: false)
 
         /*
          Observable<Results<Lap>> - wrap Results as observable
          */
-        Observable.from(laps)
+        Observable.collection(from: laps)
             .map {results in "laps: \(results.count)"}
             .subscribe { event in
                 self.title = event.element
@@ -84,7 +85,7 @@ class ViewController: UIViewController {
          */
         tickItemButton.rx.tap
             .subscribe(onNext: {[unowned self] value in
-                try! self.realm.write {
+                try! realm.write {
                     self.ticker.ticks += 1
                 }
             })
