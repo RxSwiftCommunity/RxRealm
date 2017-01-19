@@ -135,9 +135,9 @@ extension ViewController: UITableViewDelegate {
 extension UITableView {
     func applyChangeset(_ changes: RealmChangeset) {
         beginUpdates()
+        deleteRows(at: changes.deleted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         insertRows(at: changes.inserted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         reloadRows(at: changes.updated.map { IndexPath(row: $0, section: 0) }, with: .automatic)
-        deleteRows(at: changes.deleted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         endUpdates()
     }
 }
