@@ -15,14 +15,13 @@ class Lap: Object {
 class TickCounter: Object {
     dynamic var id = UUID().uuidString
     dynamic var ticks: Int = 0
-    override static func primaryKey() -> String? {return "id"}
+    override static func primaryKey() -> String? { return "id" }
 }
 
 //view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
-    let realm = try! Realm()
-    
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tickItemButton: UIBarButtonItem!
     @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
@@ -36,9 +35,10 @@ class ViewController: UIViewController {
     }()
 
     lazy var ticker: TickCounter = {
+        let realm = try! Realm()
         let ticker = TickCounter()
-        try! self.realm.write {
-            self.realm.add(ticker)
+        try! realm.write {
+            realm.add(ticker)
         }
         return ticker
     }()
@@ -46,12 +46,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        laps = realm.objects(Lap.self).sorted(byProperty: "time", ascending: false)
+        let realm = try! Realm()
+        laps = realm.objects(Lap.self).sorted(byKeyPath: "time", ascending: false)
 
         /*
          Observable<Results<Lap>> - wrap Results as observable
          */
-        Observable.from(laps)
+        Observable.collection(from: laps)
             .map {results in "laps: \(results.count)"}
             .subscribe { event in
                 self.title = event.element
@@ -61,7 +62,7 @@ class ViewController: UIViewController {
         /*
          Observable<Results<Lap>> - reacting to change sets
          */
-        Observable.changesetFrom(laps)
+        Observable.changeset(from: laps)
             .subscribe(onNext: {[unowned self] results, changes in
                 if let changes = changes {
                     self.tableView.applyChangeset(changes)
@@ -84,7 +85,7 @@ class ViewController: UIViewController {
          */
         tickItemButton.rx.tap
             .subscribe(onNext: {[unowned self] value in
-                try! self.realm.write {
+                try! realm.write {
                     self.ticker.ticks += 1
                 }
             })
@@ -93,8 +94,8 @@ class ViewController: UIViewController {
         /*
          Observing a single object
          */
-        Observable.from(ticker)
-            .map{ (ticker) -> String in
+        Observable.from(object: ticker)
+            .map { ticker -> String in
                 return "\(ticker.ticks) ticks"
             }
             .bindTo(footer.rx.text)
@@ -135,9 +136,9 @@ extension ViewController: UITableViewDelegate {
 extension UITableView {
     func applyChangeset(_ changes: RealmChangeset) {
         beginUpdates()
+        deleteRows(at: changes.deleted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         insertRows(at: changes.inserted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         reloadRows(at: changes.updated.map { IndexPath(row: $0, section: 0) }, with: .automatic)
-        deleteRows(at: changes.deleted.map { IndexPath(row: $0, section: 0) }, with: .automatic)
         endUpdates()
     }
 }

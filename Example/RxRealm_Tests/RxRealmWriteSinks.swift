@@ -39,7 +39,7 @@ class RxRealmWriteSinks: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
 
         messages$.subscribe(observer)
             .addDisposableTo(bag)
@@ -79,7 +79,7 @@ class RxRealmWriteSinks: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
             .addDisposableTo(bag)
@@ -117,7 +117,7 @@ class RxRealmWriteSinks: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<UniqueObject>.self)
         let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.arrayFrom(realm.objects(UniqueObject.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(UniqueObject.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
             .addDisposableTo(bag)
@@ -153,7 +153,7 @@ class RxRealmWriteSinks: XCTestCase {
         let realm = realmInMemory(#function)
         let element = Message("1")
         let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
         let rx_delete: AnyObserver<Message> = Realm.rx.delete()
         
         try! realm.write {
@@ -197,7 +197,7 @@ class RxRealmWriteSinks: XCTestCase {
         let realm = realmInMemory(#function)
         let elements = [Message("1"), Message("1")]
         let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = Observable.arrayFrom(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
         let rx_delete: AnyObserver<[Message]> = Realm.rx.delete()
         
         try! realm.write {
@@ -248,7 +248,7 @@ class RxRealmWriteSinks: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = Observable.from(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.collection(from: realm.objects(Message.self)).shareReplay(1)
         
         messages$
             .subscribe(observer).addDisposableTo(bag)
@@ -309,7 +309,7 @@ class RxRealmWriteSinks: XCTestCase {
             XCTAssertNil(error)
             let finalResult = observer.events.last!.value.element!
             XCTAssertTrue(finalResult.count == 8, "The final amount of objects in realm are not correct")
-            XCTAssertTrue((try! Realm(configuration: conf)).objects(Message.self).sorted(byProperty: "text")
+            XCTAssertTrue((try! Realm(configuration: conf)).objects(Message.self).sorted(byKeyPath: "text")
                 .reduce("", { acc, el in acc + el.text
             }) == "12345678" /*😈*/, "The final list of objects is not the one expected")
         })

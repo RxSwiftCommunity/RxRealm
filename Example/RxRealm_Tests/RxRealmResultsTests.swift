@@ -37,7 +37,7 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = Observable.from(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.collection(from: realm.objects(Message.self)).shareReplay(1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 4 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         messages$
@@ -83,7 +83,7 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(String.self)
         
-        let messages$ = Observable.changesetFrom(realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.changeset(from: realm.objects(Message.self)).shareReplay(1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         messages$
@@ -119,6 +119,110 @@ class RxRealmResultsTests: XCTestCase {
             XCTAssertEqual(observer.events[1].value.element!, "i:[0] d:[] u:[]")
             XCTAssertEqual(observer.events[2].value.element!, "i:[] d:[0] u:[]")
         }
+    }
+
+    func testResultsEmitsCollectionSynchronously() {
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        // collection
+        let scheduler = TestScheduler(initialClock: 0)
+        let observer1 = scheduler.createObserver(Results<Message>.self)
+
+        Observable.collection(from: realm.objects(Message.self), synchronousStart: true)
+            .subscribe(observer1)
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer1.events.count, 1)
+        XCTAssertEqual(observer1.events[0].value.element!.count, 0)
+
+    }
+
+    func testResultsEmitsChangesetSynchronously() {
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+        let scheduler = TestScheduler(initialClock: 0)
+
+        // changeset
+        let observer2 = scheduler.createObserver(Int.self)
+
+        Observable.changeset(from: realm.objects(Message.self), synchronousStart: true)
+            .map { $0.0.count }
+            .subscribe(observer2)
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer2.events.count, 1)
+        XCTAssertEqual(observer2.events[0].value.element!, 0)
+    }
+
+    func testResultsEmitsCollectionAsynchronously() {
+        let expectation1 = expectation(description: "Async collection emit")
+
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        let scheduler = TestScheduler(initialClock: 0)
+
+        // test collection
+
+        let observer = scheduler.createObserver(Results<Message>.self)
+
+        let messages$ = Observable.collection(from: realm.objects(Message.self), synchronousStart: false)
+            .share()
+
+        messages$
+            .subscribe(observer)
+            .addDisposableTo(bag)
+
+        messages$
+            .subscribe(onNext: {_ in
+                expectation1.fulfill()
+            })
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer.events.count, 0)
+
+        waitForExpectations(timeout: 5) {error in
+            XCTAssertTrue(error == nil)
+            XCTAssertEqual(observer.events.count, 1)
+            XCTAssertEqual(observer.events[0].value.element!.count, 0)
+        }
+    }
+
+    func testResultsEmitsChangesetAsynchronously() {
+        // test changeset
+        let expectation2 = expectation(description: "Async changeset emit")
+
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        let scheduler = TestScheduler(initialClock: 0)
+
+        let observer2 = scheduler.createObserver(Int.self)
+
+        let messages2$ = Observable.changeset(from: realm.objects(Message.self), synchronousStart: false)
+            .share()
+
+        messages2$
+            .map { $0.0.count }
+            .subscribe(observer2)
+            .addDisposableTo(bag)
+
+        messages2$
+            .subscribe(onNext: {_ in
+                expectation2.fulfill()
+            })
+            .addDisposableTo(bag)
+
+        XCTAssertEqual(observer2.events.count, 0)
+
+        waitForExpectations(timeout: 5) {error in
+            XCTAssertTrue(error == nil)
+            XCTAssertEqual(observer2.events.count, 1)
+            XCTAssertEqual(observer2.events[0].value.element!, 0)
+        }
+        
+
     }
 
 }

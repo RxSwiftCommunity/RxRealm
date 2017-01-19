@@ -97,20 +97,33 @@ public struct RealmChangeset {
 
 public extension ObservableType where E: NotificationEmitter, E.ElementType: Object {
 
-    /**
-     Returns an `Observable<Self>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
-
-     - returns: `Observable<Self>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
-     */
-
+    @available(*, deprecated, renamed: "collection(from:synchronousStart:)")
     public static func from(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<E> {
+        return self.collection(from: collection)
+    }
+
+    /**
+     Returns an `Observable<E>` that emits each time the collection data changes.
+     The observable emits an initial value upon subscription.
+
+     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+
+     - returns: `Observable<E>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
+     */
+    public static func collection(from collection: E, synchronousStart: Bool = true) -> Observable<E> {
         return Observable.create {observer in
+            if synchronousStart {
+                observer.onNext(collection)
+            }
+
             let token = collection.addNotificationBlock {changeset in
 
                 let value: E
 
                 switch changeset {
                     case .initial(let latestValue):
+                        guard !synchronousStart else { return }
                         value = latestValue
 
                     case .update(let latestValue, _, _, _):
@@ -125,32 +138,59 @@ public extension ObservableType where E: NotificationEmitter, E.ElementType: Obj
             }
 
             return Disposables.create {
-                observer.onCompleted()
                 token.stop()
+                observer.onCompleted()
             }
         }
     }
 
+    @available(*, deprecated, renamed: "array(from:synchronousStart:)")
     public static func arrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<Array<E.ElementType>> {
-        return Observable.from(collection, scheduler: scheduler)
-            .map { $0.toArray() }
+        return array(from: collection)
     }
 
     /**
-     Returns an `Observable<(Self, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     Returns an `Observable<Array<E.Element>>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     The result emits an array containing all objects from the source collection.
+
+     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+
+     - returns: `Observable<Array<E.Element>>`, e.g. when called on `Results<Model>` it will return `Observable<Array<Model>>`, on a `List<User>` it will return `Observable<Array<User>>`, etc.
+     */
+    public static func array(from collection: E, synchronousStart: Bool = true) -> Observable<Array<E.ElementType>> {
+        return Observable.collection(from: collection, synchronousStart: synchronousStart)
+            .map { $0.toArray() }
+    }
+
+    @available(*, deprecated, renamed: "changeset(from:synchronousStart:)")
+    public static func changesetFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
+        return changeset(from: collection)
+    }
+
+    /**
+     Returns an `Observable<(E, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
 
      When the observable emits for the first time (if the initial notification is not coalesced with an update) the second tuple value will be `nil`.
 
      Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
+     
+     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
 
-     - returns: `Observable<(Self, RealmChangeset?)>`
+     - returns: `Observable<(AnyRealmCollection<E.Element>, RealmChangeset?)>`
      */
-    public static func changesetFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
+    public static func changeset(from collection: E, synchronousStart: Bool = true) -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
         return Observable.create {observer in
+            if synchronousStart {
+                observer.onNext((collection.toAnyCollection(), nil))
+            }
+
             let token = collection.toAnyCollection().addNotificationBlock {changeset in
 
                 switch changeset {
                     case .initial(let value):
+                        guard !synchronousStart else { return }
                         observer.onNext((value, nil))
                     case .update(let value, let deletes, let inserts, let updates):
                         observer.onNext((value, RealmChangeset(deleted: deletes, inserted: inserts, updated: updates)))
@@ -167,8 +207,13 @@ public extension ObservableType where E: NotificationEmitter, E.ElementType: Obj
         }
     }
 
+    @available(*, deprecated, renamed: "arrayWithChangeset(from:synchronousStart:)")
+    public static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Array<E.ElementType>, RealmChangeset?)> {
+        return arrayWithChangeset(from: collection)
+    }
+
     /**
-     Returns an `Observable<(Array<Self.Generator.Element>, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     Returns an `Observable<(Array<E.Element>, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
 
      This method emits an `Array` containing all the realm collection objects, this means they all live in the memory. If you're using this method to observe large collections you might hit memory warnings.
 
@@ -176,15 +221,23 @@ public extension ObservableType where E: NotificationEmitter, E.ElementType: Obj
 
      Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
 
-     - returns: `Observable<(Array<Self.Generator.Element>, RealmChangeset?)>`
+     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+
+     - returns: `Observable<(Array<E.Element>, RealmChangeset?)>`
      */
-    public static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Array<E.ElementType>, RealmChangeset?)> {
-        return Observable.changesetFrom(collection, scheduler: scheduler)
+    public static func arrayWithChangeset(from collection: E, synchronousStart: Bool = true) -> Observable<(Array<E.ElementType>, RealmChangeset?)> {
+        return Observable.changeset(from: collection)
             .map { ($0.toArray(), $1) }
     }
 }
 
 public extension Observable {
+
+    @available(*, deprecated, renamed: "from(realm:)")
+    public static func from(_ realm: Realm, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Realm, Realm.Notification)> {
+        return from(realm: realm)
+    }
 
     /**
      Returns an `Observable<(Realm, Realm.Notification)>` that emits each time the Realm emits a notification.
@@ -196,13 +249,14 @@ public extension Observable {
      or `.refreshRequired` which happens when a write transaction occurs from a different thread on the same realm file
 
      For more information look up: [Realm.Notification](https://realm.io/docs/swift/latest/api/Enums/Notification.html)
-
-     - returns: `Observable<(Realm, Realm.Notification)>`, which you can subscribe to.
+     
+     - parameter realm: A Realm instance
+     - returns: `Observable<(Realm, Realm.Notification)>`, which you can subscribe to
      */
-    public static func from(_ realm: Realm, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Realm, Realm.Notification)> {
+    public static func from(realm: Realm) -> Observable<(Realm, Realm.Notification)> {
 
         return Observable<(Realm, Realm.Notification)>.create {observer in
-            let token = realm.addNotificationBlock {(notification: Realm.Notification, realm: Realm) in
+            let token = realm.addNotificationBlock { (notification: Realm.Notification, realm: Realm) in
                 observer.onNext((realm, notification))
             }
 
@@ -216,13 +270,14 @@ public extension Observable {
 
 //MARK: Realm type extensions
 
-extension Realm: ReactiveCompatible {}
+extension Realm: ReactiveCompatible { }
 
 extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich adds object sequence to the current Realm
-     - param: update - if set to `true` it will override existing objects with matching primary key
+
+     - parameter: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public func add<O: Sequence>(update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
@@ -230,12 +285,14 @@ extension Reactive where Base: Realm {
             try! realm.write {
                 realm.add(element, update: update)
             }
-        }.asObserver()
+        }
+        .asObserver()
     }
 
     /**
      Returns bindable sink wich adds an object to Realm
-     - param: update - if set to `true` it will override existing objects with matching primary key
+
+     - parameter: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public func add<O: Object>(update: Bool = false) -> AnyObserver<O> {
@@ -248,6 +305,7 @@ extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich deletes objects in sequence from Realm.
+
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public func delete<S: Sequence>() -> AnyObserver<S> where S.Iterator.Element: Object {
@@ -260,6 +318,7 @@ extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich deletes objects in sequence from Realm.
+
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public func delete<O: Object>() -> AnyObserver<O> {
@@ -275,9 +334,10 @@ extension Reactive where Base: Realm {
     
     /**
      Returns bindable sink wich adds object sequence to a Realm
-     - param: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
+
+     - parameter: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
      to use to get a Realm for the write operations
-     - param: update - if set to `true` it will override existing objects with matching primary key
+     - parameter: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func add<O: Sequence>(
@@ -293,9 +353,10 @@ extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich adds an object to a Realm
-     - param: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
+
+     - parameter: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
      to use to get a Realm for the write operations
-     - param: update - if set to `true` it will override existing objects with matching primary key
+     - parameter: update - if set to `true` it will override existing objects with matching primary key
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func add<O: Object>(
@@ -311,6 +372,7 @@ extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich deletes objects in sequence from Realm.
+
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func delete<S: Sequence>() -> AnyObserver<S>  where S.Iterator.Element: Object {
@@ -331,6 +393,7 @@ extension Reactive where Base: Realm {
 
     /**
      Returns bindable sink wich deletes object from Realm
+
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func delete<O: Object>() -> AnyObserver<O> {
@@ -352,10 +415,24 @@ extension Reactive where Base: Realm {
 
 public extension Observable where Element: Object {
 
+    @available(*, deprecated, renamed: "from(realm:)")
+    public static func from(_ object: Element) -> Observable<Element> {
+        return from(object: object)
+    }
+
     // until there is a built-in solution from Realm to observe a single object
     // this handy method observes a single object by its primary key
 
-    public static func from(_ object: Element) -> Observable<Element> {
+    /**
+     Returns an `Observable<Object>` that emits each time the object changes. The observable emits an initial value upon subscription.
+
+     - parameter object: A Realm Object to observe
+     - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+
+     - returns: `Observable<Object>` will emit any time the observed object changes + one initial emit upon subscription
+     */
+
+    public static func from(object: Element, synchronousStart: Bool = true) -> Observable<Element> {
 
         guard let realm = object.realm else {
             return Observable<Element>.empty()
@@ -367,12 +444,17 @@ public extension Observable where Element: Object {
         }
 
         return Observable<Element>.create {observer in
+            if synchronousStart {
+                observer.onNext(object)
+            }
+
             let objectQuery = realm.objects(Element.self)
                 .filter("%K == %@", primaryKeyName, primaryKey)
 
             let token = objectQuery.addNotificationBlock {changes in
                 switch changes {
                 case .initial(let results):
+                    guard !synchronousStart else { return }
                     if let latestObject = results.first {
                         observer.onNext(latestObject)
                     } else {

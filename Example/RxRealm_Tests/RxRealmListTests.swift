@@ -42,7 +42,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.from(message.recipients).shareReplay(1)
+        let users$ = Observable.collection(from: message.recipients).shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$
@@ -71,7 +71,7 @@ class RxRealmListTests: XCTestCase {
         }
     }
     
-    func testLustTypeChangeset() {
+    func testListTypeChangeset() {
         let expectation1 = expectation(description: "List<User> first")
         
         let realm = realmInMemory(#function)
@@ -86,7 +86,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.changesetFrom(message.recipients).shareReplay(1)
+        let users$ = Observable.changeset(from: message.recipients).shareReplay(1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         users$

@@ -30,7 +30,7 @@ class RxRealmRealmTests: XCTestCase {
         typealias loggedNotification = (Realm, Realm.Notification)
         let observer = scheduler.createObserver(loggedNotification.self)
         
-        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm).shareReplay(1)
+        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).shareReplay(1)
         realm$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 2 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         realm$
@@ -71,7 +71,7 @@ class RxRealmRealmTests: XCTestCase {
         typealias loggedNotification = (Realm, Realm.Notification)
         let observer = scheduler.createObserver(loggedNotification.self)
         
-        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm).shareReplay(1)
+        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).shareReplay(1)
         realm$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 1 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
         realm$
