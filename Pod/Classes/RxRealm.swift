@@ -415,7 +415,7 @@ extension Reactive where Base: Realm {
 
 public extension Observable where Element: Object {
 
-    @available(*, deprecated, renamed: "from(realm:)")
+    @available(*, deprecated, renamed: "from(object:)")
     public static func from(_ object: Element) -> Observable<Element> {
         return from(object: object)
     }
