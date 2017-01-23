@@ -198,8 +198,12 @@ RxRealm does not depend on UIKit/Cocoa and it doesn't provide built-in way to bi
 You can use the built-in RxCocoa `bindTo(_:)` method, which will automatically drive your table view from your Realm results:
 
 ```swift
-Observable.changeset(from: [Realm collection] )
-  .bindTo(tableView.rx.realmChanges(dataSource))
+Observable.from( [Realm collection] )
+  .bindTo(tableView.rx.items) {tv, ip, element in
+    let cell = tv.dequeueReusableCell(withIdentifier: "Cell")!
+    cell.textLabel?.text = element.text
+    return cell
+  }
   .addDisposableTo(bag)
 ```
 
