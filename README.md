@@ -193,7 +193,19 @@ Observable.from(someCollectionOfPersistedObjects)
 
 RxRealm does not depend on UIKit/Cocoa and it doesn't provide built-in way to bind Realm collections to UI components.
 
-There is a separate library __`RxRealmDataSources`__ [link](https://github.com/RxSwiftCommunity/RxRealmDataSources), which mimics the default data sources library for RxSwift
+#### a) Non-animated binding
+
+You can use the built-in RxCocoa `bindTo(_:)` method, which will automatically drive your table view from your Realm results:
+
+```swift
+Observable.changeset(from: [Realm collection] )
+  .bindTo(tableView.rx.realmChanges(dataSource))
+  .addDisposableTo(bag)
+```
+
+#### b) Animated binding with RxRealmDataSources
+
+There is a separate library __`RxRealmDataSources`__ [link](https://github.com/RxSwiftCommunity/RxRealmDataSources), which mimics the default data sources library behavior for RxSwift.
 
 `RxRealmDataSources` allows you to bind directly an observable collection of Realm objects to a table or collection view. Here's how the code to bind a collection of laps to a table view looks like:
 
@@ -219,7 +231,7 @@ The data source will reflect all changes via animations to the table view:
 
 ![RxRealm animated changes](assets/animatedChanges.gif)
 
-If you want to learn more check the __`RxRealmDataSources`__ [README](https://github.com/RxSwiftCommunity/RxRealmDataSources).
+If you want to learn more about the features beyond animating changes, check the __`RxRealmDataSources`__ [README](https://github.com/RxSwiftCommunity/RxRealmDataSources).
 
 ## Example app
 
