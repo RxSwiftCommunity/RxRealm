@@ -85,7 +85,7 @@ class RxRealmObjectTests: XCTestCase {
         }
     }
 
-    func testObjectEmitsSynchronously() {
+    func testObjectEmitsInitialChange() {
         let realm = realmInMemory(#function)
         let bag = DisposeBag()
 
@@ -100,7 +100,7 @@ class RxRealmObjectTests: XCTestCase {
         }
 
         //test sync emit
-        Observable<UniqueObject>.from(object: obj, synchronousStart: true)
+        Observable<UniqueObject>.from(object: obj, emitInitialValue: true)
             .subscribe(observer)
             .addDisposableTo(bag)
 
@@ -125,7 +125,7 @@ class RxRealmObjectTests: XCTestCase {
         }
 
         //test async emit
-        let object$ = Observable<UniqueObject>.from(object: obj, synchronousStart: false)
+        let object$ = Observable<UniqueObject>.from(object: obj, emitInitialValue: false)
             .share()
 
         object$
@@ -139,6 +139,11 @@ class RxRealmObjectTests: XCTestCase {
             .addDisposableTo(bag)
 
         XCTAssertEqual(observer.events.count, 0)
+        
+        //write change
+        try! realm.write {
+            obj.name = "test"
+        }
 
         waitForExpectations(timeout: 5) {error in
             XCTAssertTrue(error == nil)
