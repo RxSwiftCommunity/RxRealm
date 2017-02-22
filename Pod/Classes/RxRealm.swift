@@ -452,4 +452,34 @@ public extension Observable where Element: Object {
         }
     }
     
+    /**
+     Returns an `Observable<PropertyChange>` that emits the object `PropertyChange`s.
+     
+     - parameter object: A Realm Object to observe
+     
+     - returns: `Observable<PropertyChange>` will emit any time a change is detected on the object
+     */
+    
+    public static func changes(object: Element) -> Observable<PropertyChange> {
+        return Observable<PropertyChange>.create {observer in
+            let token = object.addNotificationBlock {change in
+                switch change {
+                case .change(let changes):
+                    for change in changes {
+                        observer.onNext(change)
+                    }
+                case .deleted:
+                    observer.onError(RxRealmError.objectDeleted)
+                case .error(let error):
+                    observer.onError(error)
+                }
+            }
+            
+            return Disposables.create {
+                token.stop()
+            }
+        }
+    }
+
+    
 }
