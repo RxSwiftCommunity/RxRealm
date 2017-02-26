@@ -420,9 +420,6 @@ public extension Observable where Element: Object {
         return from(object: object)
     }
 
-    // until there is a built-in solution from Realm to observe a single object
-    // this handy method observes a single object by its primary key
-
     /**
      Returns an `Observable<Object>` that emits each time the object changes. The observable emits an initial value upon subscription.
 
@@ -432,40 +429,18 @@ public extension Observable where Element: Object {
      - returns: `Observable<Object>` will emit any time the observed object changes + one initial emit upon subscription
      */
 
-    public static func from(object: Element, synchronousStart: Bool = true) -> Observable<Element> {
-
-        guard let realm = object.realm else {
-            return Observable<Element>.empty()
-        }
-
-        guard let primaryKeyName = Element.primaryKey(),
-            let primaryKey = object.value(forKey: primaryKeyName) else {
-            fatalError("At present you can't observe objects that don't have primary key.")
-        }
-
+    public static func from(object: Element, emitInitialValue: Bool = true) -> Observable<Element> {
         return Observable<Element>.create {observer in
-            if synchronousStart {
+            if emitInitialValue {
                 observer.onNext(object)
             }
 
-            let objectQuery = realm.objects(Element.self)
-                .filter("%K == %@", primaryKeyName, primaryKey)
-
-            let token = objectQuery.addNotificationBlock {changes in
-                switch changes {
-                case .initial(let results):
-                    guard !synchronousStart else { return }
-                    if let latestObject = results.first {
-                        observer.onNext(latestObject)
-                    } else {
-                        observer.onError(RxRealmError.objectDeleted)
-                    }
-                case .update(let results, _, _, _):
-                    if let latestObject = results.first {
-                        observer.onNext(latestObject)
-                    } else {
-                        observer.onError(RxRealmError.objectDeleted)
-                    }
+            let token = object.addNotificationBlock {change in
+                switch change {
+                case .change:
+                    observer.onNext(object)
+                case .deleted:
+                    observer.onError(RxRealmError.objectDeleted)
                 case .error(let error):
                     observer.onError(error)
                 }
@@ -476,4 +451,5 @@ public extension Observable where Element: Object {
             }
         }
     }
+    
 }
