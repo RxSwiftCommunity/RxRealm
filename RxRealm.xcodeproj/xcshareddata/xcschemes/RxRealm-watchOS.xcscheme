@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
-               BuildableName = "RxRealm-watchOS.framework"
+               BuildableName = "RxRealm.framework"
                BlueprintName = "RxRealm-watchOS"
                ReferencedContainer = "container:RxRealm.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
-            BuildableName = "RxRealm-watchOS.framework"
+            BuildableName = "RxRealm.framework"
             BlueprintName = "RxRealm-watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
-            BuildableName = "RxRealm-watchOS.framework"
+            BuildableName = "RxRealm.framework"
             BlueprintName = "RxRealm-watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
