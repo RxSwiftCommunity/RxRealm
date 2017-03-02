@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DD75B4471E67C18B0011CAA9"
-               BuildableName = "RxRealm.framework"
-               BlueprintName = "RxRealm-tvOS"
+               BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
+               BuildableName = "RxRealm-watchOS.framework"
+               BlueprintName = "RxRealm-watchOS"
                ReferencedContainer = "container:RxRealm.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD75B4471E67C18B0011CAA9"
-            BuildableName = "RxRealm.framework"
-            BlueprintName = "RxRealm-tvOS"
+            BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
+            BuildableName = "RxRealm-watchOS.framework"
+            BlueprintName = "RxRealm-watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD75B4471E67C18B0011CAA9"
-            BuildableName = "RxRealm.framework"
-            BlueprintName = "RxRealm-tvOS"
+            BlueprintIdentifier = "DD75B4561E67C29A0011CAA9"
+            BuildableName = "RxRealm-watchOS.framework"
+            BlueprintName = "RxRealm-watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
