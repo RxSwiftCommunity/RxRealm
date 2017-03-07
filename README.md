@@ -111,6 +111,14 @@ Observable.from(object: ticker)
 
 This API uses the [Realm object notifications](https://realm.io/news/realm-objc-swift-2.4/) under the hood to listen for changes.
 
+This method will by default emit the object initial state as its first `next` event. You can disable this behavior by using the `emitInitialValue` parameter and setting it to `false`.
+
+Finally you can set changes to which properties constitute an object change you'd like to observe for:
+
+```swift
+Observable.from(object: ticker, properties: ["name", "id", "family"]) ...
+```
+
 ## Write transactions
 
 ##### `rx.add()`
