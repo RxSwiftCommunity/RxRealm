@@ -424,12 +424,13 @@ public extension Observable where Element: Object {
      Returns an `Observable<Object>` that emits each time the object changes. The observable emits an initial value upon subscription.
 
      - parameter object: A Realm Object to observe
-     - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter emitInitialValue: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter properties: changes to which properties would triger emitting a .next event
 
      - returns: `Observable<Object>` will emit any time the observed object changes + one initial emit upon subscription
      */
 
-    public static func from(object: Element, emitInitialValue: Bool = true) -> Observable<Element> {
+  public static func from(object: Element, emitInitialValue: Bool = true, properties: [String]? = nil) -> Observable<Element> {
         return Observable<Element>.create {observer in
             if emitInitialValue {
                 observer.onNext(object)
@@ -437,7 +438,11 @@ public extension Observable where Element: Object {
 
             let token = object.addNotificationBlock {change in
                 switch change {
-                case .change:
+                case .change(let changedProperties):
+                    if let properties = properties, !changedProperties.contains { return properties.contains($0.name) } {
+                        //if change property isn't an observed one, just return
+                        return
+                    }
                     observer.onNext(object)
                 case .deleted:
                     observer.onError(RxRealmError.objectDeleted)
@@ -460,7 +465,7 @@ public extension Observable where Element: Object {
      - returns: `Observable<PropertyChange>` will emit any time a change is detected on the object
      */
     
-    public static func changes(object: Element) -> Observable<PropertyChange> {
+    public static func propertyChanges(object: Element) -> Observable<PropertyChange> {
         return Observable<PropertyChange>.create {observer in
             let token = object.addNotificationBlock {change in
                 switch change {

@@ -94,7 +94,7 @@ class ViewController: UIViewController {
         /*
          Observing a single object
          */
-        let tickerChanges$ = Observable.changes(object: ticker)
+        let tickerChanges$ = Observable.propertyChanges(object: ticker)
         tickerChanges$
             .filter({ $0.name == "ticks" })
             .map({ "\($0.newValue!) ticks" })
