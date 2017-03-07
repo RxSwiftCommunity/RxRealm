@@ -94,10 +94,10 @@ class ViewController: UIViewController {
         /*
          Observing a single object
          */
-        Observable.from(object: ticker)
-            .map { ticker -> String in
-                return "\(ticker.ticks) ticks"
-            }
+        let tickerChanges$ = Observable.propertyChanges(object: ticker)
+        tickerChanges$
+            .filter({ $0.name == "ticks" })
+            .map({ "\($0.newValue!) ticks" })
             .bindTo(footer.rx.text)
             .addDisposableTo(bag)
     }
