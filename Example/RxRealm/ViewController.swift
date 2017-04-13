@@ -77,7 +77,13 @@ class ViewController: UIViewController {
          */
         addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
-            .bindTo(Realm.rx.add())
+            .bindTo(Realm.rx.add(onError: {elements, error in
+                if let elements = elements {
+                    print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
+                } else {
+                    print("Error \(error.localizedDescription) while opening realm.")
+                }
+            }))
             .addDisposableTo(bag)
 
         /*
