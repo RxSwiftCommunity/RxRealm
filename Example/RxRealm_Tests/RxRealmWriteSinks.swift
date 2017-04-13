@@ -70,44 +70,71 @@ class RxRealmWriteSinks: XCTestCase {
         })
     }
 
-    func testRxAddWithErrorObject() {
+    func testRxAddObjectWithError() {
         let expectation = self.expectation(description: "Message1")
-        let realm = realmInMemory(#function)
-        let bag = DisposeBag()
+        var conf = Realm.Configuration()
+        conf.fileURL = URL(string: "/asdasdasdsad")!
 
+        let bag = DisposeBag()
+        let subject = PublishSubject<UniqueObject>()
+
+        let o1 = UniqueObject()
+        o1.id = 1
+
+        var recordedError: Error?
+
+        let observer: AnyObserver<UniqueObject> = Realm.rx.add(configuration: conf, update: true, onError: {value, error in
+            XCTAssertNil(value)
+            recordedError = error
+            expectation.fulfill()
+        })
+
+        subject.asObservable()
+            .subscribe(observer)
+            .addDisposableTo(bag)
+
+        subject.onNext(o1)
+
+        waitForExpectations(timeout: 1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertEqual((recordedError! as NSError).code, 3)
+        })
+    }
+
+    func testRxAddSequenceWithError() {
+        let expectation = self.expectation(description: "Message1")
+        var conf = Realm.Configuration()
+        conf.fileURL = URL(string: "/asdasdasdsad")!
+
+        let bag = DisposeBag()
         let subject = PublishSubject<[UniqueObject]>()
 
         let o1 = UniqueObject()
         o1.id = 1
         let o2 = UniqueObject()
-        o2.id = 1
+        o2.id = 2
 
-        var recordedValues: [UniqueObject]?
         var recordedError: Error?
 
+        let observer: AnyObserver<[UniqueObject]> = Realm.rx.add(configuration: conf, update: true, onError: {values, error in
+            XCTAssertNil(values)
+            recordedError = error
+            expectation.fulfill()
+        })
+
         subject.asObservable()
-            .subscribe(Realm.rx.add(configuration: realm.configuration) { values, error in
-                recordedValues = values
-                recordedError = error
-                expectation.fulfill()
-            })
+            .subscribe(observer)
             .addDisposableTo(bag)
 
         subject.onNext([o1, o2])
-//        XCTAssertThrowsError(subject.onNext([o1, o2]), //will raise error
-//            "Didn't raise error for durplicate object", { error in
-//                NSLog("")
-//        })
 
         waitForExpectations(timeout: 1, handler: {error in
             XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertEqual(recordedValues!.first!.id, 1, "incorrect values recorded")
-
+            XCTAssertEqual((recordedError! as NSError).code, 3)
         })
     }
 
-
-    func testRxAddObjects() {
+    func testRxAddSequence() {
         let expectation = self.expectation(description: "Message1")
         let realm = realmInMemory(#function)
         let bag = DisposeBag()
