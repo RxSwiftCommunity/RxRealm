@@ -68,7 +68,7 @@ class RxRealm_Tests: XCTestCase {
         scheduler.start()
         
         waitForExpectations(timeout: 0.5) {error in
-            XCTAssertNil(error, "Error: \(error?.localizedDescription)")
+            XCTAssertNil(error, "Error: \(String(describing: error?.localizedDescription))")
             XCTAssertTrue(observer.events.count > 0)
             let results = observer.events.last!.value.element!
             XCTAssertTrue(results.first! == Message("first(Results)"))
