@@ -280,10 +280,10 @@ extension Reactive where Base: Realm {
 
      - parameter: update - if set to `true` it will override existing objects with matching primary key
      - parameter: onError - closure to implement custom error handling
-     - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
+     - returns: `AnyObserver<S>`, which you can use to subscribe an `Observable` to
      */
-    public func add<O: Sequence>(update: Bool = false,
-                    onError: ((O?, Error)->Void)? = nil) -> AnyObserver<O> where O.Iterator.Element: Object {
+    public func add<S: Sequence>(update: Bool = false,
+                    onError: ((S?, Error)->Void)? = nil) -> AnyObserver<S> where S.Iterator.Element: Object {
         return RealmObserver(realm: base) {realm, elements, error in
             guard let realm = realm else {
                 onError?(nil, error ?? RxRealmError.unknown)
@@ -382,10 +382,10 @@ extension Reactive where Base: Realm {
      - parameter: onError - closure to implement custom error handling
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public static func add<O: Sequence>(
+    public static func add<S: Sequence>(
         configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration,
         update: Bool = false,
-        onError: ((O?, Error)->Void)? = nil) -> AnyObserver<O> where O.Iterator.Element: Object {
+        onError: ((S?, Error)->Void)? = nil) -> AnyObserver<S> where S.Iterator.Element: Object {
 
         return RealmObserver(configuration: configuration) {realm, elements, error in
             guard let realm = realm else {
