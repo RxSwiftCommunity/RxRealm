@@ -338,34 +338,46 @@ extension Reactive where Base: Realm {
      - parameter: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
      to use to get a Realm for the write operations
      - parameter: update - if set to `true` it will override existing objects with matching primary key
+     - parameter: onError - closure to implement custom error handling
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func add<O: Sequence>(
         configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration,
-        update: Bool = false) -> AnyObserver<O> where O.Iterator.Element: Object {
+        update: Bool = false,
+        onError: ((O, Error)->Void)? = nil) -> AnyObserver<O> where O.Iterator.Element: Object {
 
         return RealmObserver(configuration: configuration) {realm, elements in
-            try! realm.write {
-                realm.add(elements, update: update)
+            do {
+                try realm.write {
+                    realm.add(elements, update: update)
+                }
+            } catch let e {
+                onError?(elements, e)
             }
         }.asObserver()
     }
 
     /**
-     Returns bindable sink wich adds an object to a Realm
+     Returns bindable sink which adds an object to a Realm
 
      - parameter: configuration (by default uses `Realm.Configuration.defaultConfiguration`)
      to use to get a Realm for the write operations
      - parameter: update - if set to `true` it will override existing objects with matching primary key
+     - parameter: onError - closure to implement custom error handling
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
     public static func add<O: Object>(
         configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration,
-        update: Bool = false) -> AnyObserver<O> {
+        update: Bool = false,
+        onError: ((O, Error)->Void)? = nil) -> AnyObserver<O> {
 
         return RealmObserver(configuration: configuration) {realm, element in
-            try! realm.write {
-                realm.add(element, update: update)
+            do {
+                try realm.write {
+                    realm.add(element, update: update)
+                }
+            } catch let e {
+                onError?(element, e)
             }
         }.asObserver()
     }

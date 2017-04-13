@@ -13,6 +13,10 @@ import RealmSwift
 import RxRealm
 import RxTest
 
+enum WriteError: Error {
+    case def
+}
+
 class RxRealmWriteSinks: XCTestCase {
     fileprivate func realmInMemoryConfiguration(_ name: String) -> Realm.Configuration {
         var conf = Realm.Configuration()
@@ -65,7 +69,44 @@ class RxRealmWriteSinks: XCTestCase {
             XCTAssertTrue(observer.events.last!.value.element!.equalTo([Message("1")]))
         })
     }
-    
+
+    func testRxAddWithErrorObject() {
+        let expectation = self.expectation(description: "Message1")
+        let realm = realmInMemory(#function)
+        let bag = DisposeBag()
+
+        let subject = PublishSubject<[UniqueObject]>()
+
+        let o1 = UniqueObject()
+        o1.id = 1
+        let o2 = UniqueObject()
+        o2.id = 1
+
+        var recordedValues: [UniqueObject]?
+        var recordedError: Error?
+
+        subject.asObservable()
+            .subscribe(Realm.rx.add(configuration: realm.configuration) { values, error in
+                recordedValues = values
+                recordedError = error
+                expectation.fulfill()
+            })
+            .addDisposableTo(bag)
+
+        subject.onNext([o1, o2])
+//        XCTAssertThrowsError(subject.onNext([o1, o2]), //will raise error
+//            "Didn't raise error for durplicate object", { error in
+//                NSLog("")
+//        })
+
+        waitForExpectations(timeout: 1, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertEqual(recordedValues!.first!.id, 1, "incorrect values recorded")
+
+        })
+    }
+
+
     func testRxAddObjects() {
         let expectation = self.expectation(description: "Message1")
         let realm = realmInMemory(#function)
