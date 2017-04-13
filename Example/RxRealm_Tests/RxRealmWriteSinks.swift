@@ -259,7 +259,45 @@ class RxRealmWriteSinks: XCTestCase {
             XCTAssertEqual(observer.events.last!.value.element!, [Message]())
         })
     }
-    
+
+    func testRxDeleteItemWithError() {
+        let expectation = self.expectation(description: "Message1")
+        expectation.assertForOverFulfill = false
+        var conf = Realm.Configuration()
+        conf.fileURL = URL(string: "/asdasdasdsad")!
+
+        let element = Message("1")
+
+        let scheduler = TestScheduler(initialClock: 0)
+        let bag = DisposeBag()
+
+        let events = [
+            next(0, element),
+            completed(0)
+        ]
+        let observer = scheduler.createObserver(Array<Message>.self)
+        let observable = scheduler.createHotObservable(events).asObservable()
+
+        let rx_delete: AnyObserver<Message> = Realm.rx.delete(onError: {elements, error in
+            XCTAssertNil(elements)
+            expectation.fulfill()
+        })
+
+        observable.subscribe(rx_delete)
+            .addDisposableTo(bag)
+
+        Observable.from([element]).subscribe(observer)
+            .addDisposableTo(bag)
+        scheduler.start()
+
+        waitForExpectations(timeout: 1.0, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+        })
+    }
+
+
     func testRxDeleteItems() {
         let expectation = self.expectation(description: "Message1")
         let realm = realmInMemory(#function)
@@ -303,7 +341,45 @@ class RxRealmWriteSinks: XCTestCase {
             XCTAssertTrue(observer.events.last!.value.element!.isEmpty)
         })
     }
-    
+
+    func testRxDeleteItemsWithError() {
+        let expectation = self.expectation(description: "Message1")
+        expectation.assertForOverFulfill = false
+        var conf = Realm.Configuration()
+        conf.fileURL = URL(string: "/asdasdasdsad")!
+
+        let element = [Message("1")]
+
+        let scheduler = TestScheduler(initialClock: 0)
+        let bag = DisposeBag()
+
+        let events = [
+            next(0, element),
+            completed(0)
+        ]
+        let observer = scheduler.createObserver(Array<Message>.self)
+        let observable = scheduler.createHotObservable(events).asObservable()
+
+        let rx_delete: AnyObserver<[Message]> = Realm.rx.delete(onError: {elements, error in
+            XCTAssertNil(elements)
+            expectation.fulfill()
+        })
+
+        observable.subscribe(rx_delete)
+            .addDisposableTo(bag)
+
+        Observable.from([element]).subscribe(observer)
+            .addDisposableTo(bag)
+        scheduler.start()
+
+        waitForExpectations(timeout: 1.0, handler: {error in
+            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
+            XCTAssertTrue(observer.events.count > 0)
+            XCTAssertEqual(observer.events.last!.time, 0)
+        })
+    }
+
+
     func testRxAddObjectsInBg() {
         let expectation = self.expectation(description: "All writes completed")
         

@@ -445,6 +445,7 @@ extension Reactive where Base: Realm {
                 var generator = elements.makeIterator() as S.Iterator?,
                 let first = generator.next(),
                 let realm = first.realm else {
+                    onError?(nil, RxRealmError.unknown)
                     return
             }
 
@@ -468,6 +469,7 @@ extension Reactive where Base: Realm {
 
             guard let element = event.element,
                 let realm = element.realm else {
+                    onError?(nil, RxRealmError.unknown)
                     return
             }
             
@@ -478,7 +480,6 @@ extension Reactive where Base: Realm {
             } catch let e {
                 onError?(element, e)
             }
-
         }
     }
 }
