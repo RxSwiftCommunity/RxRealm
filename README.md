@@ -58,7 +58,7 @@ Emits every time the collection changes and provides the exact indexes that has 
 
 ```swift
 let realm = try! Realm()
-let laps = realm.objects(Lap.self))
+let laps = realm.objects(Lap.self)
 
 Observable.changeset(from: laps)
   .subscribe(onNext: { results, changes in
