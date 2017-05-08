@@ -139,7 +139,6 @@ public extension ObservableType where E: NotificationEmitter, E.ElementType: Obj
 
             return Disposables.create {
                 token.stop()
-                observer.onCompleted()
             }
         }
     }
@@ -201,7 +200,6 @@ public extension ObservableType where E: NotificationEmitter, E.ElementType: Obj
             }
 
             return Disposables.create {
-                observer.onCompleted()
                 token.stop()
             }
         }
@@ -261,7 +259,6 @@ public extension Observable {
             }
 
             return Disposables.create {
-                observer.onCompleted()
                 token.stop()
             }
         }
