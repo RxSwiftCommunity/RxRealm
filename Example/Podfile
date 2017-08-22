@@ -2,19 +2,21 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
+def common
+  pod 'RxSwift', :git => 'git@github.com:ReactiveX/RxSwift.git', :branch => 'swift4.0'
+  pod 'RxCocoa', :git => 'git@github.com:ReactiveX/RxSwift.git', :branch => 'swift4.0'
+  pod 'RealmSwift', '~> 2.9'
+end
+
 target 'RxRealm_Example' do
   platform :ios, '8.0'
+  common
   pod 'RxRealm', :path => '../'
-  pod 'RxSwift',    '~> 3.2'
-  pod 'RxCocoa',    '~> 3.2'
-  pod 'RealmSwift', '~> 2.4'
 end
 
 target 'RxRealm_Tests' do
   platform :ios, '8.0'
-  pod 'RxSwift',    '~> 3.2'
-  pod 'RxCocoa',    '~> 3.2'
-  pod 'RxTest',    '~> 3.2'
-  pod 'RealmSwift', '~> 2.4'
+  common
+  pod 'RxTest', :git => 'git@github.com:ReactiveX/RxSwift.git', :branch => 'swift4.0'
   pod 'RxRealm', :path => '../'
 end

@@ -1,16 +1,18 @@
 
 import UIKit
 import RealmSwift
+import RxSwift
+import RxCocoa
 import RxRealm
 
 //realm model
 class Lap: Object {
-    dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
+    @objc dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
 }
 
 class TickCounter: Object {
-    dynamic var id = UUID().uuidString
-    dynamic var ticks: Int = 0
+    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var ticks: Int = 0
     override static func primaryKey() -> String? { return "id" }
 }
 
@@ -73,7 +75,7 @@ class ViewController: UIViewController {
          */
         addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
-            .bindTo(Realm.rx.add(onError: {elements, error in
+            .bind(to: Realm.rx.add(onError: {elements, error in
                 if let elements = elements {
                     print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
                 } else {
@@ -100,7 +102,7 @@ class ViewController: UIViewController {
         tickerChanges$
             .filter({ $0.name == "ticks" })
             .map({ "\($0.newValue!) ticks" })
-            .bindTo(footer.rx.text)
+            .bind(to: footer.rx.text)
             .addDisposableTo(bag)
     }
 }
