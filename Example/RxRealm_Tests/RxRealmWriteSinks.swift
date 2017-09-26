@@ -286,7 +286,7 @@ class RxRealmWriteSinks: XCTestCase {
         observable.subscribe(rx_delete)
             .addDisposableTo(bag)
 
-        Observable.from([element]).subscribe(observer)
+        Observable.just([element]).subscribe(observer)
             .addDisposableTo(bag)
         scheduler.start()
 
