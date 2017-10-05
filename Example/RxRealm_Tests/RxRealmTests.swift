@@ -55,9 +55,9 @@ class RxRealm_Tests: XCTestCase {
             if $0.count == 2 {
                 expectation1.fulfill()
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
-        messages$.subscribe(observer).addDisposableTo(bag)
+        messages$.subscribe(observer).disposed(by: bag)
 
         addMessage(realm, text: "first(Results)")
         
@@ -91,9 +91,9 @@ class RxRealm_Tests: XCTestCase {
             if $0.count == 2 {
                 expectation1.fulfill()
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
-        messages$.subscribe(observer).addDisposableTo(bag)
+        messages$.subscribe(observer).disposed(by: bag)
         
         addMessage(realm, text: "first(Array)")
 
@@ -130,7 +130,7 @@ class RxRealm_Tests: XCTestCase {
         }
         .filter {$0 == 3}
         .subscribe(onNext: {_ in expectation1.fulfill() })
-        .addDisposableTo(bag)
+        .disposed(by: bag)
         
         messages$
             .map {result, changes in
@@ -140,7 +140,7 @@ class RxRealm_Tests: XCTestCase {
                     return "count:\(result.count)"
                 }
             }
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
 
         //insert
         delay(0.25) {
@@ -191,7 +191,7 @@ class RxRealm_Tests: XCTestCase {
             }
             .filter {$0 == 3}
             .subscribe(onNext: {_ in expectation1.fulfill() })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$
             .map {result, changes in
@@ -201,7 +201,7 @@ class RxRealm_Tests: XCTestCase {
                     return "count:\(result.count)"
                 }
             }
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
         
         //insert
         delay(0.25) {

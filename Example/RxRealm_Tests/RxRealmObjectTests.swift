@@ -41,12 +41,12 @@ class RxRealmObjectTests: XCTestCase {
         object$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 4 }.map {_ in ()}
             .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         object$
             .map({ object in
                 return "name:\(object.name)"
             })
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
 
         scheduler.start()
 
@@ -102,7 +102,7 @@ class RxRealmObjectTests: XCTestCase {
         //test sync emit
         Observable<UniqueObject>.from(object: obj, emitInitialValue: true)
             .subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer.events.count, 1)
         XCTAssertEqual(observer.events[0].value.element!.id, idValue)
@@ -130,13 +130,13 @@ class RxRealmObjectTests: XCTestCase {
 
         object$
             .subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         object$
             .subscribe(onNext: {_ in
                 expectation1.fulfill()
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer.events.count, 0)
         
@@ -171,12 +171,12 @@ class RxRealmObjectTests: XCTestCase {
             object$.scan(0, accumulator: {acc, _ in return acc+1})
                 .filter { $0 == 3 }.map {_ in ()}
                 .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-                .addDisposableTo(bag)
+                .disposed(by: bag)
             object$
                 .map({ change in
                     return "\(change.name):\(change.newValue!)"
                 })
-                .subscribe(observer).addDisposableTo(bag)
+                .subscribe(observer).disposed(by: bag)
             
             scheduler.start()
             
@@ -236,12 +236,12 @@ class RxRealmObjectTests: XCTestCase {
         object$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}
             .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         object$
             .map({ object in
                 return "name:\(object.name)"
             })
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
 
         scheduler.start()
 

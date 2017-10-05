@@ -1,6 +1,8 @@
 
 import UIKit
 import RealmSwift
+import RxSwift
+import RxCocoa
 import RxRealm
 
 //realm model
@@ -53,7 +55,7 @@ class ViewController: UIViewController {
             .subscribe { event in
                 self.title = event.element
             }
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Observable<Results<Lap>> - reacting to change sets
@@ -66,21 +68,21 @@ class ViewController: UIViewController {
                     self.tableView.reloadData()
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         /*
          Use bindable sink to add objects
          */
         addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
-            .bindTo(Realm.rx.add(onError: {elements, error in
+            .bind(to: Realm.rx.add(onError: {elements, error in
                 if let elements = elements {
                     print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
                 } else {
                     print("Error \(error.localizedDescription) while opening realm.")
                 }
             }))
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Bind bar item to increasing the ticker
@@ -91,7 +93,7 @@ class ViewController: UIViewController {
                     self.ticker.ticks += 1
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Observing a single object
@@ -100,8 +102,8 @@ class ViewController: UIViewController {
         tickerChanges$
             .filter({ $0.name == "ticks" })
             .map({ "\($0.newValue!) ticks" })
-            .bindTo(footer.rx.text)
-            .addDisposableTo(bag)
+            .bind(to: footer.rx.text)
+            .disposed(by: bag)
     }
 }
 
@@ -127,7 +129,7 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         Observable.from([laps[indexPath.row]])
             .subscribe(Realm.rx.delete())
-            .addDisposableTo(bag)
+            .disposed(by: bag)
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {

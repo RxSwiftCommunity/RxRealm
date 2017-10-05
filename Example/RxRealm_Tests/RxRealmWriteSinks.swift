@@ -46,7 +46,7 @@ class RxRealmWriteSinks: XCTestCase {
         let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
 
         messages$.subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$
             .subscribe(onNext: { messages in
@@ -54,11 +54,11 @@ class RxRealmWriteSinks: XCTestCase {
                     expectation.fulfill()
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         observable
             .subscribe(rx_add)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         scheduler.start()
         
@@ -91,7 +91,7 @@ class RxRealmWriteSinks: XCTestCase {
 
         subject.asObservable()
             .subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         subject.onNext(o1)
 
@@ -124,7 +124,7 @@ class RxRealmWriteSinks: XCTestCase {
 
         subject.asObservable()
             .subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         subject.onNext([o1, o2])
 
@@ -150,16 +150,16 @@ class RxRealmWriteSinks: XCTestCase {
         let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(onNext: {
             if $0.count == 2 {
                 expectation.fulfill()
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
         scheduler.start()
         
@@ -188,10 +188,10 @@ class RxRealmWriteSinks: XCTestCase {
         let messages$ = Observable.array(from: realm.objects(UniqueObject.self)).shareReplay(1)
         
         observable.subscribe(rx_add)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(onNext: {
             switch $0.count {
@@ -200,7 +200,7 @@ class RxRealmWriteSinks: XCTestCase {
             default:
                 break
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
         scheduler.start()
         
@@ -236,10 +236,10 @@ class RxRealmWriteSinks: XCTestCase {
         let observable = scheduler.createHotObservable(events).asObservable()
         
         observable.subscribe(rx_delete)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(onNext: {
             switch $0.count {
@@ -248,7 +248,7 @@ class RxRealmWriteSinks: XCTestCase {
             default:
                 break
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
         scheduler.start()
         
@@ -284,10 +284,10 @@ class RxRealmWriteSinks: XCTestCase {
         })
 
         observable.subscribe(rx_delete)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
-        Observable.from([element]).subscribe(observer)
-            .addDisposableTo(bag)
+        Observable.from(optional: [element]).subscribe(observer)
+            .disposed(by: bag)
         scheduler.start()
 
         waitForExpectations(timeout: 1.0, handler: {error in
@@ -318,10 +318,10 @@ class RxRealmWriteSinks: XCTestCase {
         let observable = scheduler.createHotObservable(events).asObservable()
         
         observable.subscribe(rx_delete)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         messages$.subscribe(onNext: {
             switch $0.count {
@@ -330,7 +330,7 @@ class RxRealmWriteSinks: XCTestCase {
             default:
                 break
             }
-        }).addDisposableTo(bag)
+        }).disposed(by: bag)
         
         scheduler.start()
         
@@ -366,10 +366,10 @@ class RxRealmWriteSinks: XCTestCase {
         })
 
         observable.subscribe(rx_delete)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         Observable.from([element]).subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         scheduler.start()
 
         waitForExpectations(timeout: 1.0, handler: {error in
@@ -395,46 +395,46 @@ class RxRealmWriteSinks: XCTestCase {
         let messages$ = Observable.collection(from: realm.objects(Message.self)).shareReplay(1)
         
         messages$
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
 
         messages$
             .filter {$0.count == 8}
             .subscribe(onNext: {_ in expectation.fulfill() })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         scheduler.start()
         
         // subscribe/write on current thread
         Observable.from([Message("1")])
             .subscribe( realm.rx.add() )
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         delayInBackground(0.1, closure: {
             // subscribe/write on background thread
             let realm = try! Realm(configuration: conf)
             Observable.from([Message("2")])
                 .subscribe(realm.rx.add() )
-                .addDisposableTo(bag)
+                .disposed(by: bag)
         })
         
         // subscribe on current/write on main
         Observable.from([Message("3")])
             .observeOn(MainScheduler.instance)
             .subscribe( Realm.rx.add(configuration: conf) )
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         Observable.from([Message("4")])
             .observeOn( ConcurrentDispatchQueueScheduler(
                 queue: DispatchQueue.global(qos: .background)))
             .subscribe( Realm.rx.add(configuration: conf) )
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         // subscribe on current/write on background
         Observable.from([[Message("5"), Message("6")]])
             .observeOn( ConcurrentDispatchQueueScheduler(
                 queue: DispatchQueue.global(qos: .background)))
             .subscribe( Realm.rx.add(configuration: conf) )
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         // subscribe on current/write on a realm in background
         Observable.from([[Message("7"), Message("8")]])
@@ -446,7 +446,7 @@ class RxRealmWriteSinks: XCTestCase {
                     realm.add(messages)
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         
         waitForExpectations(timeout: 5.0, handler: {error in
