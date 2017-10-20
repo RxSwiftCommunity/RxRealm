@@ -2,8 +2,8 @@
 # * http://www.objc.io/issue-6/travis-ci.html
 
 language: objective-c
-osx_image: xcode8.0
-xcode_sdk: iphonesimulator10.0
+osx_image: xcode9
+xcode_sdk: iphonesimulator11.0
 
 before_install:
  - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
