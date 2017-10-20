@@ -26,14 +26,14 @@ public enum RxRealmError: Error {
 */
 public protocol NotificationEmitter {
 
-    associatedtype ElementType: Object
+    associatedtype ElementType: RealmCollectionValue
 
     /**
      Returns a `NotificationToken`, which while retained enables change notifications for the current collection.
      
      - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
      */
-    func addNotificationBlock(_ block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
+    func observe(_ block: @escaping (RealmCollectionChange<Self>) -> ()) -> NotificationToken
 
     func toArray() -> [ElementType]
 
@@ -41,8 +41,8 @@ public protocol NotificationEmitter {
 }
 
 extension List: NotificationEmitter {
-    public func toAnyCollection() -> AnyRealmCollection<T> {
-        return AnyRealmCollection<ElementType>(self)
+    public func toAnyCollection() -> AnyRealmCollection<Element> {
+        return AnyRealmCollection<Element>(self)
     }
     public typealias ElementType = Element
     public func toArray() -> [Element] {
@@ -51,7 +51,7 @@ extension List: NotificationEmitter {
 }
 
 extension AnyRealmCollection: NotificationEmitter {
-    public func toAnyCollection() -> AnyRealmCollection<T> {
+    public func toAnyCollection() -> AnyRealmCollection<Element> {
         return AnyRealmCollection<ElementType>(self)
     }
     public typealias ElementType = Element
@@ -61,7 +61,7 @@ extension AnyRealmCollection: NotificationEmitter {
 }
 
 extension Results: NotificationEmitter {
-    public func toAnyCollection() -> AnyRealmCollection<T> {
+    public func toAnyCollection() -> AnyRealmCollection<Element> {
         return AnyRealmCollection<ElementType>(self)
     }
     public typealias ElementType = Element
@@ -71,7 +71,7 @@ extension Results: NotificationEmitter {
 }
 
 extension LinkingObjects: NotificationEmitter {
-    public func toAnyCollection() -> AnyRealmCollection<T> {
+    public func toAnyCollection() -> AnyRealmCollection<Element> {
         return AnyRealmCollection<ElementType>(self)
     }
     public typealias ElementType = Element
@@ -120,7 +120,7 @@ public extension ObservableType where E: NotificationEmitter {
                 observer.onNext(collection)
             }
 
-            let token = collection.addNotificationBlock { changeset in
+            let token = collection.observe { changeset in
 
                 let value: E
 
@@ -141,7 +141,7 @@ public extension ObservableType where E: NotificationEmitter {
             }
 
             return Disposables.create {
-                token.stop()
+                token.invalidate()
             }
         }
     }
@@ -192,7 +192,7 @@ public extension ObservableType where E: NotificationEmitter {
                 observer.onNext((collection.toAnyCollection(), nil))
             }
 
-            let token = collection.toAnyCollection().addNotificationBlock { changeset in
+            let token = collection.toAnyCollection().observe { changeset in
 
                 switch changeset {
                     case .initial(let value):
@@ -207,7 +207,7 @@ public extension ObservableType where E: NotificationEmitter {
             }
 
             return Disposables.create {
-                token.stop()
+                token.invalidate()
             }
         }
     }
@@ -263,12 +263,12 @@ public extension Observable {
     public static func from(realm: Realm) -> Observable<(Realm, Realm.Notification)> {
 
         return Observable<(Realm, Realm.Notification)>.create { observer in
-            let token = realm.addNotificationBlock { (notification: Realm.Notification, realm: Realm) in
+            let token = realm.observe { (notification: Realm.Notification, realm: Realm) in
                 observer.onNext((realm, notification))
             }
 
             return Disposables.create {
-                token.stop()
+                token.invalidate()
             }
         }
     }
@@ -525,7 +525,7 @@ public extension Observable where Element: Object {
                 observer.onNext(object)
             }
 
-            let token = object.addNotificationBlock { change in
+            let token = object.observe { change in
                 switch change {
                 case .change(let changedProperties):
                     if let properties = properties, !changedProperties.contains { return properties.contains($0.name) } {
@@ -541,7 +541,7 @@ public extension Observable where Element: Object {
             }
 
             return Disposables.create {
-                token.stop()
+                token.invalidate()
             }
         }
     }
@@ -556,7 +556,7 @@ public extension Observable where Element: Object {
     public static func propertyChanges(object: Element) -> Observable<PropertyChange> {
 
         return Observable<PropertyChange>.create { observer in
-            let token = object.addNotificationBlock { change in
+            let token = object.observe { change in
                 switch change {
                 case .change(let changes):
                     for change in changes {
@@ -570,7 +570,7 @@ public extension Observable where Element: Object {
             }
             
             return Disposables.create {
-                token.stop()
+                token.invalidate()
             }
         }
     }

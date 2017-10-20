@@ -37,7 +37,7 @@ class RxRealmObjectTests: XCTestCase {
             realm.add(obj)
         }
 
-        let object$ = Observable<UniqueObject>.from(object: obj).shareReplay(1)
+        let object$ = Observable<UniqueObject>.from(object: obj).share(replay: 1)
         object$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 4 }.map {_ in ()}
             .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
@@ -167,7 +167,7 @@ class RxRealmObjectTests: XCTestCase {
                 realm.add(obj)
             }
             
-            let object$ = Observable<UniqueObject>.propertyChanges(object: obj).shareReplay(1)
+            let object$ = Observable<UniqueObject>.propertyChanges(object: obj).share(replay: 1)
             object$.scan(0, accumulator: {acc, _ in return acc+1})
                 .filter { $0 == 3 }.map {_ in ()}
                 .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
@@ -231,7 +231,7 @@ class RxRealmObjectTests: XCTestCase {
         }
 
         let object$ = Observable<User>.from(object: obj, properties: ["name"])
-            .shareReplay(1)
+            .share(replay: 1)
 
         object$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}

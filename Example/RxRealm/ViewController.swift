@@ -7,12 +7,12 @@ import RxRealm
 
 //realm model
 class Lap: Object {
-    dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
+    @objc dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
 }
 
 class TickCounter: Object {
-    dynamic var id = UUID().uuidString
-    dynamic var ticks: Int = 0
+    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var ticks: Int = 0
     override static func primaryKey() -> String? { return "id" }
 }
 

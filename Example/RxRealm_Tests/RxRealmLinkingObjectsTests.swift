@@ -42,7 +42,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.collection(from: message.mentions).shareReplay(1)
+        let users$ = Observable.collection(from: message.mentions).share(replay: 1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         users$
@@ -89,7 +89,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.changeset(from: message.mentions).shareReplay(1)
+        let users$ = Observable.changeset(from: message.mentions).share(replay: 1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         users$

@@ -13,7 +13,7 @@ import RealmSwift
 //MARK: Message
 class Message: Object {
     
-    dynamic var text = ""
+    @objc dynamic var text = ""
     
     var recipients = List<User>()
     let mentions = LinkingObjects(fromType: User.self, property: "lastMessage")
@@ -41,8 +41,8 @@ func ==(lhs: Message, rhs: Message) -> Bool {
 
 //MARK: User
 class User: Object {
-    dynamic var name = ""
-    dynamic var lastMessage: Message?
+    @objc dynamic var name = ""
+    @objc dynamic var lastMessage: Message?
     
     convenience init(_ name: String) {
         self.init()
@@ -56,8 +56,8 @@ func ==(lhs: User, rhs: User) -> Bool {
 
 //MARK: UniqueObject
 class UniqueObject: Object {
-    dynamic var id = 0
-    dynamic var name = ""
+    @objc dynamic var id = 0
+    @objc dynamic var name = ""
     
     convenience init(_ id: Int) {
         self.init()

@@ -50,7 +50,7 @@ class RxRealm_Tests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = Observable.collection(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.collection(from: realm.objects(Message.self)).share(replay: 1)
         messages$.subscribe(onNext: {
             if $0.count == 2 {
                 expectation1.fulfill()
@@ -86,7 +86,7 @@ class RxRealm_Tests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Array<Message>.self)
 
-        let messages$ = Observable.array(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.array(from: realm.objects(Message.self)).share(replay: 1)
         messages$.subscribe(onNext: {
             if $0.count == 2 {
                 expectation1.fulfill()
@@ -124,7 +124,7 @@ class RxRealm_Tests: XCTestCase {
         //initial data
         addMessage(realm, text: "first(Changeset)")
 
-        let messages$ = Observable.changeset(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.changeset(from: realm.objects(Message.self)).share(replay: 1)
         messages$.scan(0) { count, _ in
             return count+1
         }
@@ -185,7 +185,7 @@ class RxRealm_Tests: XCTestCase {
         //initial data
         addMessage(realm, text: "first(ArrayChangeset)")
         
-        let messages$ = Observable.changeset(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.changeset(from: realm.objects(Message.self)).share(replay: 1)
         messages$.scan(0) { count, _ in
             return count+1
             }

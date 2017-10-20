@@ -42,7 +42,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.collection(from: message.recipients).shareReplay(1)
+        let users$ = Observable.collection(from: message.recipients).share(replay: 1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         users$
@@ -86,7 +86,7 @@ class RxRealmListTests: XCTestCase {
             realm.add(message)
         }
         
-        let users$ = Observable.changeset(from: message.recipients).shareReplay(1)
+        let users$ = Observable.changeset(from: message.recipients).share(replay: 1)
         users$.scan(0, accumulator: {acc, _ in return acc+1})
             .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         users$
