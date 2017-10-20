@@ -30,11 +30,11 @@ class RxRealmRealmTests: XCTestCase {
         typealias loggedNotification = (Realm, Realm.Notification)
         let observer = scheduler.createObserver(loggedNotification.self)
         
-        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).shareReplay(1)
+        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).share(replay: 1)
         realm$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 2 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 2 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         realm$
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
         
         //interact with Realm here
         delay(0.1) {
@@ -71,11 +71,11 @@ class RxRealmRealmTests: XCTestCase {
         typealias loggedNotification = (Realm, Realm.Notification)
         let observer = scheduler.createObserver(loggedNotification.self)
         
-        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).shareReplay(1)
+        let realm$ = Observable<(Realm, Realm.Notification)>.from(realm: realm).share(replay: 1)
         realm$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 1 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 1 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         realm$
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
         
         //interact with Realm here from background
         delayInBackground(0.1) {[unowned self] in

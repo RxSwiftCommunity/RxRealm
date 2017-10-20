@@ -37,11 +37,11 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(Results<Message>.self)
         
-        let messages$ = Observable.collection(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.collection(from: realm.objects(Message.self)).share(replay: 1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 4 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 4 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         messages$
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
         
         //interact with Realm here
         delay(0.1) {
@@ -83,9 +83,9 @@ class RxRealmResultsTests: XCTestCase {
         let scheduler = TestScheduler(initialClock: 0)
         let observer = scheduler.createObserver(String.self)
         
-        let messages$ = Observable.changeset(from: realm.objects(Message.self)).shareReplay(1)
+        let messages$ = Observable.changeset(from: realm.objects(Message.self)).share(replay: 1)
         messages$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).addDisposableTo(bag)
+            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
         messages$
             .map {results, changes in
                 if let changes = changes {
@@ -94,7 +94,7 @@ class RxRealmResultsTests: XCTestCase {
                     return "initial"
                 }
             }
-            .subscribe(observer).addDisposableTo(bag)
+            .subscribe(observer).disposed(by: bag)
         
         //interact with Realm here
         delay(0.1) {
@@ -131,7 +131,7 @@ class RxRealmResultsTests: XCTestCase {
 
         Observable.collection(from: realm.objects(Message.self), synchronousStart: true)
             .subscribe(observer1)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer1.events.count, 1)
         XCTAssertEqual(observer1.events[0].value.element!.count, 0)
@@ -149,7 +149,7 @@ class RxRealmResultsTests: XCTestCase {
         Observable.changeset(from: realm.objects(Message.self), synchronousStart: true)
             .map { $0.0.count }
             .subscribe(observer2)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer2.events.count, 1)
         XCTAssertEqual(observer2.events[0].value.element!, 0)
@@ -172,13 +172,13 @@ class RxRealmResultsTests: XCTestCase {
 
         messages$
             .subscribe(observer)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         messages$
             .subscribe(onNext: {_ in
                 expectation1.fulfill()
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer.events.count, 0)
 
@@ -206,13 +206,13 @@ class RxRealmResultsTests: XCTestCase {
         messages2$
             .map { $0.0.count }
             .subscribe(observer2)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         messages2$
             .subscribe(onNext: {_ in
                 expectation2.fulfill()
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         XCTAssertEqual(observer2.events.count, 0)
 

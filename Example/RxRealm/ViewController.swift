@@ -55,7 +55,7 @@ class ViewController: UIViewController {
             .subscribe { event in
                 self.title = event.element
             }
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Observable<Results<Lap>> - reacting to change sets
@@ -68,7 +68,7 @@ class ViewController: UIViewController {
                     self.tableView.reloadData()
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
         
         /*
          Use bindable sink to add objects
@@ -82,7 +82,7 @@ class ViewController: UIViewController {
                     print("Error \(error.localizedDescription) while opening realm.")
                 }
             }))
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Bind bar item to increasing the ticker
@@ -93,7 +93,7 @@ class ViewController: UIViewController {
                     self.ticker.ticks += 1
                 }
             })
-            .addDisposableTo(bag)
+            .disposed(by: bag)
 
         /*
          Observing a single object
@@ -103,7 +103,7 @@ class ViewController: UIViewController {
             .filter({ $0.name == "ticks" })
             .map({ "\($0.newValue!) ticks" })
             .bind(to: footer.rx.text)
-            .addDisposableTo(bag)
+            .disposed(by: bag)
     }
 }
 
@@ -129,7 +129,7 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         Observable.from([laps[indexPath.row]])
             .subscribe(Realm.rx.delete())
-            .addDisposableTo(bag)
+            .disposed(by: bag)
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
