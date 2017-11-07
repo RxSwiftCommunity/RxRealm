@@ -15,7 +15,7 @@ class Message: Object {
     
     @objc dynamic var text = ""
     
-    var recipients = List<User>()
+    let recipients = List<User>()
     let mentions = LinkingObjects(fromType: User.self, property: "lastMessage")
     
     convenience init(_ text: String) {
