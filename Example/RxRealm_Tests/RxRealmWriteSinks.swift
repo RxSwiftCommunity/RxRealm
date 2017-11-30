@@ -11,7 +11,6 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
 import RxBlocking
 
 enum WriteError: Error {
@@ -19,12 +18,6 @@ enum WriteError: Error {
 }
 
 class RxRealmWriteSinks: XCTestCase {
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-
     func testRxAddObjectWithSuccess() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(Message.self))

@@ -14,7 +14,7 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */; };
+		9C45F1041FD014B0009D5EFF /* RxRealmWriteSinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3182361D02BAA90003F1EB /* RxRealmWriteSinks.swift */; };
 		9C4FE0611DC7B1FD00DF66A5 /* RxRealmObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4FE0601DC7B1FD00DF66A5 /* RxRealmObjectTests.swift */; };
 		9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA07781CD4A5FA00ABF96E /* RxRealmResultsTests.swift */; };
 		9CBA077C1CD4A68000ABF96E /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBA077A1CD4A62300ABF96E /* TestModels.swift */; };
@@ -417,9 +417,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C45F1041FD014B0009D5EFF /* RxRealmWriteSinks.swift in Sources */,
 				9C4FE0611DC7B1FD00DF66A5 /* RxRealmObjectTests.swift in Sources */,
 				9CEB7A4A1CC834340077C44D /* RxRealmTests.swift in Sources */,
-				9C3182371D02BAA90003F1EB /* RxRealmWriteSinks.swift in Sources */,
 				9CFB8DC21CF22BA4004BC090 /* RxRealmRealmTests.swift in Sources */,
 				9CBA07791CD4A5FA00ABF96E /* RxRealmResultsTests.swift in Sources */,
 				9CEC5B381CD6942E00B43868 /* RxRealmLinkingObjectsTests.swift in Sources */,

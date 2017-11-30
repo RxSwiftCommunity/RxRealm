@@ -7,8 +7,23 @@
 //
 
 import Foundation
-
 import RealmSwift
+import RxRealm
+
+func realmInMemory(_ name: String = UUID().uuidString) -> Realm {
+    var conf = Realm.Configuration()
+    conf.inMemoryIdentifier = name
+    return try! Realm(configuration: conf)
+}
+
+func stringifyChanges<E>(_ arg: (AnyRealmCollection<E>, RealmChangeset?)) -> String {
+    let (result, changes) = arg
+    if let changes = changes {
+        return "count:\(result.count) inserted:\(changes.inserted) deleted:\(changes.deleted) updated:\(changes.updated)"
+    } else {
+        return "count:\(result.count)"
+    }
+}
 
 //MARK: Message
 class Message: Object {

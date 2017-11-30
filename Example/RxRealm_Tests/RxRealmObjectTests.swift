@@ -15,20 +15,8 @@ import RxTest
 
 class RxRealmObjectTests: XCTestCase {
 
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-
     func testObjectChangeNotifications() {
-        let expectation1 = expectation(description: "Object change")
-
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String.self)
 
         //create object
         let idValue = 1024
@@ -37,241 +25,148 @@ class RxRealmObjectTests: XCTestCase {
             realm.add(obj)
         }
 
-        let object$ = Observable<UniqueObject>.from(object: obj).share(replay: 1)
-        object$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 4 }.map {_ in ()}
-            .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-            .disposed(by: bag)
-        object$
-            .map({ object in
-                return "name:\(object.name)"
-            })
-            .subscribe(observer).disposed(by: bag)
+        let objectNotifications = Observable<UniqueObject>.from(object: obj)
+            .map { $0.name }
 
-        scheduler.start()
+        XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "")
 
-        //interact with local object instance
-        delay(0.1) { //use delay to allow for initial notification
+        DispatchQueue.main.async {
             try! realm.write {
                 obj.name = "test1"
             }
         }
+        XCTAssertEqual(try! objectNotifications.skip(1).toBlocking().first()!, "test1")
 
-        //update object from different thread
-        delay(0.2) {
-            DispatchQueue.global().async {[unowned self] in
-                let realm = self.realmInMemory(#function)
-                try! realm.write {
-                    realm.objects(UniqueObject.self).filter("id == %@", idValue).first?.name = "test2"
-                }
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            try! realm.write {
+                realm.objects(UniqueObject.self).filter("id == %@", idValue).first!.name = "test2"
             }
         }
 
+        XCTAssertEqual(try! objectNotifications.skip(1).toBlocking().first()!, "test2")
+
         //delete the object to trigger an error
-        delay(0.3) {
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.delete(obj)
             }
         }
 
-        waitForExpectations(timeout: 5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 4)
-            XCTAssertEqual(observer.events[0].value.element, "name:")
-            XCTAssertEqual(observer.events[1].value.element, "name:test1")
-            XCTAssertEqual(observer.events[2].value.element, "name:test2")
-            XCTAssertNotNil(observer.events[3].value.error as? RxRealmError)
-            XCTAssertEqual(observer.events[3].value.error as! RxRealmError , RxRealmError.objectDeleted)
+        XCTAssertThrowsError(try objectNotifications.skip(1).toBlocking().first()!) { error in
+            XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
         }
     }
 
     func testObjectEmitsInitialChange() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
 
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(UniqueObject.self)
-
-        //create object
-        let idValue = 1024
-        let obj = UniqueObject(idValue)
+        let obj = UniqueObject(1024)
         try! realm.write {
             realm.add(obj)
         }
 
-        //test sync emit
-        Observable<UniqueObject>.from(object: obj, emitInitialValue: true)
-            .subscribe(observer)
-            .disposed(by: bag)
+        var result = false
 
-        XCTAssertEqual(observer.events.count, 1)
-        XCTAssertEqual(observer.events[0].value.element!.id, idValue)
-    }
-
-    func testObjectEmitsAsynchronously() {
-        let expectation1 = expectation(description: "Object change")
-
-        let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(UniqueObject.self)
-
-        //create object
-        let idValue = 1024
-        let obj = UniqueObject(idValue)
-        try! realm.write {
-            realm.add(obj)
-        }
-
-        //test async emit
-        let object$ = Observable<UniqueObject>.from(object: obj, emitInitialValue: false)
-            .share()
-
-        object$
-            .subscribe(observer)
-            .disposed(by: bag)
-
-        object$
+        // emits upon subscription
+        _ = Observable.from(object: obj, emitInitialValue: true)
             .subscribe(onNext: {_ in
-                expectation1.fulfill()
+                result = true
             })
-            .disposed(by: bag)
 
-        XCTAssertEqual(observer.events.count, 0)
-        
-        //write change
-        try! realm.write {
-            obj.name = "test"
-        }
-
-        waitForExpectations(timeout: 5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 1)
-            XCTAssertEqual(observer.events[0].value.element!.id, idValue)
-        }
-        
-        func testObjectPropertyChangeNotifications() {
-            let expectation1 = expectation(description: "Object property change")
-            
-            let realm = realmInMemory(#function)
-            let bag = DisposeBag()
-            
-            let scheduler = TestScheduler(initialClock: 0)
-            let observer = scheduler.createObserver(String.self)
-            
-            //create object
-            let idValue = 1024
-            let obj = UniqueObject(idValue)
-            try! realm.write {
-                realm.add(obj)
-            }
-            
-            let object$ = Observable<UniqueObject>.propertyChanges(object: obj).share(replay: 1)
-            object$.scan(0, accumulator: {acc, _ in return acc+1})
-                .filter { $0 == 3 }.map {_ in ()}
-                .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-                .disposed(by: bag)
-            object$
-                .map({ change in
-                    return "\(change.name):\(change.newValue!)"
-                })
-                .subscribe(observer).disposed(by: bag)
-            
-            scheduler.start()
-            
-            //interact with local object instance
-            delay(0.1) { //use delay to allow for initial notification
-                try! realm.write {
-                    obj.name = "test1"
-                }
-            }
-            
-            //update object from different thread
-            delay(0.2) {
-                DispatchQueue.global().async {[unowned self] in
-                    let realm = self.realmInMemory(#function)
-                    try! realm.write {
-                        realm.objects(UniqueObject.self).filter("id == %@", idValue).first?.name = "test2"
-                    }
-                }
-            }
-            
-            //delete the object to trigger an error
-            delay(0.3) {
-                try! realm.write {
-                    realm.delete(obj)
-                }
-            }
-            
-            waitForExpectations(timeout: 5) {error in
-                XCTAssertTrue(error == nil)
-                XCTAssertEqual(observer.events.count, 2)
-                XCTAssertEqual(observer.events[0].value.element, "name:test1")
-                XCTAssertEqual(observer.events[1].value.element, "name:test2")
-                XCTAssertNotNil(observer.events[2].value.error as? RxRealmError)
-                XCTAssertEqual(observer.events[2].value.error as! RxRealmError , RxRealmError.objectDeleted)
-            }
-        }
+        XCTAssertEqual(result, true)
     }
 
-    func testObjectChangeNotificationsForProperties() {
-        let expectation1 = expectation(description: "Object change")
-
+    func testObjectDoesntEmitInitialValue() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
 
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String.self)
-
-        //create object
-        let obj = User()
+        let obj = UniqueObject(1024)
         try! realm.write {
             realm.add(obj)
         }
 
-        let object$ = Observable<User>.from(object: obj, properties: ["name"])
-            .share(replay: 1)
+        var result = false
 
-        object$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}
-            .subscribe(onNext: expectation1.fulfill, onError: {error in expectation1.fulfill()})
-            .disposed(by: bag)
-        object$
-            .map({ object in
-                return "name:\(object.name)"
+        // doesn't emit upon subscription
+        _ = Observable.from(object: obj, emitInitialValue: false)
+            .subscribe(onNext: {_ in
+                result = true
             })
-            .subscribe(observer).disposed(by: bag)
 
-        scheduler.start()
+        XCTAssertEqual(result, false)
+    }
 
-        //interact with local object instance
-        delay(0.1) { //use delay to allow for initial notification
+    func testObjectPropertyChangeNotifications() {
+        let realm = realmInMemory(#function)
+
+        let obj = UniqueObject(1024)
+        try! realm.write {
+            realm.add(obj)
+        }
+
+        let objectNotifications = Observable.propertyChanges(object: obj)
+            .map { "\($0.name):\($0.newValue!)" }
+
+        DispatchQueue.main.async {
             try! realm.write {
                 obj.name = "test1"
             }
         }
+        XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "name:test1")
 
-        //update object from different thread
-        delay(0.2) {
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
             try! realm.write {
-                obj.lastMessage = Message()
+                realm.objects(UniqueObject.self).first!.name = "test2"
             }
         }
+        XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "name:test2")
 
         //delete the object to trigger an error
-        delay(0.3) {
+        DispatchQueue.main.async {
             try! realm.write {
-                obj.name = "test2"
+                realm.delete(obj)
             }
         }
+        XCTAssertThrowsError(try objectNotifications.toBlocking().first()!) { error in
+            XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
+        }
+    }
 
-        waitForExpectations(timeout: 5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(observer.events[0].value.element, "name:")
-            XCTAssertEqual(observer.events[1].value.element, "name:test1")
-            XCTAssertEqual(observer.events[2].value.element, "name:test2")
+    func testObjectChangeNotificationsForProperties() {
+        let realm = realmInMemory(#function)
+
+        let obj = UniqueObject(1024)
+        try! realm.write {
+            realm.add(obj)
+        }
+
+        let objectNotifications = Observable.from(object: obj, emitInitialValue: false, properties: ["name"])
+            .map { "\($0.name)" }
+
+        DispatchQueue.main.async {
+            try! realm.write {
+                obj.name = "test1"
+            }
+        }
+        XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "test1")
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            try! realm.write {
+                realm.objects(UniqueObject.self).first!.name = "test2"
+            }
+        }
+        XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "test2")
+
+        //delete the object to trigger an error
+        DispatchQueue.main.async {
+            try! realm.write {
+                realm.delete(obj)
+            }
+        }
+        XCTAssertThrowsError(try objectNotifications.toBlocking().first()!) { error in
+            XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
         }
     }
 
