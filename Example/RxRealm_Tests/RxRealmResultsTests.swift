@@ -11,218 +11,108 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
 
 class RxRealmResultsTests: XCTestCase {
     
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-    
-    fileprivate func clearRealm(_ realm: Realm) {
-        try! realm.write {
-            realm.deleteAll()
-        }
-    }
-    
     func testResultsType() {
-        let expectation1 = expectation(description: "Results<Message> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Results<Message>.self)
-        
-        let messages$ = Observable.collection(from: realm.objects(Message.self)).share(replay: 1)
-        messages$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 4 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        messages$
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
-        delay(0.1) {
+        let messages = Observable.collection(from: realm.objects(Message.self))
+            .map { Array($0.map {$0.text}) }
+
+        XCTAssertEqual(try! messages.toBlocking().first()!, [])
+
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.add(Message("first"))
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, ["first"])
+
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.delete(realm.objects(Message.self).first!)
             }
         }
-        delay(0.3) {
-            try! realm.write {
-                realm.add(Message("second"))
-            }
-        }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 4)
-            let results = observer.events.last!.value.element!
-            XCTAssertEqual(results.count, 1)
-            XCTAssertEqual(results.first!.text, "second")
-        }
+
+        XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, [])
     }
     
     func testResultsTypeChangeset() {
-        let expectation1 = expectation(description: "Results<Message> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String.self)
-        
-        let messages$ = Observable.changeset(from: realm.objects(Message.self)).share(replay: 1)
-        messages$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        messages$
-            .map {results, changes in
-                if let changes = changes {
-                    return "i:\(changes.inserted) d:\(changes.deleted) u:\(changes.updated)"
-                } else {
-                    return "initial"
-                }
-            }
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
-        delay(0.1) {
+        let messages = Observable.changeset(from: realm.objects(Message.self))
+            .map(stringifyChanges)
+
+        XCTAssertEqual(try! messages.toBlocking().first()!, "count:0")
+
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.add(Message("first"))
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
             try! realm.write {
                 realm.delete(realm.objects(Message.self).first!)
             }
         }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(observer.events[0].value.element!, "initial")
-            XCTAssertEqual(observer.events[1].value.element!, "i:[0] d:[] u:[]")
-            XCTAssertEqual(observer.events[2].value.element!, "i:[] d:[0] u:[]")
-        }
+
+        XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
     }
 
     func testResultsEmitsCollectionSynchronously() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
+        let messages = Observable.collection(from: realm.objects(Message.self), synchronousStart: true)
+        var result = false
 
-        // collection
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer1 = scheduler.createObserver(Results<Message>.self)
+        // synchornously set to true
+        _ = messages.subscribe(onNext: { _ in
+            result = true
+        })
 
-        Observable.collection(from: realm.objects(Message.self), synchronousStart: true)
-            .subscribe(observer1)
-            .disposed(by: bag)
-
-        XCTAssertEqual(observer1.events.count, 1)
-        XCTAssertEqual(observer1.events[0].value.element!.count, 0)
-
+        XCTAssertEqual(result, true)
     }
 
     func testResultsEmitsChangesetSynchronously() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-        let scheduler = TestScheduler(initialClock: 0)
+        let messages = Observable.changeset(from: realm.objects(Message.self), synchronousStart: true)
+        var result = false
 
-        // changeset
-        let observer2 = scheduler.createObserver(Int.self)
+        // synchornously set to true
+        _ = messages.subscribe(onNext: { _ in
+            result = true
+        })
 
-        Observable.changeset(from: realm.objects(Message.self), synchronousStart: true)
-            .map { $0.0.count }
-            .subscribe(observer2)
-            .disposed(by: bag)
-
-        XCTAssertEqual(observer2.events.count, 1)
-        XCTAssertEqual(observer2.events[0].value.element!, 0)
+        XCTAssertEqual(result, true)
     }
 
     func testResultsEmitsCollectionAsynchronously() {
-        let expectation1 = expectation(description: "Async collection emit")
-
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
+        let messages = Observable.collection(from: realm.objects(Message.self), synchronousStart: false)
+        var result = false
 
-        let scheduler = TestScheduler(initialClock: 0)
+        // synchornously set to true
+        _ = messages.subscribe(onNext: { _ in
+            result = true
+        })
 
-        // test collection
-
-        let observer = scheduler.createObserver(Results<Message>.self)
-
-        let messages$ = Observable.collection(from: realm.objects(Message.self), synchronousStart: false)
-            .share()
-
-        messages$
-            .subscribe(observer)
-            .disposed(by: bag)
-
-        messages$
-            .subscribe(onNext: {_ in
-                expectation1.fulfill()
-            })
-            .disposed(by: bag)
-
-        XCTAssertEqual(observer.events.count, 0)
-
-        waitForExpectations(timeout: 5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 1)
-            XCTAssertEqual(observer.events[0].value.element!.count, 0)
-        }
+        XCTAssertEqual(result, false)
     }
 
     func testResultsEmitsChangesetAsynchronously() {
-        // test changeset
-        let expectation2 = expectation(description: "Async changeset emit")
-
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
+        let messages = Observable.changeset(from: realm.objects(Message.self), synchronousStart: false)
+        var result = false
 
-        let scheduler = TestScheduler(initialClock: 0)
+        // synchornously set to true
+        _ = messages.subscribe(onNext: { _ in
+            result = true
+        })
 
-        let observer2 = scheduler.createObserver(Int.self)
-
-        let messages2$ = Observable.changeset(from: realm.objects(Message.self), synchronousStart: false)
-            .share()
-
-        messages2$
-            .map { $0.0.count }
-            .subscribe(observer2)
-            .disposed(by: bag)
-
-        messages2$
-            .subscribe(onNext: {_ in
-                expectation2.fulfill()
-            })
-            .disposed(by: bag)
-
-        XCTAssertEqual(observer2.events.count, 0)
-
-        waitForExpectations(timeout: 5) {error in
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer2.events.count, 1)
-            XCTAssertEqual(observer2.events[0].value.element!, 0)
-        }
-        
-
+        XCTAssertEqual(result, false)
     }
 
 }

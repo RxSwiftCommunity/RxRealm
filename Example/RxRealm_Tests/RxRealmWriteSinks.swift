@@ -11,451 +11,220 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
+import RxBlocking
 
 enum WriteError: Error {
     case def
 }
 
 class RxRealmWriteSinks: XCTestCase {
-    fileprivate func realmInMemoryConfiguration(_ name: String) -> Realm.Configuration {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return conf
-    }
-    
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-
-    func testRxAddObject() {
-        let expectation = self.expectation(description: "Message1")
+    func testRxAddObjectWithSuccess() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-        let events = [
-            next(0, Message("1")),
-            completed(0)
-        ]
-        
-        let rx_add: AnyObserver<Message> = realm.rx.add()
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.array(from: realm.objects(Message.self)).share(replay: 1)
+        let items = Observable.array(from: realm.objects(Message.self))
+            .map { $0.map {$0.text} }
 
-        messages$.subscribe(observer)
-            .disposed(by: bag)
-        
-        messages$
-            .subscribe(onNext: { messages in
-                if messages.count == 1 {
-                    expectation.fulfill()
-                }
-            })
-            .disposed(by: bag)
-        
-        observable
-            .subscribe(rx_add)
-            .disposed(by: bag)
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-            XCTAssertTrue(observer.events.last!.value.element!.equalTo([Message("1")]))
-        })
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.just(Message("1")).subscribe(realm.rx.add())
+        }
+
+        let result = try! items.skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertEqual(result[0], "1")
     }
 
     func testRxAddObjectWithError() {
-        let expectation = self.expectation(description: "Message1")
         var conf = Realm.Configuration()
         conf.fileURL = URL(string: "/asdasdasdsad")!
 
-        let bag = DisposeBag()
-        let subject = PublishSubject<UniqueObject>()
+        let recordedError = Variable<Error?>(nil)
 
-        let o1 = UniqueObject()
-        o1.id = 1
+        DispatchQueue.main.async {
+            _ = Observable.just(Message("0"))
+                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { value, error in
+                    recordedError.value = error
+                }))
+        }
 
-        var recordedError: Error?
+        let error = try! recordedError.asObservable().skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertNotNil(error)
+        XCTAssertEqual((error! as NSError).code, 3)
+    }
 
-        let observer: AnyObserver<UniqueObject> = Realm.rx.add(configuration: conf, update: true, onError: {value, error in
-            XCTAssertNil(value)
-            recordedError = error
-            expectation.fulfill()
-        })
+    func testRxAddSequenceWithSuccess() {
+        let realm = realmInMemory(#function)
+        let items = Observable.array(from: realm.objects(Message.self))
+            .map { $0.map {$0.text} }
 
-        subject.asObservable()
-            .subscribe(observer)
-            .disposed(by: bag)
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.just([Message("1"), Message("2")]).subscribe(realm.rx.add())
+        }
 
-        subject.onNext(o1)
-
-        waitForExpectations(timeout: 1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertEqual((recordedError! as NSError).code, 3)
-        })
+        let result = try! items.skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertEqual(result[0], "1")
+        XCTAssertEqual(result[1], "2")
     }
 
     func testRxAddSequenceWithError() {
-        let expectation = self.expectation(description: "Message1")
         var conf = Realm.Configuration()
         conf.fileURL = URL(string: "/asdasdasdsad")!
 
-        let bag = DisposeBag()
-        let subject = PublishSubject<[UniqueObject]>()
+        let recordedError = Variable<Error?>(nil)
 
-        let o1 = UniqueObject()
-        o1.id = 1
-        let o2 = UniqueObject()
-        o2.id = 2
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.from([Message("1"), Message("2")])
+                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { value, error in
+                    recordedError.value = error
+                }))
+        }
 
-        var recordedError: Error?
-
-        let observer: AnyObserver<[UniqueObject]> = Realm.rx.add(configuration: conf, update: true, onError: {values, error in
-            XCTAssertNil(values)
-            recordedError = error
-            expectation.fulfill()
-        })
-
-        subject.asObservable()
-            .subscribe(observer)
-            .disposed(by: bag)
-
-        subject.onNext([o1, o2])
-
-        waitForExpectations(timeout: 1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertEqual((recordedError! as NSError).code, 3)
-        })
-    }
-
-    func testRxAddSequence() {
-        let expectation = self.expectation(description: "Message1")
-        let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-        let events = [
-            next(0, [Message("1"), Message("2")]),
-            completed(0)
-        ]
-        
-        let rx_add: AnyObserver<[Message]> = realm.rx.add()
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.array(from: realm.objects(Message.self)).share(replay: 1)
-        
-        observable.subscribe(rx_add)
-            .disposed(by: bag)
-        
-        messages$.subscribe(observer)
-            .disposed(by: bag)
-        
-        messages$.subscribe(onNext: {
-            if $0.count == 2 {
-                expectation.fulfill()
-            }
-        }).disposed(by: bag)
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-            XCTAssertTrue(observer.events.last!.value.element!.equalTo([Message("1"), Message("2")]))
-        })
+        let error = try! recordedError.asObservable().skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertNotNil(error)
+        XCTAssertEqual((error! as NSError).code, 3)
     }
     
-    func testRxAddUpdateObjects() {
-        let expectation = self.expectation(description: "Message1")
+    func testRxAddUpdateObjectsWithSucess() {
         let realm = realmInMemory(#function)
-        let bag = DisposeBag()
-        let events = [
-            next(0, [UniqueObject(1), UniqueObject(2)]),
-            next(1, [UniqueObject(1), UniqueObject(3)]),
-            completed(2)
-        ]
-        
-        let rx_add: AnyObserver<[UniqueObject]> = realm.rx.add(update: true)
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Array<UniqueObject>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-        let messages$ = Observable.array(from: realm.objects(UniqueObject.self)).share(replay: 1)
-        
-        observable.subscribe(rx_add)
-            .disposed(by: bag)
-        
-        messages$.subscribe(observer)
-            .disposed(by: bag)
-        
-        messages$.subscribe(onNext: {
-            switch $0.count {
-            case 3:
-                expectation.fulfill()
-            default:
-                break
-            }
-        }).disposed(by: bag)
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 5, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            //check that UniqueObject with id == 1 was overwritten
-            XCTAssertTrue(observer.events.last!.value.element!.count == 3)
-            XCTAssertTrue(observer.events.last!.value.element![0] == UniqueObject(1))
-            XCTAssertTrue(observer.events.last!.value.element![1] == UniqueObject(2))
-            XCTAssertTrue(observer.events.last!.value.element![2] == UniqueObject(3))
-        })
-        
-    }
+        let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
+            .map { $0.map {$0.id} }
 
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.just([UniqueObject(1), UniqueObject(2)]).subscribe(realm.rx.add())
+            _ = Observable.just([UniqueObject(1), UniqueObject(3)]).subscribe(realm.rx.add(update: true))
+        }
+
+        let result = try! items.skip(1).take(2).toBlocking(timeout: 1).toArray()
+        XCTAssertEqual(result[0], [1, 2])
+        XCTAssertEqual(result[1], [1, 2, 3])
+    }
     
     func testRxDeleteItem() {
-        let expectation = self.expectation(description: "Message1")
         let realm = realmInMemory(#function)
-        let element = Message("1")
-        let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = Observable.array(from: realm.objects(Message.self)).share(replay: 1)
-        let rx_delete: AnyObserver<Message> = Realm.rx.delete()
-        
+        let items = Observable.array(from: realm.objects(UniqueObject.self))
+            .map { $0.map {$0.id} }
+
+        let object1 = UniqueObject(1)
+        let object2 = UniqueObject(2)
         try! realm.write {
-            realm.add(element)
+            realm.add([object1, object2])
         }
-        let bag = DisposeBag()
-        let events = [
-            next(0, element),
-            completed(0)
-        ]
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-        
-        observable.subscribe(rx_delete)
-            .disposed(by: bag)
-        
-        messages$.subscribe(observer)
-            .disposed(by: bag)
-        
-        messages$.subscribe(onNext: {
-            switch $0.count {
-            case 0:
-                expectation.fulfill()
-            default:
-                break
-            }
-        }).disposed(by: bag)
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-            XCTAssertEqual(observer.events.last!.value.element!, [Message]())
-        })
+
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.just(object1).subscribe(realm.rx.delete())
+            _ = Observable.just(object2).subscribe(Realm.rx.delete())
+        }
+
+        let result = try! items.take(3).toBlocking(timeout: 1).toArray()
+        XCTAssertEqual(result[0], [1, 2])
+        XCTAssertEqual(result[1], [2])
+        XCTAssertEqual(result[2], [])
     }
 
     func testRxDeleteItemWithError() {
-        let expectation = self.expectation(description: "Message1")
-        expectation.assertForOverFulfill = false
-        var conf = Realm.Configuration()
-        conf.fileURL = URL(string: "/asdasdasdsad")!
+        let object1 = UniqueObject(1)
+        let recordedError = Variable<Error?>(nil)
 
-        let element = Message("1")
+        DispatchQueue.main.async {
+            _ = Observable.just(object1)
+                .subscribe(Realm.rx.delete(onError: {elements, error in
+                    recordedError.value = error
+                }))
+        }
 
-        let scheduler = TestScheduler(initialClock: 0)
-        let bag = DisposeBag()
-
-        let events = [
-            next(0, element),
-            completed(0)
-        ]
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-
-        let rx_delete: AnyObserver<Message> = Realm.rx.delete(onError: {elements, error in
-            XCTAssertNil(elements)
-            expectation.fulfill()
-        })
-
-        observable.subscribe(rx_delete)
-            .disposed(by: bag)
-
-        Observable.just([element]).subscribe(observer)
-            .disposed(by: bag)
-        scheduler.start()
-
-        waitForExpectations(timeout: 1.0, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-        })
+        let error = try! recordedError.asObservable().skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertNotNil(error)
     }
 
-
-    func testRxDeleteItems() {
-        let expectation = self.expectation(description: "Message1")
+    func testRxDeleteItemsWithSuccess() {
         let realm = realmInMemory(#function)
-        let elements = [Message("1"), Message("1")]
-        let scheduler = TestScheduler(initialClock: 0)
-        let messages$ = Observable.array(from: realm.objects(Message.self)).share(replay: 1)
-        let rx_delete: AnyObserver<[Message]> = Realm.rx.delete()
-        
+        let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
+            .map { $0.map {$0.id} }
+
+        let object1 = UniqueObject(1)
+        let object2 = UniqueObject(2)
+        let object3 = UniqueObject(3)
+        let object4 = UniqueObject(4)
+
         try! realm.write {
-            realm.add(elements)
+            realm.add([object1, object2, object3, object4])
         }
-        let bag = DisposeBag()
-        let events = [
-            next(0, elements),
-            completed(0)
-        ]
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-        
-        observable.subscribe(rx_delete)
-            .disposed(by: bag)
-        
-        messages$.subscribe(observer)
-            .disposed(by: bag)
-        
-        messages$.subscribe(onNext: {
-            switch $0.count {
-            case 0:
-                expectation.fulfill()
-            default:
-                break
-            }
-        }).disposed(by: bag)
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.1, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-            XCTAssertTrue(observer.events.last!.value.element!.isEmpty)
-        })
+
+        // show all speakers
+        DispatchQueue.main.async {
+            _ = Observable.just([object1, object2]).subscribe(realm.rx.delete())
+            _ = Observable.just([object3, object4]).subscribe(Realm.rx.delete())
+        }
+
+        let result = try! items.take(3).toBlocking(timeout: 1).toArray()
+        XCTAssertEqual(result[0], [1, 2, 3, 4])
+        XCTAssertEqual(result[1], [3, 4])
+        XCTAssertEqual(result[2], [])
     }
 
     func testRxDeleteItemsWithError() {
-        let expectation = self.expectation(description: "Message1")
-        expectation.assertForOverFulfill = false
-        var conf = Realm.Configuration()
-        conf.fileURL = URL(string: "/asdasdasdsad")!
+        let object1 = UniqueObject(1)
+        let object2 = UniqueObject(2)
+        let recordedError = Variable<Error?>(nil)
 
-        let element = [Message("1")]
+        DispatchQueue.main.async {
+            _ = Observable.just([object1, object2])
+                .subscribe(Realm.rx.delete(onError: {elements, error in
+                    recordedError.value = error
+                }))
+        }
 
-        let scheduler = TestScheduler(initialClock: 0)
-        let bag = DisposeBag()
-
-        let events = [
-            next(0, element),
-            completed(0)
-        ]
-        let observer = scheduler.createObserver(Array<Message>.self)
-        let observable = scheduler.createHotObservable(events).asObservable()
-
-        let rx_delete: AnyObserver<[Message]> = Realm.rx.delete(onError: {elements, error in
-            XCTAssertNil(elements)
-            expectation.fulfill()
-        })
-
-        observable.subscribe(rx_delete)
-            .disposed(by: bag)
-
-        Observable.from([element]).subscribe(observer)
-            .disposed(by: bag)
-        scheduler.start()
-
-        waitForExpectations(timeout: 1.0, handler: {error in
-            XCTAssertNil(error, "Error: \(error!.localizedDescription)")
-            XCTAssertTrue(observer.events.count > 0)
-            XCTAssertEqual(observer.events.last!.time, 0)
-        })
+        let error = try! recordedError.asObservable().skip(1).toBlocking(timeout: 1).first()!
+        XCTAssertNotNil(error)
     }
 
-
-    func testRxAddObjectsInBg() {
-        let expectation = self.expectation(description: "All writes completed")
-        
+    func testRxAddObjectsFromDifferentThreads() {
         let realm = realmInMemory(#function)
-        var conf  = Realm.Configuration()
-        conf.inMemoryIdentifier = #function
-        
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(Results<Message>.self)
-        
-        let messages$ = Observable.collection(from: realm.objects(Message.self)).share(replay: 1)
-        
-        messages$
-            .subscribe(observer).disposed(by: bag)
+        let conf = realm.configuration
 
-        messages$
-            .filter {$0.count == 8}
-            .subscribe(onNext: {_ in expectation.fulfill() })
-            .disposed(by: bag)
-        
-        scheduler.start()
-        
-        // subscribe/write on current thread
-        Observable.from([Message("1")])
-            .subscribe( realm.rx.add() )
-            .disposed(by: bag)
-        
-        delayInBackground(0.1, closure: {
-            // subscribe/write on background thread
+        let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
+            .map { $0.map {$0.id} }
+
+        // write on current thread
+        _ = Observable.just(UniqueObject(1)).subscribe(realm.rx.add())
+
+        // write on background thread
+        DispatchQueue.global(qos: .background).async {
             let realm = try! Realm(configuration: conf)
-            Observable.from([Message("2")])
-                .subscribe(realm.rx.add() )
-                .disposed(by: bag)
-        })
-        
-        // subscribe on current/write on main
-        Observable.from([Message("3")])
-            .observeOn(MainScheduler.instance)
-            .subscribe( Realm.rx.add(configuration: conf) )
-            .disposed(by: bag)
+            _ = Observable.just(UniqueObject(2))
+                .subscribe(realm.rx.add())
+        }
 
-        Observable.from([Message("4")])
-            .observeOn( ConcurrentDispatchQueueScheduler(
-                queue: DispatchQueue.global(qos: .background)))
-            .subscribe( Realm.rx.add(configuration: conf) )
-            .disposed(by: bag)
+        // write on main scheduler
+        DispatchQueue.global(qos: .background).async {
+            _ = Observable.just(UniqueObject(3))
+                .observeOn(MainScheduler.instance)
+                .subscribe(Realm.rx.add(configuration: conf))
+        }
 
-        // subscribe on current/write on background
-        Observable.from([[Message("5"), Message("6")]])
-            .observeOn( ConcurrentDispatchQueueScheduler(
-                queue: DispatchQueue.global(qos: .background)))
-            .subscribe( Realm.rx.add(configuration: conf) )
-            .disposed(by: bag)
-        
-        // subscribe on current/write on a realm in background
-        Observable.from([[Message("7"), Message("8")]])
-            .observeOn( ConcurrentDispatchQueueScheduler(
-                queue: DispatchQueue.global(qos: .background)))
-            .subscribe(onNext: {messages in
-                let realm = try! Realm(configuration: conf)
-                try! realm.write {
-                    realm.add(messages)
-                }
-            })
-            .disposed(by: bag)
-        
-        
-        waitForExpectations(timeout: 5.0, handler: {error in
-            XCTAssertNil(error)
-            let finalResult = observer.events.last!.value.element!
-            XCTAssertTrue(finalResult.count == 8, "The final amount of objects in realm are not correct")
-            XCTAssertTrue((try! Realm(configuration: conf)).objects(Message.self).sorted(byKeyPath: "text")
-                .reduce("", { acc, el in acc + el.text
-            }) == "12345678" /*😈*/, "The final list of objects is not the one expected")
-        })
+        // write on bg scheduler
+        DispatchQueue.main.async {
+            _ = Observable.just(UniqueObject(4))
+                .observeOn( ConcurrentDispatchQueueScheduler(
+                    queue: DispatchQueue.global(qos: .background)))
+                .subscribe(Realm.rx.add(configuration: conf))
+        }
+
+        // subscribe on main, write in bg
+        DispatchQueue.main.async {
+            _ = Observable.just([UniqueObject(5), UniqueObject(6)])
+                .observeOn( ConcurrentDispatchQueueScheduler(
+                    queue: DispatchQueue.global(qos: .background)))
+                .subscribe( Realm.rx.add(configuration: conf) )
+        }
+
+        let until = Observable.array(from: realm.objects(UniqueObject.self))
+            .filter {$0.count == 6}
+            .delay(0.1, scheduler: MainScheduler.instance)
+
+        let result = try! items.takeUntil(until).toBlocking(timeout: 1).toArray()
+        XCTAssertEqual(result.last!, [1, 2, 3, 4, 5, 6])
     }
 }

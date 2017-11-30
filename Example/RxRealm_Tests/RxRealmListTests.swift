@@ -11,117 +11,69 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
 
 class RxRealmListTests: XCTestCase {
-    
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-    
-    fileprivate func clearRealm(_ realm: Realm) {
-        try! realm.write {
-            realm.deleteAll()
-        }
-    }
-    
     func testListType() {
-        let expectation1 = expectation(description: "List<User> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(List<User>.self)
-        
+
         let message = Message("first")
         try! realm.write {
             realm.add(message)
         }
         
-        let users$ = Observable.collection(from: message.recipients).share(replay: 1)
-        users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        users$
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
-        delay(0.1) {
+        let users = Observable.collection(from: message.recipients)
+            .skip(1)
+            .map { $0.count }
+
+        DispatchQueue.main.async {
             try! realm.write {
                 message.recipients.append(User("user1"))
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! users.toBlocking().first()! , 1)
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            let message = realm.objects(Message.self).first!
             try! realm.write {
                 message.recipients.remove(at: 0)
             }
         }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(message.recipients.count, 0)
-        }
+
+        XCTAssertEqual(try! users.toBlocking().first()! , 0)
     }
     
     func testListTypeChangeset() {
-        let expectation1 = expectation(description: "List<User> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String.self)
-        
+
         let message = Message("first")
         try! realm.write {
             realm.add(message)
         }
-        
-        let users$ = Observable.changeset(from: message.recipients).share(replay: 1)
-        users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        users$
-            .map {list, changes in
-                if let changes = changes {
-                    return "i:\(changes.inserted) d:\(changes.deleted) u:\(changes.updated)"
-                } else {
-                    return "initial"
-                }
-            }
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
-        delay(0.1) {
+
+        let users = Observable.changeset(from: message.recipients)
+            .map(stringifyChanges)
+
+        XCTAssertEqual(try! users.toBlocking().first()! , "count:0")
+
+        DispatchQueue.main.async {
             try! realm.write {
                 message.recipients.append(User("user1"))
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()! , "count:1 inserted:[0] deleted:[] updated:[]")
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            let message = realm.objects(Message.self).first!
             try! realm.write {
                 message.recipients.remove(at: 0)
             }
         }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(observer.events[0].value.element!, "initial")
-            XCTAssertEqual(observer.events[1].value.element!, "i:[0] d:[] u:[]")
-            XCTAssertEqual(observer.events[2].value.element!, "i:[] d:[0] u:[]")
-        }
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()! , "count:0 inserted:[] deleted:[0] updated:[]")
     }
     
 }

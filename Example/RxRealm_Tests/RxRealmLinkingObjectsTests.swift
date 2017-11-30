@@ -11,122 +11,76 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
 
 class RxRealmLinkingObjectsTests: XCTestCase {
     
-    fileprivate func realmInMemory(_ name: String) -> Realm {
-        var conf = Realm.Configuration()
-        conf.inMemoryIdentifier = name
-        return try! Realm(configuration: conf)
-    }
-    
-    fileprivate func clearRealm(_ realm: Realm) {
-        try! realm.write {
-            realm.deleteAll()
-        }
-    }
-    
     func testLinkingObjectsType() {
-        let expectation1 = expectation(description: "LinkingObjects<User> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(LinkingObjects<User>.self)
-        
+
         let message = Message("first")
         try! realm.write {
             realm.add(message)
         }
         
-        let users$ = Observable.collection(from: message.mentions).share(replay: 1)
-        users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        users$
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
+        let users = Observable.collection(from: message.mentions)
+            .map { $0.count }
+
+        XCTAssertEqual(try! users.toBlocking().first()!, 0)
+
         let user1 = User("user1")
         user1.lastMessage = message
 
-        delay(0.1) {
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.add(user1)
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, 1)
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            let user1 = realm.objects(User.self).first!
             try! realm.write {
                 realm.delete(user1)
             }
         }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(message.mentions.count, 0)
-        }
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, 0)
     }
     
     func testLinkingObjectsTypeChangeset() {
-        let expectation1 = expectation(description: "LinkingObjects<User> first")
-        
         let realm = realmInMemory(#function)
-        clearRealm(realm)
-        let bag = DisposeBag()
-        
-        let scheduler = TestScheduler(initialClock: 0)
-        let observer = scheduler.createObserver(String.self)
-        
+
         let message = Message("first")
         try! realm.write {
             realm.add(message)
         }
-        
-        let users$ = Observable.changeset(from: message.mentions).share(replay: 1)
-        users$.scan(0, accumulator: {acc, _ in return acc+1})
-            .filter { $0 == 3 }.map {_ in ()}.subscribe(onNext: expectation1.fulfill).disposed(by: bag)
-        users$
-            .map {linkingObjects, changes in
-                if let changes = changes {
-                    return "i:\(changes.inserted) d:\(changes.deleted) u:\(changes.updated)"
-                } else {
-                    return "initial"
-                }
-            }
-            .subscribe(observer).disposed(by: bag)
-        
-        //interact with Realm here
+
+        let users = Observable.changeset(from: message.mentions)
+            .map(stringifyChanges)
+
+        XCTAssertEqual(try! users.toBlocking().first()!, "count:0")
+
         let user1 = User("user1")
         user1.lastMessage = message
-        
-        delay(0.1) {
+
+        DispatchQueue.main.async {
             try! realm.write {
                 realm.add(user1)
             }
         }
-        delay(0.2) {
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
+
+        DispatchQueue.global(qos: .background).async {
+            let realm = realmInMemory(#function)
+            let user1 = realm.objects(User.self).first!
             try! realm.write {
                 realm.delete(user1)
             }
         }
-        
-        scheduler.start()
-        
-        waitForExpectations(timeout: 0.5) {error in
-            //do tests here
-            
-            XCTAssertTrue(error == nil)
-            XCTAssertEqual(observer.events.count, 3)
-            XCTAssertEqual(observer.events[0].value.element!, "initial")
-            XCTAssertEqual(observer.events[1].value.element!, "i:[0] d:[] u:[]")
-            XCTAssertEqual(observer.events[2].value.element!, "i:[] d:[0] u:[]")
-        }
+
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
     }
 }
