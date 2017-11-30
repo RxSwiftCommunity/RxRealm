@@ -11,7 +11,6 @@ import XCTest
 import RxSwift
 import RealmSwift
 import RxRealm
-import RxTest
 
 class RxRealmObjectTests: XCTestCase {
 

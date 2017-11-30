@@ -17,7 +17,6 @@ end
 target 'RxRealm_Tests' do
   platform :ios, '9.0'
   common
-  pod 'RxTest', '~> 4.0'
   pod 'RxBlocking', '~> 4.0'
   pod 'RxRealm', :path => '../'
 end
