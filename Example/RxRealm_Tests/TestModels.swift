@@ -39,21 +39,6 @@ class Message: Object {
     }
 }
 
-extension Array where Element: Message {
-    func equalTo(_ to: [Message]) -> Bool {
-        guard count == to.count else {return false}
-        let (result, _) = reduce((true, 0)) {acc, el in
-            guard acc.0 && self[acc.1] == to[acc.1] else {return (false, 0)}
-            return (true, acc.1+1)
-        }
-        return result
-    }
-}
-
-func ==(lhs: Message, rhs: Message) -> Bool {
-    return lhs.text == rhs.text
-}
-
 //MARK: User
 class User: Object {
     @objc dynamic var name = ""
@@ -63,10 +48,6 @@ class User: Object {
         self.init()
         self.name = name
     }
-}
-
-func ==(lhs: User, rhs: User) -> Bool {
-    return lhs.name == rhs.name
 }
 
 //MARK: UniqueObject
@@ -84,6 +65,3 @@ class UniqueObject: Object {
     }
 }
 
-func ==(lhs: UniqueObject, rhs: UniqueObject) -> Bool {
-    return lhs.id == rhs.id
-}
