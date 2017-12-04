@@ -9,11 +9,11 @@ This library is a thin wrapper around __RealmSwift__ ( [Realm Docs](https://real
 
 **Table of contents:**
 
- 1. Observing object collections
- 2. Observing a single object
- 3. Write transactions
- 4. Automatically binding table and collection views
- 5. Example app
+ 1. [Observing object collections](https://github.com/RxSwiftCommunity/RxRealm#observing-object-collections)
+ 2. [Observing a single object](https://github.com/RxSwiftCommunity/RxRealm#observing-a-single-object)
+ 3. [Write transactions](https://github.com/RxSwiftCommunity/RxRealm#write-transactions)
+ 4. [Automatically binding table and collection views](https://github.com/RxSwiftCommunity/RxRealm#automatically-binding-table-and-collection-views)
+ 5. [Example app](https://github.com/RxSwiftCommunity/RxRealm#example-app)
 
 ## Observing object collections
 
