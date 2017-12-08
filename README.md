@@ -35,7 +35,7 @@ Observable.collection(from: laps)
   })
 ```
 
-The above prints out "X laps" each time a lap is added or removed from the database. If you set `synchronousStart` to `true` (the default value), the first element will be emitted synchronously - e.g. when you're binding UI you might not be able for an asynchronous notification to come through.
+The above prints out "X laps" each time a lap is added or removed from the database. If you set `synchronousStart` to `true` (the default value), the first element will be emitted synchronously - e.g. when you're binding UI it might not be possible for an asynchronous notification to come through.
 
 ##### `Observable.array(from:synchronousStart:)`
 Upon each change fetches a snapshot of the Realm collection and converts it to an array value (for example if you want to use array methods on the collection):
@@ -223,9 +223,9 @@ Observable.from( [Realm collection] )
 
 #### b) Animated binding with RxRealmDataSources
 
-There is a separate library __`RxRealmDataSources`__ [link](https://github.com/RxSwiftCommunity/RxRealmDataSources), which mimics the default data sources library behavior for RxSwift.
+The separate library [RxRealmDataSources](https://github.com/RxSwiftCommunity/RxRealmDataSources) mimics the default data sources library behavior for RxSwift.
 
-`RxRealmDataSources` allows you to bind directly an observable collection of Realm objects to a table or collection view. Here's how the code to bind a collection of laps to a table view looks like:
+`RxRealmDataSources` allows you to bind an observable collection of Realm objects directly to a table or collection view:
 
 ```swift
 // create data source
