@@ -103,7 +103,9 @@
 				9F0BE4241CF8DB4B00919282 /* Products */,
 				9F1E94B11CF8E9D200BC469B /* Frameworks */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		9F0BE4241CF8DB4B00919282 /* Products */ = {
 			isa = PBXGroup;
@@ -545,6 +547,7 @@
 		9F1E94BE1CF8EA4500BC469B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -575,6 +578,7 @@
 		9F1E94BF1CF8EA4500BC469B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;

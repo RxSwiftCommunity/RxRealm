@@ -13,18 +13,18 @@ import RxSwift
  `RealmObserver` retains target realm object until it receives a .Completed or .Error event
   or the observer is being deinitialized
  */
-class RealmObserver<E>: ObserverType {
+class RealmObserver<Element>: ObserverType {
     var realm: Realm?
     var configuration: Realm.Configuration?
 
-    let binding: (Realm?, E, Error?) -> Void
+    let binding: (Realm?, Element, Error?) -> Void
 
-    init(realm: Realm, binding: @escaping (Realm?, E, Error?) -> Void) {
+    init(realm: Realm, binding: @escaping (Realm?, Element, Error?) -> Void) {
         self.realm = realm
         self.binding = binding
     }
 
-    init(configuration: Realm.Configuration, binding: @escaping (Realm?, E, Error?) -> Void) {
+    init(configuration: Realm.Configuration, binding: @escaping (Realm?, Element, Error?) -> Void) {
         self.configuration = configuration
         self.binding = binding
     }
@@ -32,7 +32,7 @@ class RealmObserver<E>: ObserverType {
     /**
      Binds next element
      */
-    func on(_ event: Event<E>) {
+    func on(_ event: Event<Element>) {
         switch event {
         case let .next(element):
             //this will "cache" the realm on this thread, until completed/errored
@@ -64,7 +64,7 @@ class RealmObserver<E>: ObserverType {
 
      - returns: AnyObserver, type erased observer
      */
-    func asObserver() -> AnyObserver<E> {
+    func asObserver() -> AnyObserver<Element> {
         return AnyObserver(eventHandler: on)
     }
 
