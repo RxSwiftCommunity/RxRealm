@@ -8,12 +8,11 @@
 
 import XCTest
 
-import RxSwift
 import RealmSwift
 import RxRealm
+import RxSwift
 
 class RxRealmLinkingObjectsTests: XCTestCase {
-    
     func testLinkingObjectsType() {
         let realm = realmInMemory(#function)
 
@@ -21,7 +20,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
         try! realm.write {
             realm.add(message)
         }
-        
+
         let users = Observable.collection(from: message.mentions)
             .map { $0.count }
 
@@ -48,7 +47,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
 
         XCTAssertEqual(try! users.skip(1).toBlocking().first()!, 0)
     }
-    
+
     func testLinkingObjectsTypeChangeset() {
         let realm = realmInMemory(#function)
 

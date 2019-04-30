@@ -8,16 +8,15 @@
 
 import XCTest
 
-import RxSwift
 import RealmSwift
 import RxRealm
+import RxSwift
 
 class RxRealmResultsTests: XCTestCase {
-    
     func testResultsType() {
         let realm = realmInMemory(#function)
         let messages = Observable.collection(from: realm.objects(Message.self))
-            .map { Array($0.map {$0.text}) }
+            .map { Array($0.map { $0.text }) }
 
         XCTAssertEqual(try! messages.toBlocking().first()!, [])
 
@@ -37,7 +36,7 @@ class RxRealmResultsTests: XCTestCase {
 
         XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, [])
     }
-    
+
     func testResultsTypeChangeset() {
         let realm = realmInMemory(#function)
         let messages = Observable.changeset(from: realm.objects(Message.self))
@@ -114,5 +113,4 @@ class RxRealmResultsTests: XCTestCase {
 
         XCTAssertEqual(result, false)
     }
-
 }

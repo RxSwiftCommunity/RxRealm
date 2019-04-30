@@ -8,9 +8,9 @@
 
 import XCTest
 
-import RxSwift
 import RealmSwift
 import RxRealm
+import RxSwift
 
 class RxRealmListTests: XCTestCase {
     func testListType() {
@@ -20,7 +20,7 @@ class RxRealmListTests: XCTestCase {
         try! realm.write {
             realm.add(message)
         }
-        
+
         let users = Observable.collection(from: message.recipients)
             .skip(1)
             .map { $0.count }
@@ -31,7 +31,7 @@ class RxRealmListTests: XCTestCase {
             }
         }
 
-        XCTAssertEqual(try! users.toBlocking().first()! , 1)
+        XCTAssertEqual(try! users.toBlocking().first()!, 1)
 
         DispatchQueue.global(qos: .background).async {
             let realm = realmInMemory(#function)
@@ -41,9 +41,9 @@ class RxRealmListTests: XCTestCase {
             }
         }
 
-        XCTAssertEqual(try! users.toBlocking().first()! , 0)
+        XCTAssertEqual(try! users.toBlocking().first()!, 0)
     }
-    
+
     func testListTypeChangeset() {
         let realm = realmInMemory(#function)
 
@@ -55,7 +55,7 @@ class RxRealmListTests: XCTestCase {
         let users = Observable.changeset(from: message.recipients)
             .map(stringifyChanges)
 
-        XCTAssertEqual(try! users.toBlocking().first()! , "count:0")
+        XCTAssertEqual(try! users.toBlocking().first()!, "count:0")
 
         DispatchQueue.main.async {
             try! realm.write {
@@ -63,7 +63,7 @@ class RxRealmListTests: XCTestCase {
             }
         }
 
-        XCTAssertEqual(try! users.skip(1).toBlocking().first()! , "count:1 inserted:[0] deleted:[] updated:[]")
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
 
         DispatchQueue.global(qos: .background).async {
             let realm = realmInMemory(#function)
@@ -73,7 +73,6 @@ class RxRealmListTests: XCTestCase {
             }
         }
 
-        XCTAssertEqual(try! users.skip(1).toBlocking().first()! , "count:0 inserted:[] deleted:[0] updated:[]")
+        XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
     }
-    
 }

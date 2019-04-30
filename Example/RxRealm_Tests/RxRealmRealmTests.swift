@@ -8,9 +8,9 @@
 
 import XCTest
 
-import RxSwift
 import RealmSwift
 import RxRealm
+import RxSwift
 
 class RxRealmRealmTests: XCTestCase {
     func testRealmDidChangeNotifications() {
@@ -35,7 +35,7 @@ class RxRealmRealmTests: XCTestCase {
 
         XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.didChange)
     }
-    
+
     func testRealmRefreshRequiredNotifications() {
         let realm = realmInMemory(#function)
         realm.autorefresh = false
@@ -61,5 +61,4 @@ class RxRealmRealmTests: XCTestCase {
         // on different thread - refresh required
         XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.refreshRequired)
     }
-
 }

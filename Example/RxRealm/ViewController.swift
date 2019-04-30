@@ -1,11 +1,10 @@
-
-import UIKit
 import RealmSwift
-import RxSwift
 import RxCocoa
 import RxRealm
+import RxSwift
+import UIKit
 
-//realm model
+// realm model
 class Lap: Object {
     @objc dynamic var time: TimeInterval = Date().timeIntervalSinceReferenceDate
 }
@@ -16,13 +15,13 @@ class TickCounter: Object {
     override static func primaryKey() -> String? { return "id" }
 }
 
-//view controller
+// view controller
 class ViewController: UIViewController {
     let bag = DisposeBag()
 
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var tickItemButton: UIBarButtonItem!
-    @IBOutlet weak var addTwoItemsButton: UIBarButtonItem!
+    @IBOutlet var tableView: UITableView!
+    @IBOutlet var tickItemButton: UIBarButtonItem!
+    @IBOutlet var addTwoItemsButton: UIBarButtonItem!
 
     var laps: Results<Lap>!
 
@@ -51,7 +50,7 @@ class ViewController: UIViewController {
          Observable<Results<Lap>> - wrap Results as observable
          */
         Observable.collection(from: laps)
-            .map {results in "laps: \(results.count)"}
+            .map { results in "laps: \(results.count)" }
             .subscribe { event in
                 self.title = event.element
             }
@@ -61,7 +60,7 @@ class ViewController: UIViewController {
          Observable<Results<Lap>> - reacting to change sets
          */
         Observable.changeset(from: laps)
-            .subscribe(onNext: {[unowned self] results, changes in
+            .subscribe(onNext: { [unowned self] _, changes in
                 if let changes = changes {
                     self.tableView.applyChangeset(changes)
                 } else {
@@ -69,13 +68,13 @@ class ViewController: UIViewController {
                 }
             })
             .disposed(by: bag)
-        
+
         /*
          Use bindable sink to add objects
          */
         addTwoItemsButton.rx.tap
             .map { [Lap(), Lap()] }
-            .bind(to: Realm.rx.add(onError: {elements, error in
+            .bind(to: Realm.rx.add(onError: { elements, error in
                 if let elements = elements {
                     print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
                 } else {
@@ -88,7 +87,7 @@ class ViewController: UIViewController {
          Bind bar item to increasing the ticker
          */
         tickItemButton.rx.tap
-            .subscribe(onNext: {[unowned self] value in
+            .subscribe(onNext: { [unowned self] _ in
                 try! realm.write {
                     self.ticker.ticks += 1
                 }
@@ -100,8 +99,8 @@ class ViewController: UIViewController {
          */
         let tickerChanges$ = Observable.propertyChanges(object: ticker)
         tickerChanges$
-            .filter({ $0.name == "ticks" })
-            .map({ "\($0.newValue!) ticks" })
+            .filter { $0.name == "ticks" }
+            .map { "\($0.newValue!) ticks" }
             .bind(to: footer.rx.text)
             .disposed(by: bag)
     }
