@@ -8,16 +8,15 @@
 
 import XCTest
 
-import RxSwift
 import RealmSwift
 import RxRealm
+import RxSwift
 
 class RxRealmObjectTests: XCTestCase {
-
     func testObjectChangeNotifications() {
         let realm = realmInMemory(#function)
 
-        //create object
+        // create object
         let idValue = 1024
         let obj = UniqueObject(idValue)
         try! realm.write {
@@ -45,7 +44,7 @@ class RxRealmObjectTests: XCTestCase {
 
         XCTAssertEqual(try! objectNotifications.skip(1).toBlocking().first()!, "test2")
 
-        //delete the object to trigger an error
+        // delete the object to trigger an error
         DispatchQueue.main.async {
             try! realm.write {
                 realm.delete(obj)
@@ -69,7 +68,7 @@ class RxRealmObjectTests: XCTestCase {
 
         // emits upon subscription
         _ = Observable.from(object: obj, emitInitialValue: true)
-            .subscribe(onNext: {_ in
+            .subscribe(onNext: { _ in
                 result = true
             })
 
@@ -88,7 +87,7 @@ class RxRealmObjectTests: XCTestCase {
 
         // doesn't emit upon subscription
         _ = Observable.from(object: obj, emitInitialValue: false)
-            .subscribe(onNext: {_ in
+            .subscribe(onNext: { _ in
                 result = true
             })
 
@@ -121,7 +120,7 @@ class RxRealmObjectTests: XCTestCase {
         }
         XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "name:test2")
 
-        //delete the object to trigger an error
+        // delete the object to trigger an error
         DispatchQueue.main.async {
             try! realm.write {
                 realm.delete(obj)
@@ -158,7 +157,7 @@ class RxRealmObjectTests: XCTestCase {
         }
         XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "test2")
 
-        //delete the object to trigger an error
+        // delete the object to trigger an error
         DispatchQueue.main.async {
             try! realm.write {
                 realm.delete(obj)
@@ -168,5 +167,4 @@ class RxRealmObjectTests: XCTestCase {
             XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
         }
     }
-
 }

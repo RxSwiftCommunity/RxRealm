@@ -6,12 +6,12 @@
 //  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
-import XCTest
-
-import RxSwift
 import RealmSwift
-import RxRealm
 import RxBlocking
+import RxCocoa
+import RxRealm
+import RxSwift
+import XCTest
 
 enum WriteError: Error {
     case def
@@ -21,7 +21,7 @@ class RxRealmWriteSinks: XCTestCase {
     func testRxAddObjectWithSuccess() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(Message.self))
-            .map { $0.map {$0.text} }
+            .map { $0.map { $0.text } }
 
         // show all speakers
         DispatchQueue.main.async {
@@ -36,12 +36,12 @@ class RxRealmWriteSinks: XCTestCase {
         var conf = Realm.Configuration()
         conf.fileURL = URL(string: "/asdasdasdsad")!
 
-        let recordedError = Variable<Error?>(nil)
+        let recordedError = BehaviorRelay<Error?>(value: nil)
 
         DispatchQueue.main.async {
             _ = Observable.just(Message("0"))
-                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { value, error in
-                    recordedError.value = error
+                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { _, error in
+                    recordedError.accept(error)
                 }))
         }
 
@@ -53,7 +53,7 @@ class RxRealmWriteSinks: XCTestCase {
     func testRxAddSequenceWithSuccess() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(Message.self))
-            .map { $0.map {$0.text} }
+            .map { $0.map { $0.text } }
 
         // show all speakers
         DispatchQueue.main.async {
@@ -69,13 +69,13 @@ class RxRealmWriteSinks: XCTestCase {
         var conf = Realm.Configuration()
         conf.fileURL = URL(string: "/asdasdasdsad")!
 
-        let recordedError = Variable<Error?>(nil)
+        let recordedError = BehaviorRelay<Error?>(value: nil)
 
         // show all speakers
         DispatchQueue.main.async {
             _ = Observable.from([Message("1"), Message("2")])
-                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { value, error in
-                    recordedError.value = error
+                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { _, error in
+                    recordedError.accept(error)
                 }))
         }
 
@@ -83,11 +83,11 @@ class RxRealmWriteSinks: XCTestCase {
         XCTAssertNotNil(error)
         XCTAssertEqual((error! as NSError).code, 3)
     }
-    
+
     func testRxAddUpdateObjectsWithSucess() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
-            .map { $0.map {$0.id} }
+            .map { $0.map { $0.id } }
 
         // show all speakers
         DispatchQueue.main.async {
@@ -99,11 +99,11 @@ class RxRealmWriteSinks: XCTestCase {
         XCTAssertEqual(result[0], [1, 2])
         XCTAssertEqual(result[1], [1, 2, 3])
     }
-    
+
     func testRxDeleteItem() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(UniqueObject.self))
-            .map { $0.map {$0.id} }
+            .map { $0.map { $0.id } }
 
         let object1 = UniqueObject(1)
         let object2 = UniqueObject(2)
@@ -125,12 +125,12 @@ class RxRealmWriteSinks: XCTestCase {
 
     func testRxDeleteItemWithError() {
         let object1 = UniqueObject(1)
-        let recordedError = Variable<Error?>(nil)
+        let recordedError = BehaviorRelay<Error?>(value: nil)
 
         DispatchQueue.main.async {
             _ = Observable.just(object1)
-                .subscribe(Realm.rx.delete(onError: {elements, error in
-                    recordedError.value = error
+                .subscribe(Realm.rx.delete(onError: { _, error in
+                    recordedError.accept(error)
                 }))
         }
 
@@ -141,7 +141,7 @@ class RxRealmWriteSinks: XCTestCase {
     func testRxDeleteItemsWithSuccess() {
         let realm = realmInMemory(#function)
         let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
-            .map { $0.map {$0.id} }
+            .map { $0.map { $0.id } }
 
         let object1 = UniqueObject(1)
         let object2 = UniqueObject(2)
@@ -167,12 +167,12 @@ class RxRealmWriteSinks: XCTestCase {
     func testRxDeleteItemsWithError() {
         let object1 = UniqueObject(1)
         let object2 = UniqueObject(2)
-        let recordedError = Variable<Error?>(nil)
+        let recordedError = BehaviorRelay<Error?>(value: nil)
 
         DispatchQueue.main.async {
             _ = Observable.just([object1, object2])
-                .subscribe(Realm.rx.delete(onError: {elements, error in
-                    recordedError.value = error
+                .subscribe(Realm.rx.delete(onError: { _, error in
+                    recordedError.accept(error)
                 }))
         }
 
@@ -185,7 +185,7 @@ class RxRealmWriteSinks: XCTestCase {
         let conf = realm.configuration
 
         let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))
-            .map { $0.map {$0.id} }
+            .map { $0.map { $0.id } }
 
         // write on current thread
         _ = Observable.just(UniqueObject(1)).subscribe(realm.rx.add())
@@ -207,22 +207,20 @@ class RxRealmWriteSinks: XCTestCase {
         // write on bg scheduler
         DispatchQueue.main.async {
             _ = Observable.just(UniqueObject(4))
-                .observeOn( ConcurrentDispatchQueueScheduler(
-                    queue: DispatchQueue.global(qos: .background)))
+                .observeOn(ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
                 .subscribe(Realm.rx.add(configuration: conf))
         }
 
         // subscribe on main, write in bg
         DispatchQueue.main.async {
             _ = Observable.just([UniqueObject(5), UniqueObject(6)])
-                .observeOn( ConcurrentDispatchQueueScheduler(
-                    queue: DispatchQueue.global(qos: .background)))
-                .subscribe( Realm.rx.add(configuration: conf) )
+                .observeOn(ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
+                .subscribe(Realm.rx.add(configuration: conf))
         }
 
         let until = Observable.array(from: realm.objects(UniqueObject.self))
-            .filter {$0.count == 6}
-            .delay(0.1, scheduler: MainScheduler.instance)
+            .filter { $0.count == 6 }
+            .delay(.milliseconds(100), scheduler: MainScheduler.instance)
 
         let result = try! items.takeUntil(until).toBlocking(timeout: 1).toArray()
         XCTAssertEqual(result.last!, [1, 2, 3, 4, 5, 6])
