@@ -99,23 +99,23 @@ public struct RealmChangeset {
     public let updated: [Int]
 }
 
-public extension ObservableType where E: NotificationEmitter {
+public extension ObservableType where Element: NotificationEmitter {
     @available(*, deprecated, renamed: "collection(from:synchronousStart:)")
-    static func from(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<E> {
+    static func from(_ collection: Element, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<Element> {
         return self.collection(from: collection)
     }
 
     /**
-     Returns an `Observable<E>` that emits each time the collection data changes.
+     Returns an `Observable<Element>` that emits each time the collection data changes.
      The observable emits an initial value upon subscription.
 
-     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
 
-     - returns: `Observable<E>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
+     - returns: `Observable<Element>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
      */
-    static func collection(from collection: E, synchronousStart: Bool = true)
-        -> Observable<E> {
+    static func collection(from collection: Element, synchronousStart: Bool = true)
+        -> Observable<Element> {
         return Observable.create { observer in
             if synchronousStart {
                 observer.onNext(collection)
@@ -123,7 +123,7 @@ public extension ObservableType where E: NotificationEmitter {
 
             let token = collection.observe { changeset in
 
-                let value: E
+                let value: Element
 
                 switch changeset {
                 case let .initial(latestValue):
@@ -148,44 +148,44 @@ public extension ObservableType where E: NotificationEmitter {
     }
 
     @available(*, deprecated, renamed: "array(from:synchronousStart:)")
-    static func arrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<[E.ElementType]> {
+    static func arrayFrom(_ collection: Element, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<[Element.ElementType]> {
         return array(from: collection)
     }
 
     /**
-     Returns an `Observable<Array<E.Element>>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     Returns an `Observable<Array<Element.Element>>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
      The result emits an array containing all objects from the source collection.
 
-     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
 
-     - returns: `Observable<Array<E.Element>>`, e.g. when called on `Results<Model>` it will return `Observable<Array<Model>>`, on a `List<User>` it will return `Observable<Array<User>>`, etc.
+     - returns: `Observable<Array<Element.Element>>`, e.g. when called on `Results<Model>` it will return `Observable<Array<Model>>`, on a `List<User>` it will return `Observable<Array<User>>`, etc.
      */
-    static func array(from collection: E, synchronousStart: Bool = true)
-        -> Observable<[E.ElementType]> {
+    static func array(from collection: Element, synchronousStart: Bool = true)
+        -> Observable<[Element.ElementType]> {
         return Observable.collection(from: collection, synchronousStart: synchronousStart)
             .map { $0.toArray() }
     }
 
     @available(*, deprecated, renamed: "changeset(from:synchronousStart:)")
-    static func changesetFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
+    static func changesetFrom(_ collection: Element, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
         return changeset(from: collection)
     }
 
     /**
-     Returns an `Observable<(E, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     Returns an `Observable<(Element, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
 
      When the observable emits for the first time (if the initial notification is not coalesced with an update) the second tuple value will be `nil`.
 
      Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
 
-     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
 
-     - returns: `Observable<(AnyRealmCollection<E.Element>, RealmChangeset?)>`
+     - returns: `Observable<(AnyRealmCollection<Element.Element>, RealmChangeset?)>`
      */
-    static func changeset(from collection: E, synchronousStart: Bool = true)
-        -> Observable<(AnyRealmCollection<E.ElementType>, RealmChangeset?)> {
+    static func changeset(from collection: Element, synchronousStart: Bool = true)
+        -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
         return Observable.create { observer in
             if synchronousStart {
                 observer.onNext((collection.toAnyCollection(), nil))
@@ -212,12 +212,12 @@ public extension ObservableType where E: NotificationEmitter {
     }
 
     @available(*, deprecated, renamed: "arrayWithChangeset(from:synchronousStart:)")
-    static func changesetArrayFrom(_ collection: E, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<([E.ElementType], RealmChangeset?)> {
+    static func changesetArrayFrom(_ collection: Element, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<([Element.ElementType], RealmChangeset?)> {
         return arrayWithChangeset(from: collection)
     }
 
     /**
-     Returns an `Observable<(Array<E.Element>, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+     Returns an `Observable<(Array<Element.Element>, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
 
      This method emits an `Array` containing all the realm collection objects, this means they all live in the memory. If you're using this method to observe large collections you might hit memory warnings.
 
@@ -225,13 +225,13 @@ public extension ObservableType where E: NotificationEmitter {
 
      Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
 
-     - parameter from: A Realm collection of type `E`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+     - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
 
-     - returns: `Observable<(Array<E.Element>, RealmChangeset?)>`
+     - returns: `Observable<(Array<Element.Element>, RealmChangeset?)>`
      */
-    static func arrayWithChangeset(from collection: E, synchronousStart: Bool = true)
-        -> Observable<([E.ElementType], RealmChangeset?)> {
+    static func arrayWithChangeset(from collection: Element, synchronousStart: Bool = true)
+        -> Observable<([Element.ElementType], RealmChangeset?)> {
         return Observable.changeset(from: collection)
             .map { ($0.toArray(), $1) }
     }
