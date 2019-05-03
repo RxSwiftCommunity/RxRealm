@@ -11,24 +11,24 @@ import RxSwift
 
 /**
  `RealmObserver` retains target realm object until it receives a .Completed or .Error event
-  or the observer is being deinitialized
+ or the observer is being deinitialized
  */
 class RealmObserver<Element>: ObserverType {
     var realm: Realm?
     var configuration: Realm.Configuration?
-
+    
     let binding: (Realm?, Element, Error?) -> Void
-
+    
     init(realm: Realm, binding: @escaping (Realm?, Element, Error?) -> Void) {
         self.realm = realm
         self.binding = binding
     }
-
+    
     init(configuration: Realm.Configuration, binding: @escaping (Realm?, Element, Error?) -> Void) {
         self.configuration = configuration
         self.binding = binding
     }
-
+    
     /**
      Binds next element
      */
@@ -45,30 +45,31 @@ class RealmObserver<Element>: ObserverType {
                 }
                 return
             }
-
+            
             guard let realm = realm else {
                 fatalError("No realm in RealmObserver at time of a .Next event")
             }
-
+            
             binding(realm, element, nil)
-
+            
         case .error:
             realm = nil
         case .completed:
             realm = nil
         }
     }
-
+    
     /**
      Erases the type of observer
-
+     
      - returns: AnyObserver, type erased observer
      */
     func asObserver() -> AnyObserver<Element> {
         return AnyObserver(eventHandler: on)
     }
-
+    
     deinit {
         realm = nil
     }
 }
+
