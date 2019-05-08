@@ -12,11 +12,11 @@ let package = Package(
     targets: [
         .target(
             name: "RxRealm",
-            path: "Pod/Classes",
             dependencies: [
-                "Realm",
-                "RealmSwift"
-            ]
-        )
+                    "Realm",
+                    "RealmSwift"
+                ]
+            ),
+            path: "Pod/Classes"
     ]
 )
