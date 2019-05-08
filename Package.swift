@@ -15,8 +15,8 @@ let package = Package(
             dependencies: [
                     "Realm",
                     "RealmSwift"
-                ]
-            ),
+                ],
             path: "Pod/Classes"
+        )
     ]
 )
