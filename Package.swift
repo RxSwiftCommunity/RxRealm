@@ -3,11 +3,11 @@ import PackageDescription
 
 let package = Package(
     name: "RxRealm",
-    dependencies: [
-        .package(url: "https://github.com/AccioSupport/realm-cocoa.git", .branch("master"))
-    ],
     products: [
         .library(name: "RxRealm", targets: ["RxRealm"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/AccioSupport/realm-cocoa.git", .branch("master"))
     ],
     targets: [
         .target(
