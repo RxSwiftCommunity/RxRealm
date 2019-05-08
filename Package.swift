@@ -8,7 +8,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "4.0.0")),
-        .package(url: "https://github.com/AccioSupport/realm-cocoa.git", .branch("master"))
+        .package(url: "https://github.com/realm/realm-cocoa.git", .revision("7c627b44f4d73aaa5e385aeb0fae7775d3ece85b"))
     ],
     targets: [
         .target(
