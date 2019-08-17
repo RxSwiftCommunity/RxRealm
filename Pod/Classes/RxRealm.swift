@@ -282,7 +282,7 @@ extension Reactive where Base: Realm {
      - parameter: onError - closure to implement custom error handling
      - returns: `AnyObserver<S>`, which you can use to subscribe an `Observable` to
      */
-    public func add<S: Sequence>(update: Bool = false, onError: ((S?, Error) -> Void)? = nil)
+    public func add<S: Sequence>(update: Realm.UpdatePolicy = .error, onError: ((S?, Error) -> Void)? = nil)
         -> AnyObserver<S> where S.Iterator.Element: Object {
             return RealmObserver(realm: base) { realm, elements, error in
                 guard let realm = realm else {
@@ -308,7 +308,7 @@ extension Reactive where Base: Realm {
      - parameter: onError - closure to implement custom error handling
      - returns: `AnyObserver<O>`, which you can use to subscribe an `Observable` to
      */
-    public func add<O: Object>(update: Bool = false,
+    public func add<O: Object>(update: Realm.UpdatePolicy = .error,
                                onError: ((O?, Error) -> Void)? = nil) -> AnyObserver<O> {
         return RealmObserver(realm: base) { realm, element, error in
             guard let realm = realm else {
