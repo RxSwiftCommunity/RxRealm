@@ -2,6 +2,7 @@
 
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Version](https://img.shields.io/cocoapods/v/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
+[![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![License](https://img.shields.io/cocoapods/l/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 [![Platform](https://img.shields.io/cocoapods/p/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 
@@ -280,6 +281,22 @@ github "RxSwiftCommunity/RxRealm"
 ```
 
 Run `carthage update` to build the framework and drag the built `RxRealm.framework` into your Xcode project.
+
+#### Swift Package Manager
+
+In your Package.swift:
+
+```swift
+let package = Package(
+  name: "Example",
+  dependencies: [
+    .package(url: "https://github.com/RxSwiftCommunity/RxRealm.git", from: "1.0.1")
+  ],
+  targets: [
+    .target(name: "Example", dependencies: ["RxRealm"])
+  ]
+)
+```
 
 ## TODO
 
