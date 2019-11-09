@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "1.0.0"
+  s.version          = "2.0.0"
   s.summary          = "An Rx wrapper of Realm's notifications and write bindings"
   s.swift_version    = "5.0"
 
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Pod/Classes/*.swift'
 
   s.frameworks = 'Foundation'
-  s.dependency 'RealmSwift', '~> 3.14'
+  s.dependency 'RealmSwift', '~> 4.0'
   s.dependency 'RxSwift', '~> 5.0'
 
 end
