@@ -40,7 +40,7 @@ class RxRealmWriteSinks: XCTestCase {
 
         DispatchQueue.main.async {
             _ = Observable.just(Message("0"))
-                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { _, error in
+                .subscribe(Realm.rx.add(configuration: conf, update: .all, onError: { _, error in
                     recordedError.accept(error)
                 }))
         }
@@ -74,7 +74,7 @@ class RxRealmWriteSinks: XCTestCase {
         // show all speakers
         DispatchQueue.main.async {
             _ = Observable.from([Message("1"), Message("2")])
-                .subscribe(Realm.rx.add(configuration: conf, update: true, onError: { _, error in
+                .subscribe(Realm.rx.add(configuration: conf, update: .all, onError: { _, error in
                     recordedError.accept(error)
                 }))
         }
@@ -92,7 +92,7 @@ class RxRealmWriteSinks: XCTestCase {
         // show all speakers
         DispatchQueue.main.async {
             _ = Observable.just([UniqueObject(1), UniqueObject(2)]).subscribe(realm.rx.add())
-            _ = Observable.just([UniqueObject(1), UniqueObject(3)]).subscribe(realm.rx.add(update: true))
+            _ = Observable.just([UniqueObject(1), UniqueObject(3)]).subscribe(realm.rx.add(update: .all))
         }
 
         let result = try! items.skip(1).take(2).toBlocking(timeout: 1).toArray()
