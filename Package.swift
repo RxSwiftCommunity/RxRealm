@@ -19,7 +19,8 @@ let package = Package(
                     "Realm",
                     "RealmSwift"
                 ],
-            path: "Pod/Classes"
+            path: "Pod/Classes",
+            exclude: ["RealmSyncExtensions"]
         )
     ]
 )
