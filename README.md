@@ -120,6 +120,29 @@ Finally you can set changes to which properties constitute an object change you'
 Observable.from(object: ticker, properties: ["name", "id", "family"]) ...
 ```
 
+## Observing a SyncUser
+RxRealm includes API to listen for the current logged in `SyncUser`
+
+```
+static func logIn(with credentials: SyncCredentials, server: URL) -> Observable<SyncUser> 
+```
+
+Given a `SyncCredentials` object and a URL, this API will call `SyncUser.login`.
+
+There is also a handy function that given a URL will return a function of the form `(SyncCredentials) -> Observable<SyncUser>`
+
+```swift
+static func logIn(to server: URL) -> (SyncCredentials) -> Observable<SyncUser>
+```
+
+This allows you to have a very clean looking flow
+
+```swift
+Observable.just(getSyncCredentials())
+	.map(SyncUser.login(to: <URL>)
+	.subscribe(onNext: { syncUser in }
+```
+
 ## Write transactions
 
 ##### `rx.add()`
