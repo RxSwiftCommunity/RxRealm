@@ -32,7 +32,7 @@ public protocol NotificationEmitter {
 
      - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
      */
-    func observe(_ block: @escaping (RealmCollectionChange<Self>) -> Void) -> NotificationToken
+    func observe(on queue: DispatchQueue?, _ block: @escaping (RealmCollectionChange<Self>) -> Void) -> NotificationToken
 
     func toArray() -> [ElementType]
 
@@ -111,17 +111,18 @@ public extension ObservableType where Element: NotificationEmitter {
 
      - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
      - returns: `Observable<Element>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
      */
-    static func collection(from collection: Element, synchronousStart: Bool = true)
+    static func collection(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
         -> Observable<Element> {
             return Observable.create { observer in
                 if synchronousStart {
                     observer.onNext(collection)
                 }
 
-                let token = collection.observe { changeset in
+                let token = collection.observe(on: queue) { changeset in
 
                     let value: Element
 
@@ -158,12 +159,13 @@ public extension ObservableType where Element: NotificationEmitter {
 
      - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
      - returns: `Observable<Array<Element.Element>>`, e.g. when called on `Results<Model>` it will return `Observable<Array<Model>>`, on a `List<User>` it will return `Observable<Array<User>>`, etc.
      */
-    static func array(from collection: Element, synchronousStart: Bool = true)
+    static func array(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
         -> Observable<[Element.ElementType]> {
-            return Observable.collection(from: collection, synchronousStart: synchronousStart)
+            return Observable.collection(from: collection, synchronousStart: synchronousStart, on: queue)
                 .map { $0.toArray() }
     }
 
@@ -181,17 +183,18 @@ public extension ObservableType where Element: NotificationEmitter {
 
      - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
      - returns: `Observable<(AnyRealmCollection<Element.Element>, RealmChangeset?)>`
      */
-    static func changeset(from collection: Element, synchronousStart: Bool = true)
+    static func changeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
         -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
             return Observable.create { observer in
                 if synchronousStart {
                     observer.onNext((collection.toAnyCollection(), nil))
                 }
 
-                let token = collection.toAnyCollection().observe { changeset in
+                let token = collection.toAnyCollection().observe(on: queue) { changeset in
 
                     switch changeset {
                     case let .initial(value):
@@ -227,12 +230,13 @@ public extension ObservableType where Element: NotificationEmitter {
 
      - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
      - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+     - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
      - returns: `Observable<(Array<Element.Element>, RealmChangeset?)>`
      */
-    static func arrayWithChangeset(from collection: Element, synchronousStart: Bool = true)
+    static func arrayWithChangeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
         -> Observable<([Element.ElementType], RealmChangeset?)> {
-            return Observable.changeset(from: collection)
+            return Observable.changeset(from: collection, on: queue)
                 .map { ($0.toArray(), $1) }
     }
 }
@@ -510,8 +514,8 @@ public extension Observable where Element: Object {
 
             let token = object.observe { change in
                 switch change {
-                case let .change(changedProperties):
-                    if let properties = properties, !changedProperties.contains { return properties.contains($0.name) } {
+                case let .change(_, changedProperties):
+                    if let properties = properties, !changedProperties.contains(where: { properties.contains($0.name) }) {
                         // if change property isn't an observed one, just return
                         return
                     }
@@ -540,7 +544,7 @@ public extension Observable where Element: Object {
         return Observable<PropertyChange>.create { observer in
             let token = object.observe { change in
                 switch change {
-                case let .change(changes):
+                case let .change(_, changes):
                     for change in changes {
                         observer.onNext(change)
                     }
