@@ -8,59 +8,38 @@
 
 import XCTest
 import RxSwift
+import RealmSwift
 
 final class RxRealmOnQueueTests: XCTestCase {
     func testCollectionOnQueue() {
-        let realm = realmInMemory()
-        DispatchQueue.main.async {
-            try! realm.write {
-                realm.add(UniqueObject(1))
-            }
-            try! realm.write {
-                realm.add(UniqueObject(2))
-            }
+        verifyObservableEmitOnBackground {
+            Observable.collection(from: $0, synchronousStart: false, on: DispatchQueue(label: #function))
         }
-        let dispatchedOnMainTread = try! Observable.changeset(from: realm.objects(UniqueObject.self), on: DispatchQueue(label: #function))
-            .map { _ in Thread.isMainThread }
-            .take(2)
-            .toBlocking()
-            .toArray()
-        XCTAssertEqual(dispatchedOnMainTread, [true, false])
     }
 
     func testArrayOnQueue() {
-        let realm = realmInMemory()
-        DispatchQueue.main.async {
-            try! realm.write {
-                realm.add(UniqueObject(1))
-            }
-            try! realm.write {
-                  realm.add(UniqueObject(2))
-              }
+        verifyObservableEmitOnBackground {
+            Observable.array(from: $0, synchronousStart: false, on: DispatchQueue(label: #function))
         }
-        let dispatchedOnMainTread = try! Observable.changeset(from: realm.objects(UniqueObject.self), on: DispatchQueue(label: #function))
-            .map { _ in Thread.isMainThread }
-            .take(2)
-            .toBlocking()
-            .toArray()
-        XCTAssertEqual(dispatchedOnMainTread, [true, false])
     }
 
     func testChangesetOnQueue() {
+        verifyObservableEmitOnBackground {
+            Observable.changeset(from: $0, synchronousStart: false, on: DispatchQueue(label: #function))
+        }
+    }
+
+    private func verifyObservableEmitOnBackground<Element>(factory: (Results<UniqueObject>) -> Observable<Element>) {
         let realm = realmInMemory()
         DispatchQueue.main.async {
             try! realm.write {
                 realm.add(UniqueObject(1))
             }
-            try! realm.write {
-                  realm.add(UniqueObject(2))
-              }
         }
-        let dispatchedOnMainTread = try! Observable.changeset(from: realm.objects(UniqueObject.self), on: DispatchQueue(label: #function))
+        let dispatchedOnMainTread = try! factory(realm.objects(UniqueObject.self))
             .map { _ in Thread.isMainThread }
-            .take(2)
-            .toBlocking()
-            .toArray()
-        XCTAssertEqual(dispatchedOnMainTread, [true, false])
+            .toBlocking(timeout: 2)
+            .first()
+        XCTAssertFalse(dispatchedOnMainTread!)
     }
 }
