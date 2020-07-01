@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/realm/realm-cocoa.git", .upToNextMajor(from: "5.0.0"))
+        .package(url: "https://github.com/realm/realm-cocoa.git", .upToNextMajor(from: "5.2.0"))
     ],
     targets: [
         .target(
