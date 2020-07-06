@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.0
+_____
+
+- Bump minimum iOS version to 9.0 to sync with realm-cocoa
+
 3.0.0
 _____
 
