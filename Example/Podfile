@@ -5,7 +5,7 @@ use_frameworks!
 def common
   pod 'RxSwift', '~> 5.0'
   pod 'RxCocoa', '~> 5.0'
-  pod 'RealmSwift', '~> 5.0'
+  pod 'RealmSwift', '~> 10.1'
 end
 
 target 'RxRealm_Example' do
