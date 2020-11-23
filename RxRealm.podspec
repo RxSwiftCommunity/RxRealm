@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "3.2.0"
+  s.version          = "4.0.0"
   s.summary          = "An Rx wrapper of Realm's notifications and write bindings"
   s.swift_version    = "5.0"
 
