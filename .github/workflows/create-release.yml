@@ -1,0 +1,98 @@
+name: Create release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: macos-11.0
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Bump version
+        run: |
+          git config --global user.name "RxRealm Maintainers"
+          git config --global user.email "RxRealm@rxswift.org"
+          npx standard-version
+          echo "RELEASE_VERSION=$(git describe --abbrev=0 | tr -d '\n')" >> $GITHUB_ENV
+      
+      # - name: Changelog
+      #   uses: scottbrenner/generate-changelog-action@master
+      #   id: Changelog
+      #   env:
+      #     REPO: ${{ github.repository }}
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+      - name: Restore Carthage Cache
+        uses: actions/cache@v1
+        with:
+          path: Carthage
+          key: ${{ runner.os }}-carthage-${{ hashFiles('**/Cartfile.resolved') }}-release
+          restore-keys: |
+            ${{ runner.os }}-carthage-
+
+      - name: Resolving Carthage dependencies and build framework
+        run: |
+          set -euo pipefail
+
+          xcconfig=$(mktemp /tmp/static.xcconfig.XXXXXX)
+          trap 'rm -f "$xcconfig"' INT TERM HUP EXIT
+
+          # For Xcode 12 make sure EXCLUDED_ARCHS is set to arm architectures otherwise
+          # the build will fail on lipo due to duplicate architectures.
+
+          CURRENT_XCODE_VERSION=$(xcodebuild -version | grep "Build version" | cut -d' ' -f3)
+          echo "EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200__BUILD_$CURRENT_XCODE_VERSION = arm64 arm64e armv7 armv7s armv6 armv8" >> $xcconfig
+
+          echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200 = $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200__BUILD_$(XCODE_PRODUCT_BUILD_VERSION))' >> $xcconfig
+          echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
+
+          export XCODE_XCCONFIG_FILE="$xcconfig"
+          carthage update --cache-builds --new-resolver --configuration Release
+          carthage build --archive --cache-builds --configuration Release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: RxRealm ${{ env.RELEASE_VERSION }}
+          # body: |
+          #   ${{ steps.Changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./RxRealm.framework.zip
+          asset_name: RxRealm.framework.zip
+          asset_content_type: application/zip
+
+      - name: Deploy to Cocoapods
+        run: |
+          set -eo pipefail
+          export RELEASE_VERSION="$(git describe --abbrev=0 | tr -d '\n')"
+          RELEASE_VERSION=${RELEASE_VERSION:1}
+          pod lib lint --allow-warnings
+          pod trunk push --allow-warnings
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
