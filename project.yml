@@ -7,7 +7,7 @@ options:
   tabWidth: 2
   xcodeVersion: "1220"
   deploymentTarget:
-    iOS: "9.0"
+    iOS: "11.0"
   carthageExecutablePath: "`which carthage`"
   defaultConfig: "Release"
 configs:

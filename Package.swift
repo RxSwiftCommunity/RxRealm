@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(name: "RxRealm",
                       platforms: [
-                        .macOS(.v10_10), .iOS(.v9), .tvOS(.v9), .watchOS(.v3)
+                        .macOS(.v10_10), .iOS(.v11), .tvOS(.v9), .watchOS(.v3)
                       ],
                       products: [
                         // Products define the executables and libraries produced by a package, and make them visible to other packages.
@@ -15,7 +15,7 @@ let package = Package(name: "RxRealm",
 
                       dependencies: [
                         // Dependencies declare other packages that this package depends on.
-                        .package(url: "https://github.com/realm/realm-cocoa.git", .upToNextMajor(from: "10.2.0")),
+                        .package(url: "https://github.com/realm/realm-cocoa.git", .upToNextMajor(from: "10.5.0")),
                         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.1.0"))
                       ],
 
