@@ -7,7 +7,7 @@ options:
   tabWidth: 2
   xcodeVersion: "1220"
   deploymentTarget:
-    iOS: "9.0"
+    iOS: "11.0"
   defaultConfig: "Release"
 configs:
   Debug: debug
@@ -51,7 +51,6 @@ targets:
   RxRealmDemo-iOS:
     type: application
     platform: iOS
-    deploymentTarget: "10.0"
     sources: [RxRealmDemo-iOS]
     settings:
       INFOPLIST_FILE: RxRealmDemo-iOS/Info.plist

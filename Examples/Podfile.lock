@@ -1,20 +1,20 @@
 PODS:
-  - Realm (10.2.0):
-    - Realm/Headers (= 10.2.0)
-  - Realm/Headers (10.2.0)
-  - RealmSwift (10.2.0):
-    - Realm (= 10.2.0)
-  - RxCocoa (5.1.1):
-    - RxRelay (~> 5)
-    - RxSwift (~> 5)
-  - RxRealm (5.0.0):
-    - Realm (~> 10.2)
-    - RealmSwift (~> 10.2)
-    - RxCocoa (~> 5.1)
-    - RxSwift (~> 5.1)
-  - RxRelay (5.1.1):
-    - RxSwift (~> 5)
-  - RxSwift (5.1.1)
+  - Realm (10.5.0):
+    - Realm/Headers (= 10.5.0)
+  - Realm/Headers (10.5.0)
+  - RealmSwift (10.5.0):
+    - Realm (= 10.5.0)
+  - RxCocoa (6.0.0):
+    - RxRelay (= 6.0.0)
+    - RxSwift (= 6.0.0)
+  - RxRealm (4.0.3):
+    - Realm (~> 10.5)
+    - RealmSwift (~> 10.5)
+    - RxCocoa (~> 6.0)
+    - RxSwift (~> 6.0)
+  - RxRelay (6.0.0):
+    - RxSwift (= 6.0.0)
+  - RxSwift (6.0.0)
 
 DEPENDENCIES:
   - RxRealm (from `../`)
@@ -32,13 +32,13 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Realm: d7914ebf66bb182469726f997c4c38eff286aab0
-  RealmSwift: aad08b7dc8c732b7b5794286e9df83739bf834f1
-  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
-  RxRealm: 287f8ed3018b984dcdaa219c6a1fe2f0fd430153
-  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
-  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
+  Realm: e1c22c3d83b229afb70ebc10e1771c91e9542d12
+  RealmSwift: 6fc078d9d3fd7e58c71bfdbb694e252462f112a5
+  RxCocoa: 3f79328fafa3645b34600f37c31e64c73ae3a80e
+  RxRealm: 4b384443e1043b51ec59c140374959a06c941c0d
+  RxRelay: 8d593be109c06ea850df027351beba614b012ffb
+  RxSwift: c14e798c59b9f6e9a2df8fd235602e85cc044295
 
-PODFILE CHECKSUM: 3c3068ed4f04a42d416ff38bbd0df98955b3397c
+PODFILE CHECKSUM: c18aa0767a67d16eff537312e81255933c8a0f4e
 
 COCOAPODS: 1.10.0

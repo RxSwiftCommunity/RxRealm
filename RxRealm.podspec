@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name = "RxRealm"
   # Version to always follow latest tag, with fallback to major
-  s.version = ENV["RELEASE_VERSION"] || "4.0.0"
+  s.version = ENV["RELEASE_VERSION"] || "5.0.0"
   s.license = "MIT"
   s.description = <<-DESC
     This is an Rx extension that provides an easy and straight-forward way
@@ -26,6 +26,6 @@ Pod::Spec.new do |s|
   s.frameworks = "Foundation"
   s.dependency "Realm", "~> 10.5"
   s.dependency "RealmSwift", "~> 10.5"
-  s.dependency "RxSwift", "~> 5.1"
-  s.dependency "RxCocoa", "~> 5.1"
+  s.dependency "RxSwift", "~> 6.0"
+  s.dependency "RxCocoa", "~> 6.0"
 end

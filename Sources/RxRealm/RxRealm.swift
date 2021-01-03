@@ -276,7 +276,10 @@ public extension Observable {
 
 // MARK: Realm type extensions
 
-extension Realm: ReactiveCompatible {}
+public class RxRealm: ReactiveCompatible {
+    
+}
+extension Realm: RealmReactiveCompatible {}
 
 public extension Reactive where Base == Realm {
   /**
