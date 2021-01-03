@@ -212,21 +212,21 @@ class RxRealmWriteSinks: XCTestCase {
     // write on main scheduler
     DispatchQueue.global(qos: .background).async {
       _ = Observable.just(UniqueObject(3))
-        .observeOn(MainScheduler.instance)
+        .observe(on: MainScheduler.instance)
         .subscribe(Realm.rx.add(configuration: conf))
     }
 
     // write on bg scheduler
     DispatchQueue.main.async {
       _ = Observable.just(UniqueObject(4))
-        .observeOn(ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
+        .observe(on: ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
         .subscribe(Realm.rx.add(configuration: conf))
     }
 
     // subscribe on main, write in bg
     DispatchQueue.main.async {
       _ = Observable.just([UniqueObject(5), UniqueObject(6)])
-        .observeOn(ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
+        .observe(on: ConcurrentDispatchQueueScheduler(queue: DispatchQueue.global(qos: .background)))
         .subscribe(Realm.rx.add(configuration: conf))
     }
 
@@ -234,7 +234,7 @@ class RxRealmWriteSinks: XCTestCase {
       .filter { $0.count == 6 }
       .delay(.milliseconds(100), scheduler: MainScheduler.instance)
 
-    let result = try! items.takeUntil(until).toBlocking(timeout: 1).toArray()
+    let result = try! items.take(until: until).toBlocking(timeout: 1).toArray()
     XCTAssertEqual(result.last!, [1, 2, 3, 4, 5, 6])
   }
 }

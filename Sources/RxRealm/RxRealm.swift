@@ -275,13 +275,20 @@ public extension Observable {
 }
 
 // MARK: Realm type extensions
+extension Realm {
+    public var rx: Realm.Rx { .init(self) }
 
-public class RxRealm: ReactiveCompatible {
-    
+    public struct Rx {
+        private let base: Realm
+        
+        init(_ base: Realm) {
+            self.base = base
+        }
+    }
 }
-extension Realm: RealmReactiveCompatible {}
 
-public extension Reactive where Base == Realm {
+// MARK: - Instance Reactive Extensions
+public extension Realm.Rx {
   /**
    Returns bindable sink wich adds object sequence to the current Realm
 
@@ -381,7 +388,16 @@ public extension Reactive where Base == Realm {
   }
 }
 
-public extension Reactive where Base == Realm {
+// MARK: - Static Reactive Extensions
+extension Realm {
+    public static var rx: RxStatic.Type {
+        RxStatic.self
+    }
+
+    public struct RxStatic {}
+}
+
+public extension Realm.RxStatic {
   /**
    Returns bindable sink wich adds object sequence to a Realm
 
