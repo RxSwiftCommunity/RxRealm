@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.0%0Dv4.0.3) (2021-01-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* RxSwift 6.0.0 support
+
+### Features
+
+* Supports xcframework as per release ([09c2a93](https://github.com/RxSwiftCommunity/RxRealm/commits/09c2a93da5e0ca43fa323e2c76f356d07320069d))
+
+
+### Bug Fixes
+
+* Podspec version ([5c750e7](https://github.com/RxSwiftCommunity/RxRealm/commits/5c750e788284f54b981eaf2d7af5c3f1d61600a8))
+
 ### [4.0.3](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v4.0.3%0Dv4.0.2) (2020-12-20)
 
 ### [4.0.2](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v4.0.2%0Dv4.0.1) (2020-12-05)
