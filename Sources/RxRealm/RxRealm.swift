@@ -275,16 +275,16 @@ public extension Observable {
 }
 
 // MARK: Realm type extensions
-extension Realm {
-    public var rx: Realm.Rx { .init(self) }
+public extension Realm {
+  var rx: Realm.Rx { .init(self) }
 
-    public struct Rx {
-        private let base: Realm
-        
-        init(_ base: Realm) {
-            self.base = base
-        }
+  struct Rx {
+    private let base: Realm
+
+    init(_ base: Realm) {
+      self.base = base
     }
+  }
 }
 
 // MARK: - Instance Reactive Extensions
@@ -389,12 +389,12 @@ public extension Realm.Rx {
 }
 
 // MARK: - Static Reactive Extensions
-extension Realm {
-    public static var rx: RxStatic.Type {
-        RxStatic.self
-    }
+public extension Realm {
+  static var rx: RxStatic.Type {
+    RxStatic.self
+  }
 
-    public struct RxStatic {}
+  struct RxStatic {}
 }
 
 public extension Realm.RxStatic {
