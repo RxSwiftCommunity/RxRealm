@@ -8,6 +8,9 @@ options:
   xcodeVersion: "1220"
   deploymentTarget:
     iOS: "11.0"
+    macOS: "10.10"
+    tvOS: "9.0"
+    watchOS: "3.0"
   carthageExecutablePath: "`which carthage`"
   defaultConfig: "Release"
 configs:
@@ -103,6 +106,9 @@ targets:
     settings:
       PRODUCT_NAME: RxRealm
       PRODUCT_BUNDLE_IDENTIFIER: RxSwiftCommunity.RxRealm.RxRealm-iOS
+      BUILD_LIBRARY_FOR_DISTRIBUTION: YES
+      SKIP_INSTALL: NO
+      SUPPORTS_MACCATALYST: NO
     platform: iOS
     type: framework
     sources:
@@ -117,6 +123,8 @@ targets:
     settings:
       PRODUCT_NAME: RxRealm
       PRODUCT_BUNDLE_IDENTIFIER: RxSwiftCommunity.RxRealm.RxRealm-macOS
+      BUILD_LIBRARY_FOR_DISTRIBUTION: YES
+      SKIP_INSTALL: NO
     platform: macOS
     type: framework
     sources:
@@ -131,6 +139,8 @@ targets:
     settings:
       PRODUCT_NAME: RxRealm
       PRODUCT_BUNDLE_IDENTIFIER: RxSwiftCommunity.RxRealm.RxRealm-tvOS
+      BUILD_LIBRARY_FOR_DISTRIBUTION: YES
+      SKIP_INSTALL: NO
     platform: tvOS
     type: framework
     sources:
@@ -145,6 +155,8 @@ targets:
     settings:
       PRODUCT_NAME: RxRealm
       PRODUCT_BUNDLE_IDENTIFIER: RxSwiftCommunity.RxRealm.RxRealm-watchOS
+      BUILD_LIBRARY_FOR_DISTRIBUTION: YES
+      SKIP_INSTALL: NO
     platform: watchOS
     type: framework
     sources:
