@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name = "RxRealm"
   # Version to always follow latest tag, with fallback to major
-  s.version = "5.0.0"
+  s.version = "5.0.1"
   s.license = "MIT"
   s.description = <<-DESC
     This is an Rx extension that provides an easy and straight-forward way
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.summary = "An Rx wrapper of Realm's notifications and write bindings"
   s.homepage = "https://github.com/RxSwiftCommunity/RxRealm"
   s.authors = { "RxSwift Community" => "community@rxswift.org" }
-  s.source = { :git => "https://github.com/RxSwiftCommunity/RxRealm.git", :tag => "v" + ENV["RELEASE_VERSION"] }
+  s.source = { :git => "https://github.com/RxSwiftCommunity/RxRealm.git", :tag => "v" + s.version.to_s }
   s.swift_version = "5.1"
 
   s.ios.deployment_target = "11.0"

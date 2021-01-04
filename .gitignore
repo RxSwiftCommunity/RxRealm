@@ -48,3 +48,5 @@ Package.resolved
 
 .DS_Store
 **/.idea/**
+
+RxRealm-SPM.xcodeproj

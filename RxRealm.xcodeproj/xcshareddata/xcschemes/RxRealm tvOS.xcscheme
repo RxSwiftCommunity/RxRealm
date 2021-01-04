@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "26B52508DC9867614B34B3C5"
-               BuildableName = "RxRealm.framework"
+               BuildableName = "RxRealm tvOS.framework"
                BlueprintName = "RxRealm tvOS"
                ReferencedContainer = "container:RxRealm.xcodeproj">
             </BuildableReference>
@@ -40,17 +40,9 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "26B52508DC9867614B34B3C5"
-            BuildableName = "RxRealm.framework"
-            BlueprintName = "RxRealm tvOS"
-            ReferencedContainer = "container:RxRealm.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      codeCoverageEnabled = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "NO"
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -63,6 +55,17 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "26B52508DC9867614B34B3C5"
+            BuildableName = "RxRealm tvOS.framework"
+            BlueprintName = "RxRealm tvOS"
+            ReferencedContainer = "container:RxRealm.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -78,11 +81,13 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "26B52508DC9867614B34B3C5"
-            BuildableName = "RxRealm.framework"
+            BuildableName = "RxRealm tvOS.framework"
             BlueprintName = "RxRealm tvOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -95,11 +100,13 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "26B52508DC9867614B34B3C5"
-            BuildableName = "RxRealm.framework"
+            BuildableName = "RxRealm tvOS.framework"
             BlueprintName = "RxRealm tvOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
