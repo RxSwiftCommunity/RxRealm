@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.1](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.1%0Dv5.0.0) (2021-01-05)
+
+
+### Bug Fixes
+
+* Bump version script fix ([8f9f99f](https://github.com/RxSwiftCommunity/RxRealm/commits/8f9f99f4680a07cbeedd63cfb7a26e269b907bf9))
+
 ### [5.0.1](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.1%0Dv5.0.0) (2021-01-04)
 
 
