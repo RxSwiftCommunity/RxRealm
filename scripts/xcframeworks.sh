@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+brew bundle
 rm -rf RxRealm-SPM.xcodeproj
 rm -rf xcarchives/*
 rm -rf RxRealm.xcframework.zip
