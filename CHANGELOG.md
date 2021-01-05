@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
+* Brew before generate project ([7eef1d1](https://github.com/RxSwiftCommunity/RxRealm/commits/7eef1d1ba130627af7d140682f912c89830cf1eb))
+* Bump version script fix ([8f9f99f](https://github.com/RxSwiftCommunity/RxRealm/commits/8f9f99f4680a07cbeedd63cfb7a26e269b907bf9))
+
+### [5.0.1](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.1%0Dv5.0.0) (2021-01-05)
+
+
+### Bug Fixes
+
 * Bump version script fix ([8f9f99f](https://github.com/RxSwiftCommunity/RxRealm/commits/8f9f99f4680a07cbeedd63cfb7a26e269b907bf9))
 
 ### [5.0.1](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.1%0Dv5.0.0) (2021-01-04)
