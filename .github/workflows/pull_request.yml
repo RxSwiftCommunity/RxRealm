@@ -21,11 +21,11 @@ jobs:
           brew bundle
           bundle
 
-      - name: Danger
-        run: |
-          bundle exec danger
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Danger
+#         run: |
+#           bundle exec danger
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore SPM Cache
         uses: actions/cache@v1
