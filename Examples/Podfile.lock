@@ -1,9 +1,9 @@
 PODS:
-  - Realm (10.8.0):
-    - Realm/Headers (= 10.8.0)
-  - Realm/Headers (10.8.0)
-  - RealmSwift (10.8.0):
-    - Realm (= 10.8.0)
+  - Realm (10.8.1):
+    - Realm/Headers (= 10.8.1)
+  - Realm/Headers (10.8.1)
+  - RealmSwift (10.8.1):
+    - Realm (= 10.8.1)
   - RxCocoa (6.2.0):
     - RxRelay (= 6.2.0)
     - RxSwift (= 6.2.0)
@@ -32,8 +32,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Realm: ad3c5cd762e5a5bc02080fc55aa04a0e43f98575
-  RealmSwift: 316e450478fb01e06ece4438dda42f407c5f51d2
+  Realm: a2db54d9dcceddeba936b429f5b3d6610a109686
+  RealmSwift: 2a3c75ecbf5a3b04080ff5f6f0554cf6337b4764
   RxCocoa: 4baf94bb35f2c0ab31bc0cb9f1900155f646ba42
   RxRealm: f7c5814fa5cf3607e952179e33364a1d6849dadd
   RxRelay: e72dbfd157807478401ef1982e1c61c945c94b2f
