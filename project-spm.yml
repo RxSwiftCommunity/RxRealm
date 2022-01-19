@@ -98,7 +98,7 @@ packages:
     from: 6.0.0
   Realm:
     url: https://github.com/realm/realm-cocoa.git
-    from: 10.5.0
+    from: 10.21.1
 targets:
   RxRealm iOS:
     settings:
