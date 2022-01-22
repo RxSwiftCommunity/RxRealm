@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name = "RxRealm"
   # Version to always follow latest tag, with fallback to major
-  s.version = "5.0.4"
+  s.version = "5.0.3"
   s.license = "MIT"
   s.description = <<-DESC
     This is an Rx extension that provides an easy and straight-forward way

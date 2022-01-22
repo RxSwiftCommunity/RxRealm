@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.3](https://github.com/wogus3602/RxRealm/branches/compare/v5.0.3%0Dv5.0.2) (2022-01-22)
+
+
+### Bug Fixes
+
+* replacing rx attribute of Realm type by standard Reactive extension. ([dabb105](https://github.com/wogus3602/RxRealm/commits/dabb105c94a6c0fdccbf99bb618b618be3f0d5c0))
+* update Realm and RxSwift to latest version ([#178](https://github.com/wogus3602/RxRealm/issues/178)) ([63d00c6](https://github.com/wogus3602/RxRealm/commits/63d00c6349b31d4e26fd5b5a5e428400b6b91356))
+
 ### [5.0.4](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.4%0Dv5.0.3) (2022-01-19)
 
 
