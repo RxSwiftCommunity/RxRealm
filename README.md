@@ -111,7 +111,7 @@ Observable.from(object: ticker)
     .map { ticker -> String in
         return "\(ticker.ticks) ticks"
     }
-    .bindTo(footer.rx.text)
+    .bind(to: footer.rx.text)
 ```
 
 This API uses the [Realm object notifications](https://realm.io/news/realm-objc-swift-2.4/) under the hood to listen for changes.
@@ -161,7 +161,7 @@ var config = Realm.Configuration()
 
 let messages = [Message("hello"), Message("world")]
 Observable.from(messages)
-  .observeOn( /* you can switch threads here */ )
+  .observe(on: /* you can switch threads here */ )
   .subscribe(Realm.rx.add(configuration: config, onError: {elements, error in
     if let elements = elements {
       print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
@@ -177,7 +177,7 @@ If you want to create a Realm on a different thread manually, allowing you to ha
 let messages = [Message("hello"), Message("world")]
 
 Observable.from(messages)
-  .observeOn( /* you can switch threads here */ )
+  .observe(on: /* you can switch threads here */ )
   .subscribe(onNext: {messages in
     let realm = try! Realm()
     try! realm.write {
@@ -214,16 +214,16 @@ RxRealm does not depend on UIKit/Cocoa and it doesn't provide built-in way to bi
 
 ### a) Non-animated binding
 
-You can use the built-in RxCocoa `bindTo(_:)` method, which will automatically drive your table view from your Realm results:
+You can use the built-in RxCocoa `bind(to:)` method, which will automatically drive your table view from your Realm results:
 
 ```swift
 Observable.from( [Realm collection] )
-  .bindTo(tableView.rx.items) {tv, ip, element in
+  .bind(to: tableView.rx.items) {tv, ip, element in
     let cell = tv.dequeueReusableCell(withIdentifier: "Cell")!
     cell.textLabel?.text = element.text
     return cell
   }
-  .addDisposableTo(bag)
+  .disposed(by: bag)
 ```
 
 ### b) Animated binding with RxRealmDataSources
@@ -246,8 +246,8 @@ let laps = Observable.changeset(from: lapsList)
 
 // bind to table view
 laps
-  .bindTo(tableView.rx.realmChanges(dataSource))
-  .addDisposableTo(bag)
+  .bind(to: tableView.rx.realmChanges(dataSource))
+  .disposed(by: bag)
 ```
 
 The data source will reflect all changes via animations to the table view:
