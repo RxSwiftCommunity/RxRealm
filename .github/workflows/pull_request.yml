@@ -2,13 +2,17 @@ name: Lint, build and test
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   build:
-    runs-on: macos-11.0
+    runs-on: macos-latest
 
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0

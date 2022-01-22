@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.4](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.4%0Dv5.0.3) (2022-01-19)
+
+
+### Bug Fixes
+
+* replacing rx attribute of Realm type by standard Reactive extension. ([dabb105](https://github.com/RxSwiftCommunity/RxRealm/commits/dabb105c94a6c0fdccbf99bb618b618be3f0d5c0))
+* update Realm and RxSwift to latest version ([#178](https://github.com/RxSwiftCommunity/RxRealm/issues/178)) ([63d00c6](https://github.com/RxSwiftCommunity/RxRealm/commits/63d00c6349b31d4e26fd5b5a5e428400b6b91356))
+
+### [5.0.4](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.4%0Dv5.0.3) (2022-01-16)
+
+
+### Bug Fixes
+
+* replacing rx attribute of Realm type by standard Reactive extension. ([dabb105](https://github.com/RxSwiftCommunity/RxRealm/commits/dabb105c94a6c0fdccbf99bb618b618be3f0d5c0))
+
+### [5.0.3](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.3%0Dv5.0.2) (2021-09-05)
+
 ### [5.0.2](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.2%0Dv5.0.1) (2021-05-10)
 
 ### [5.0.1](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.1%0Dv5.0.0) (2021-01-05)

@@ -32,7 +32,9 @@ public protocol NotificationEmitter {
 
    - returns: `NotificationToken` - retain this value to keep notifications being emitted for the current collection.
    */
-  func observe(on queue: DispatchQueue?, _ block: @escaping (RealmCollectionChange<Self>) -> Void) -> NotificationToken
+  func observe(keyPaths: [String]?,
+               on queue: DispatchQueue?,
+               _ block: @escaping (RealmCollectionChange<Self>) -> Void) -> NotificationToken
 
   func toArray() -> [ElementType]
 
@@ -111,18 +113,20 @@ public extension ObservableType where Element: NotificationEmitter {
 
    - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
    - parameter synchronousStart: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
+   - parameter keyPaths: Only properties contained in the key paths array will trigger
+                              the block when they are modified. See description above for more detail on linked properties.
    - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
    - returns: `Observable<Element>`, e.g. when called on `Results<Model>` it will return `Observable<Results<Model>>`, on a `List<User>` it will return `Observable<List<User>>`, etc.
    */
-  static func collection(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
+  static func collection(from collection: Element, synchronousStart: Bool = true, keyPaths: [String]? = nil, on queue: DispatchQueue? = nil)
     -> Observable<Element> {
     return Observable.create { observer in
       if synchronousStart {
         observer.onNext(collection)
       }
 
-      let token = collection.observe(on: queue) { changeset in
+      let token = collection.observe(keyPaths: keyPaths, on: queue) { changeset in
 
         let value: Element
 
@@ -275,20 +279,10 @@ public extension Observable {
 }
 
 // MARK: Realm type extensions
-public extension Realm {
-  var rx: Realm.Rx { .init(self) }
 
-  struct Rx {
-    private let base: Realm
+extension Realm: ReactiveCompatible {}
 
-    init(_ base: Realm) {
-      self.base = base
-    }
-  }
-}
-
-// MARK: - Instance Reactive Extensions
-public extension Realm.Rx {
+public extension Reactive where Base == Realm {
   /**
    Returns bindable sink wich adds object sequence to the current Realm
 
@@ -388,16 +382,7 @@ public extension Realm.Rx {
   }
 }
 
-// MARK: - Static Reactive Extensions
-public extension Realm {
-  static var rx: RxStatic.Type {
-    RxStatic.self
-  }
-
-  struct RxStatic {}
-}
-
-public extension Realm.RxStatic {
+public extension Reactive where Base == Realm {
   /**
    Returns bindable sink wich adds object sequence to a Realm
 
