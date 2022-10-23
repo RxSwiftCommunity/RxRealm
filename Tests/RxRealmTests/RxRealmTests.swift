@@ -25,6 +25,12 @@ func addMessage(_ realm: Realm, text: String) {
   }
 }
 
+func addUser(_ realm: Realm, name: String) {
+  try! realm.write {
+    realm.add(User(name))
+  }
+}
+
 class RxRealm_Tests: XCTestCase {
   let allTests = [
     "testEmittedResultsValues": testEmittedResultsValues,
@@ -101,6 +107,57 @@ class RxRealm_Tests: XCTestCase {
       }
     }
     XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
+  }
+
+  func testEmittedChangesetKeyPaths() {
+    let realm = realmInMemory(#function)
+
+    // initial data
+    addUser(realm, name: "first(Changeset)")
+
+    let usersInitial = Observable.changeset(from: realm.objects(User.self).sorted(byKeyPath: "name"), keyPaths: [\User.name])
+      .map(stringifyChanges)
+
+    XCTAssertEqual(try! usersInitial.toBlocking().first()!, "count:1")
+
+    let users = usersInitial.skip(1)
+
+    // insert
+    DispatchQueue.main.async {
+      addUser(realm, name: "second(Changeset)")
+    }
+    XCTAssertEqual(try! users.toBlocking().first()!, "count:2 inserted:[1] deleted:[] updated:[]")
+
+    // update parameter in keyPaths
+    DispatchQueue.main.async {
+      try! realm.write {
+        realm.objects(User.self).filter("name='second(Changeset)'").first!.name = "third(Changeset)"
+      }
+    }
+    XCTAssertEqual(try! users.toBlocking().first()!, "count:2 inserted:[] deleted:[] updated:[1]")
+
+    // update `lastMessage` parameter which is not in keyPaths
+    DispatchQueue.main.async {
+      try! realm.write {
+        realm.objects(User.self).filter("name='third(Changeset)'").first!.lastMessage = Message("updateMessage")
+      }
+    }
+    do {
+      _ = try users.toBlocking(timeout: 1.0).first()
+    } catch RxError.timeout {
+      // do nothing
+    } catch {
+      XCTFail("It should not be returned")
+    }
+
+    // coalesced + delete
+    DispatchQueue.main.async {
+      try! realm.write {
+        realm.add(User("zzzzz(Changeset)"))
+        realm.delete(realm.objects(User.self).filter("name='first(Changeset)'").first!)
+      }
+    }
+    XCTAssertEqual(try! users.toBlocking().first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
   }
 
   func testEmittedArrayChangeset() {

@@ -186,19 +186,20 @@ public extension ObservableType where Element: NotificationEmitter {
    Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
 
    - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+   - parameter keyPaths: Properties to observe. If `nil`, any property change on the object will emit.
    - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
    - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
    - returns: `Observable<(AnyRealmCollection<Element.Element>, RealmChangeset?)>`
    */
-  static func changeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
+  static func changeset(from collection: Element, keyPaths: [String]? = nil, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
     -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
     return Observable.create { observer in
       if synchronousStart {
         observer.onNext((collection.toAnyCollection(), nil))
       }
 
-      let token = collection.toAnyCollection().observe(on: queue) { changeset in
+      let token = collection.toAnyCollection().observe(keyPaths: keyPaths, on: queue) { changeset in
 
         switch changeset {
         case let .initial(value):
@@ -216,6 +217,24 @@ public extension ObservableType where Element: NotificationEmitter {
         token.invalidate()
       }
     }
+  }
+
+  /**
+   Returns an `Observable<(Element, RealmChangeset?)>` that emits each time the collection data changes. The observable emits an initial value upon subscription.
+
+   When the observable emits for the first time (if the initial notification is not coalesced with an update) the second tuple value will be `nil`.
+
+   Each following emit will include a `RealmChangeset` with the indexes inserted, deleted or modified.
+
+   - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
+   - parameter keyPaths: Properties to observe.
+   - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+   - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
+
+   - returns: `Observable<(AnyRealmCollection<Element.Element>, RealmChangeset?)>`
+   */
+  static func changeset<T: ObjectBase>(from collection: Element, keyPaths: [PartialKeyPath<T>], synchronousStart: Bool = true, on queue: DispatchQueue? = nil) -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
+    return changeset(from: collection, keyPaths: keyPaths.map(_name(for:)), synchronousStart: synchronousStart, on: queue)
   }
 
   @available(*, deprecated, renamed: "arrayWithChangeset(from:synchronousStart:)")
