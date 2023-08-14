@@ -265,8 +265,8 @@ public extension Observable {
    - parameter realm: A Realm instance
    - returns: `Observable<(Realm, Realm.Notification)>`, which you can subscribe to
    */
-  static func from(realm: Realm) -> Observable<(Realm, Realm.Notification)> {
-    return Observable<(Realm, Realm.Notification)>.create { observer in
+  static func from(realm: Realm) -> RxSwift.Observable<(Realm, Realm.Notification)> {
+    return RxSwift.Observable<(Realm, Realm.Notification)>.create { observer in
       let token = realm.observe { (notification: Realm.Notification, realm: Realm) in
         observer.onNext((realm, notification))
       }
@@ -511,8 +511,8 @@ public extension Observable where Element: Object {
    */
 
   static func from(object: Element, emitInitialValue: Bool = true,
-                   properties: [String]? = nil) -> Observable<Element> {
-    return Observable<Element>.create { observer in
+                   properties: [String]? = nil) -> RxSwift.Observable<Element> {
+    return RxSwift.Observable<Element>.create { observer in
       if emitInitialValue {
         observer.onNext(object)
       }
@@ -545,8 +545,8 @@ public extension Observable where Element: Object {
    - returns: `Observable<PropertyChange>` will emit any time a change is detected on the object
    */
 
-  static func propertyChanges(object: Element) -> Observable<PropertyChange> {
-    return Observable<PropertyChange>.create { observer in
+  static func propertyChanges(object: Element) -> RxSwift.Observable<PropertyChange> {
+    return RxSwift.Observable<PropertyChange>.create { observer in
       let token = object.observe { change in
         switch change {
         case let .change(_, changes):

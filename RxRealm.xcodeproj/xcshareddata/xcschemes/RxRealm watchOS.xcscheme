@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E4ACD8160538E2144FA53C11"
-               BuildableName = "RxRealm watchOS.framework"
+               BuildableName = "RxRealm.framework"
                BlueprintName = "RxRealm watchOS"
                ReferencedContainer = "container:RxRealm.xcodeproj">
             </BuildableReference>
@@ -26,19 +26,18 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      onlyGenerateCoverageForSpecifiedTargets = "NO"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <Testables>
-      </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4ACD8160538E2144FA53C11"
-            BuildableName = "RxRealm watchOS.framework"
+            BuildableName = "RxRealm.framework"
             BlueprintName = "RxRealm watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -54,13 +53,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4ACD8160538E2144FA53C11"
-            BuildableName = "RxRealm watchOS.framework"
+            BuildableName = "RxRealm.framework"
             BlueprintName = "RxRealm watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -73,13 +70,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4ACD8160538E2144FA53C11"
-            BuildableName = "RxRealm watchOS.framework"
+            BuildableName = "RxRealm.framework"
             BlueprintName = "RxRealm watchOS"
             ReferencedContainer = "container:RxRealm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
