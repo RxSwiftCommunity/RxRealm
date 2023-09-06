@@ -10,6 +10,8 @@ import Foundation
 import RealmSwift
 import RxSwift
 
+public typealias Observable<Element> = RxSwift.Observable<Element>
+
 public enum RxRealmError: Error {
   case objectDeleted
   case unknown
@@ -247,7 +249,8 @@ public extension ObservableType where Element: NotificationEmitter {
 
 public extension Observable {
   @available(*, deprecated, renamed: "from(realm:)")
-  static func from(_ realm: Realm, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Realm, Realm.Notification)> {
+  static func from(_ realm: Realm, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<(Realm, Realm.Notification)>
+    where Element == (Realm, Realm.Notification) {
     return from(realm: realm)
   }
 
@@ -265,7 +268,7 @@ public extension Observable {
    - parameter realm: A Realm instance
    - returns: `Observable<(Realm, Realm.Notification)>`, which you can subscribe to
    */
-  static func from(realm: Realm) -> Observable<(Realm, Realm.Notification)> {
+    static func from(realm: Realm) -> Observable<(Realm, Realm.Notification)> where Element == (Realm, Realm.Notification) {
     return Observable<(Realm, Realm.Notification)>.create { observer in
       let token = realm.observe { (notification: Realm.Notification, realm: Realm) in
         observer.onNext((realm, notification))
