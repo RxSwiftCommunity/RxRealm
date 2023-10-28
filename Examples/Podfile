@@ -11,7 +11,7 @@ def common_tests
 end
 
 target "RxRealmDemo-iOS" do
-  platform :ios, "11.0"
+  platform :ios, "12.0"
   common
 end
 
