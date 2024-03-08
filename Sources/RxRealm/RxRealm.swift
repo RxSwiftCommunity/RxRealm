@@ -10,6 +10,8 @@ import Foundation
 import RealmSwift
 import RxSwift
 
+public typealias Observable = RxSwift.Observable
+
 public enum RxRealmError: Error {
   case objectDeleted
   case unknown
