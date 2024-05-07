@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
+
+### [5.0.6](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.6%0Dv5.0.5) (2023-10-29)
+
+### 5.0.5 (2022-03-09)
+
 ## [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
 
 - Merge pull request #210 from trmquang93/main; override namespace Observable
