@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 5.0.5 (2022-03-09)
 
+### [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
+
+### [5.0.6](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.6%0Dv5.0.5) (2023-10-29)
+
+### 5.0.5 (2022-03-09)
+
 ### [5.0.7](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.7%0Dv5.0.6) (2024-03-08)
 
 ### [5.0.6](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.6%0Dv5.0.5) (2023-10-29)
