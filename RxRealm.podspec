@@ -15,17 +15,17 @@ Pod::Spec.new do |s|
   s.swift_version = "5.1"
 
   s.ios.deployment_target = "12.0"
-  s.osx.deployment_target = "10.10"
-  s.tvos.deployment_target = "9.0"
-  s.watchos.deployment_target = "3.0"
+  s.osx.deployment_target = "10.13"
+  s.tvos.deployment_target = "12.0"
+  s.watchos.deployment_target = "4.0"
 
   s.requires_arc = true
 
   s.source_files = "Sources/RxRealm/*.swift"
 
   s.frameworks = "Foundation"
-  s.dependency "Realm", "~> 10.44"
-  s.dependency "RealmSwift", "~> 10.44"
+  s.dependency "Realm", "~> 10.50"
+  s.dependency "RealmSwift", "~> 10.50"
   s.dependency "RxSwift", "~> 6.1"
   s.dependency "RxCocoa", "~> 6.1"
 end

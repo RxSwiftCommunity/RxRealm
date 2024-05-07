@@ -2,21 +2,21 @@
   "object": {
     "pins": [
       {
-        "package": "Realm",
-        "repositoryURL": "https://github.com/realm/realm-cocoa.git",
+        "package": "RealmDatabase",
+        "repositoryURL": "https://github.com/realm/realm-core.git",
         "state": {
           "branch": null,
-          "revision": "39177714b95bb5b1b29fffe28f1c7da77eef8e8b",
-          "version": "10.21.1"
+          "revision": "9cf7ef4ad8e2f4c7a519c9a395ca3d253bb87aa8",
+          "version": "14.6.2"
         }
       },
       {
-        "package": "RealmDatabase",
-        "repositoryURL": "https://github.com/realm/realm-core",
+        "package": "Realm",
+        "repositoryURL": "https://github.com/realm/realm-swift.git",
         "state": {
           "branch": null,
-          "revision": "f1976f0d96d9b06fbe0afbd60090b1c3966b1e23",
-          "version": "11.8.0"
+          "revision": "2000569f03948c281afc83c36c710ab15e5dd33c",
+          "version": "10.50.0"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
         "state": {
           "branch": null,
-          "revision": "b4307ba0b6425c0ba4178e138799946c3da594f8",
-          "version": "6.5.0"
+          "revision": "b06a8c8596e4c3e8e7788e08e720e3248563ce6a",
+          "version": "6.7.1"
         }
       }
     ]
