@@ -509,17 +509,19 @@ public extension Observable where Element: Object {
    - parameter object: A Realm Object to observe
    - parameter emitInitialValue: whether the resulting `Observable` should emit its first element synchronously (e.g. better for UI bindings)
    - parameter properties: changes to which properties would triger emitting a .next event
+   - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
    - returns: `Observable<Object>` will emit any time the observed object changes + one initial emit upon subscription
    */
 
   static func from(object: Element, emitInitialValue: Bool = true,
-                   properties: [String]? = nil) -> Observable<Element> {
+                   properties: [String]? = nil,
+                   on queue: DispatchQueue? = nil) -> Observable<Element> {
     return RxSwift.Observable<Element>.create { observer in
       if emitInitialValue {
         observer.onNext(object)
       }
 
-      let token = object.observe { change in
+      let token = object.observe(on: queue) { change in
         switch change {
         case let .change(_, changedProperties):
           if let properties = properties, !changedProperties.contains(where: { properties.contains($0.name) }) {
@@ -544,12 +546,14 @@ public extension Observable where Element: Object {
    Returns an `Observable<PropertyChange>` that emits the object `PropertyChange`s.
 
    - parameter object: A Realm Object to observe
+   - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
    - returns: `Observable<PropertyChange>` will emit any time a change is detected on the object
    */
 
-  static func propertyChanges(object: Element) -> Observable<PropertyChange> {
+  static func propertyChanges(object: Element,
+                              on queue: DispatchQueue? = nil) -> Observable<PropertyChange> {
     return RxSwift.Observable<PropertyChange>.create { observer in
-      let token = object.observe { change in
+      let token = object.observe(on: queue) { change in
         switch change {
         case let .change(_, changes):
           for change in changes {
