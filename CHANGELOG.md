@@ -2,15 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
+## [5.1.0](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.1.0%0Dv5.0.7) (2024-05-07)
 
-### [5.0.6](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.6%0Dv5.0.5) (2023-10-29)
+### Fixes
 
-### 5.0.5 (2022-03-09)
+- Update SPM and CocoaPods packages for updated `Realm.swift` packaging linking
 
-## [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
-
-- Merge pull request #210 from trmquang93/main; override namespace Observable
 
 ## [5.0.7](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.7%0Dv5.0.6) (2024-03-08)
 

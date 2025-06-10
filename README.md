@@ -20,7 +20,8 @@ This library is a thin wrapper around __RealmSwift__ ( [Realm Docs](https://real
 
 RxRealm can be used to create `Observable`s from objects of type `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`. These types are typically used to load and observe object collections from the Realm Mobile Database.
 
-##### `Observable.collection(from:synchronousStart:)`
+### `Observable.collection(from:synchronousStart:)`
+
 Emits an event each time the collection changes:
 
 ```swift
@@ -38,7 +39,8 @@ Observable.collection(from: laps)
 
 The above prints out "X laps" each time a lap is added or removed from the database. If you set `synchronousStart` to `true` (the default value), the first element will be emitted synchronously - e.g. when you're binding UI it might not be possible for an asynchronous notification to come through.
 
-##### `Observable.array(from:synchronousStart:)`
+### `Observable.array(from:synchronousStart:)`
+
 Upon each change fetches a snapshot of the Realm collection and converts it to an array value (for example if you want to use array methods on the collection):
 
 ```swift
@@ -54,7 +56,8 @@ Observable.array(from: laps)
   })
 ```
 
-##### `Observable.changeset(from:synchronousStart:)`
+### `Observable.changeset(from:synchronousStart:)`
+
 Emits every time the collection changes and provides the exact indexes that has been deleted, inserted or updated:
 
 ```swift
@@ -76,7 +79,8 @@ Observable.changeset(from: laps)
   })
 ```
 
-##### `Observable.arrayWithChangeset(from:synchronousStart:)`
+### `Observable.arrayWithChangeset(from:synchronousStart:)`
+
 Combines the result of `Observable.array(from:)` and `Observable.changeset(from:)` returning an `Observable<Array<T>, RealmChangeset?>`
 
 ```swift
@@ -107,7 +111,7 @@ Observable.from(object: ticker)
     .map { ticker -> String in
         return "\(ticker.ticks) ticks"
     }
-    .bindTo(footer.rx.text)
+    .bind(to: footer.rx.text)
 ```
 
 This API uses the [Realm object notifications](https://realm.io/news/realm-objc-swift-2.4/) under the hood to listen for changes.
@@ -122,7 +126,7 @@ Observable.from(object: ticker, properties: ["name", "id", "family"]) ...
 
 ## Write transactions
 
-##### `rx.add()`
+### `rx.add()`
 
 Writing objects to **existing** realm reference. You can add newly created objects to a Realm that you already have initialized:
 
@@ -136,7 +140,7 @@ Observable.from(messages)
 
 Be careful, this will retain your Realm until the `Observable` completes or errors out.
 
-##### `Realm.rx.add()`
+### `Realm.rx.add()`
 
 Writing to the default Realm. You can leave it to RxRealm to grab the default Realm on any thread your subscribe and write objects to it:
 
@@ -147,7 +151,7 @@ Observable.from(messages)
   .subscribe(Realm.rx.add())
 ```
 
-###### `Realm.rx.add(configuration:)`
+### `Realm.rx.add(configuration:)`
 
 Writing to a **custom** Realm. If you want to switch threads and not use the default Realm, provide a `Realm.Configuration`. You an also provide an error handler for the observer to be called if either creating the realm reference or the write transaction raise an error:
 
@@ -157,7 +161,7 @@ var config = Realm.Configuration()
 
 let messages = [Message("hello"), Message("world")]
 Observable.from(messages)
-  .observeOn( /* you can switch threads here */ )     
+  .observe(on: /* you can switch threads here */ )
   .subscribe(Realm.rx.add(configuration: config, onError: {elements, error in
     if let elements = elements {
       print("Error \(error.localizedDescription) while saving objects \(String(describing: elements))")
@@ -173,7 +177,7 @@ If you want to create a Realm on a different thread manually, allowing you to ha
 let messages = [Message("hello"), Message("world")]
 
 Observable.from(messages)
-  .observeOn( /* you can switch threads here */ )
+  .observe(on: /* you can switch threads here */ )
   .subscribe(onNext: {messages in
     let realm = try! Realm()
     try! realm.write {
@@ -182,7 +186,7 @@ Observable.from(messages)
   })
 ```
 
-##### `rx.delete()`
+### `rx.delete()`
 
 Deleting object(s) from an existing realm reference:
 
@@ -195,7 +199,7 @@ Observable.from(messages)
 
 Be careful, this will retain your realm until the `Observable` completes or errors out.
 
-##### `Realm.rx.delete()`
+### `Realm.rx.delete()`
 
 Deleting from the object's realm automatically. You can leave it to RxRealm to grab the Realm from the first object and use it:
 
@@ -208,21 +212,21 @@ Observable.from(someCollectionOfPersistedObjects)
 
 RxRealm does not depend on UIKit/Cocoa and it doesn't provide built-in way to bind Realm collections to UI components.
 
-#### a) Non-animated binding
+### a) Non-animated binding
 
-You can use the built-in RxCocoa `bindTo(_:)` method, which will automatically drive your table view from your Realm results:
+You can use the built-in RxCocoa `bind(to:)` method, which will automatically drive your table view from your Realm results:
 
 ```swift
 Observable.from( [Realm collection] )
-  .bindTo(tableView.rx.items) {tv, ip, element in
+  .bind(to: tableView.rx.items) {tv, ip, element in
     let cell = tv.dequeueReusableCell(withIdentifier: "Cell")!
     cell.textLabel?.text = element.text
     return cell
   }
-  .addDisposableTo(bag)
+  .disposed(by: bag)
 ```
 
-#### b) Animated binding with RxRealmDataSources
+### b) Animated binding with RxRealmDataSources
 
 The separate library [RxRealmDataSources](https://github.com/RxSwiftCommunity/RxRealmDataSources) mimics the default data sources library behavior for RxSwift.
 
@@ -242,8 +246,8 @@ let laps = Observable.changeset(from: lapsList)
 
 // bind to table view
 laps
-  .bindTo(tableView.rx.realmChanges(dataSource))
-  .addDisposableTo(bag)
+  .bind(to: tableView.rx.realmChanges(dataSource))
+  .disposed(by: bag)
 ```
 
 The data source will reflect all changes via animations to the table view:
@@ -262,7 +266,7 @@ Further you're welcome to peak into the __RxRealmTests__ folder of the example a
 
 This library depends on both __RxSwift__ and __RealmSwift__ 1.0+.
 
-#### CocoaPods
+### CocoaPods
 
 RxRealm requires CocoaPods 1.1.x or higher.
 
@@ -272,7 +276,7 @@ RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, s
 pod "RxRealm"
 ```
 
-#### Carthage
+### Carthage
 
 To integrate RxRealm into your Xcode project using Carthage, specify it in your `Cartfile`:
 
@@ -282,7 +286,7 @@ github "RxSwiftCommunity/RxRealm"
 
 Run `carthage update` to build the framework and drag the built `RxRealm.framework` into your Xcode project.
 
-#### Swift Package Manager
+### Swift Package Manager
 
 In your Package.swift:
 
@@ -290,7 +294,7 @@ In your Package.swift:
 let package = Package(
   name: "Example",
   dependencies: [
-    .package(url: "https://github.com/RxSwiftCommunity/RxRealm.git", from: "1.0.1")
+    .package(url: "https://github.com/RxSwiftCommunity/RxRealm.git", from: "5.0.4")
   ],
   targets: [
     .target(name: "Example", dependencies: ["RxRealm"])
@@ -304,6 +308,8 @@ let package = Package(
 
 ## License
 
-This library belongs to _RxSwiftCommunity_. Maintainer is [Marin Todorov](https://github.com/icanzilb).
+This library belongs to _RxSwiftCommunity_.
+Maintainer is [Joe Mattiello](https://github.com/JoeMatt).
+Previous maintainer was [Marin Todorov](https://github.com/icanzilb).
 
 RxRealm is available under the MIT license. See the LICENSE file for more info.
