@@ -13,7 +13,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -32,7 +32,7 @@ jobs:
 #           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore SPM Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
