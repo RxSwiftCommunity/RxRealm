@@ -1,11 +1,11 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.9
 
 import PackageDescription
 
 let package = Package(
     name: "RxRealm",
     platforms: [
-        .macOS(.v10_13), .iOS(.v12), .tvOS(.v12), .watchOS(.v4)
+        .macOS(.v12), .iOS(.v15), .tvOS(.v15), .watchOS(.v9)
     ],
     products: [
         .library(
@@ -20,8 +20,8 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/realm/realm-swift.git", from: "10.50.0"),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.7.1")
+        .package(url: "https://github.com/realm/realm-swift.git", from: "20.0.6"),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.9.0")
     ],
     targets: [
         .target(
@@ -34,7 +34,10 @@ let package = Package(
             path: "Sources"),
         .testTarget(
             name: "RxRealmTests",
-            dependencies: ["RxRealm"]
+            dependencies: [
+                "RxRealm",
+                .product(name: "RxBlocking", package: "RxSwift")
+            ]
         )
     ],
     swiftLanguageVersions: [.v5]
