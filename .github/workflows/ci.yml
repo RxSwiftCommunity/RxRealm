@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    container: ghcr.io/realm/swiftlint:0.65.1
+    steps:
+      - uses: actions/checkout@v6
+      - run: swiftlint lint --reporter github-actions-logging
+
+  spm:
+    name: SPM (macOS)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: .build
+          key: spm-${{ runner.os }}-xcode26.6-${{ hashFiles('Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-xcode26.6-
+      - run: swift --version
+      - run: swift test
+
+  xcodebuild:
+    name: xcodebuild (${{ matrix.platform }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            action: test
+          - platform: tvOS
+            action: test
+          - platform: watchOS
+            action: build
+    steps:
+      - uses: actions/checkout@v6
+      - name: Pick simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          case "${{ matrix.platform }}" in
+            iOS) family="iPhone" ;;
+            tvOS) family="Apple TV" ;;
+            watchOS) family="Apple Watch" ;;
+          esac
+          udid=$(xcrun simctl list devices available --json \
+            | jq -r --arg os "com.apple.CoreSimulator.SimRuntime.${{ matrix.platform }}" --arg fam "$family" \
+              '[.devices | to_entries[] | select(.key | startswith($os)) | .value[] | select(.name | startswith($fam))] | last | .udid')
+          test -n "$udid" && test "$udid" != "null"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+      - name: ${{ matrix.action }}
+        run: |
+          set -o pipefail
+          xcodebuild ${{ matrix.action }} \
+            -scheme RxRealm-Package \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -skipPackagePluginValidation \
+            | xcbeautify --renderer github-actions
+
+  cocoapods:
+    name: pod lib lint
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - run: pod lib lint --allow-warnings --platforms=ios --fail-fast

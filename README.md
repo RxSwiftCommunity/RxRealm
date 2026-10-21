@@ -1,10 +1,11 @@
 # RxRealm
 
-[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![CI](https://github.com/RxSwiftCommunity/RxRealm/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RxSwiftCommunity/RxRealm/actions/workflows/ci.yml)
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FRxSwiftCommunity%2FRxRealm%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FRxSwiftCommunity%2FRxRealm%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm)
 [![Version](https://img.shields.io/cocoapods/v/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![License](https://img.shields.io/cocoapods/l/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
-[![Platform](https://img.shields.io/cocoapods/p/RxRealm.svg?style=flat)](http://cocoapods.org/pods/RxRealm)
 
 This library is a thin wrapper around __RealmSwift__ ( [Realm Docs](https://realm.io/docs/swift/latest/) ).
 
@@ -258,43 +259,30 @@ If you want to learn more about the features beyond animating changes, check the
 
 ## Example app
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first. The app uses RxSwift, RxCocoa using RealmSwift, RxRealm to observe Results from Realm.
+To run the example project, clone the repo and run `./pod_install.sh` from the `Examples` directory (needs [XcodeGen](https://github.com/yonaskolb/XcodeGen) and CocoaPods). The app uses RxSwift, RxCocoa using RealmSwift, RxRealm to observe Results from Realm.
 
-Further you're welcome to peak into the __RxRealmTests__ folder of the example app, which features the library's unit tests.
+The library's unit tests are in the [`Tests/RxRealmTests`](Tests/RxRealmTests) folder.
+
+## Documentation
+
+API documentation is hosted on the [Swift Package Index](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm/documentation).
 
 ## Installation
 
-This library depends on both __RxSwift__ and __RealmSwift__ 1.0+.
+| RxRealm | RealmSwift | RxSwift | Minimum OS                                  |
+| ------- | ---------- | ------- | ------------------------------------------- |
+| 6.x     | 20.0.6+    | 6.9+    | iOS 15, macOS 12, tvOS 15, watchOS 9        |
+| 5.x     | 10.x       | 6.x     | iOS 12, macOS 10.13, tvOS 12, watchOS 4     |
 
-### CocoaPods
+### Swift Package Manager (recommended)
 
-RxRealm requires CocoaPods 1.1.x or higher.
-
-RxRealm is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
-
-```ruby
-pod "RxRealm"
-```
-
-### Carthage
-
-To integrate RxRealm into your Xcode project using Carthage, specify it in your `Cartfile`:
-
-```ogdl
-github "RxSwiftCommunity/RxRealm"
-```
-
-Run `carthage update` to build the framework and drag the built `RxRealm.framework` into your Xcode project.
-
-### Swift Package Manager
-
-In your Package.swift:
+In Xcode choose **File → Add Package Dependencies…** and enter `https://github.com/RxSwiftCommunity/RxRealm.git`, or add it to your `Package.swift`:
 
 ```swift
 let package = Package(
   name: "Example",
   dependencies: [
-    .package(url: "https://github.com/RxSwiftCommunity/RxRealm.git", from: "5.0.4")
+    .package(url: "https://github.com/RxSwiftCommunity/RxRealm.git", from: "6.0.0")
   ],
   targets: [
     .target(name: "Example", dependencies: ["RxRealm"])
@@ -302,9 +290,19 @@ let package = Package(
 )
 ```
 
-## TODO
+The package has two products: `RxRealm` (static) and `RxRealm-Dynamic` (dynamic). Use the dynamic one if several targets in your app link RxRealm.
 
-* Test add platforms and add compatibility for the pod
+### CocoaPods
+
+```ruby
+pod "RxRealm", "~> 6.0"
+```
+
+CocoaPods trunk becomes [read-only on December 2, 2026](https://blog.cocoapods.org/CocoaPods-Specs-Repo/). Versions already published keep working, but later RxRealm releases may only be available through Swift Package Manager.
+
+### Carthage
+
+Carthage is no longer supported as of 6.0.0. Use Swift Package Manager, or stay on RxRealm 5.x.
 
 ## License
 

@@ -14,10 +14,3 @@ else
 echo "error: SwiftLint not installed, do `sh setup.sh` to install SwiftLint."
 exit 1
 fi
-
-if which xcodegen >/dev/null; then
-`which xcodegen` --spec project-carthage.yml
-else
-echo "error: XcodeGen not installed, do `sh setup.sh` to install XcodeGen."
-exit 1
-fi

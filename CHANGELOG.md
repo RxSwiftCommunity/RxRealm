@@ -1,6 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org).
+
+## [6.0.0](https://github.com/RxSwiftCommunity/RxRealm/compare/v5.1.0...v6.0.0) (unreleased)
+
+### Breaking changes
+
+- Requires RealmSwift 20.0.6 or newer (Realm 20.x). RealmSwift 20.0.6 is the first version that builds with Xcode 26.4+ and Xcode 27 ([#222](https://github.com/RxSwiftCommunity/RxRealm/issues/222), [#220](https://github.com/RxSwiftCommunity/RxRealm/pull/220), [#223](https://github.com/RxSwiftCommunity/RxRealm/pull/223)).
+- Minimum deployment targets raised to match RealmSwift 20: iOS 15, macOS 12, tvOS 15, watchOS 9.
+- Removed the public `Obs` typealias. Use `RxSwift.Observable` instead.
+- Carthage is no longer supported. Use Swift Package Manager.
+
+### Added
+
+- `Observable.from(object:emitInitialValue:properties:on:)` and `Observable.propertyChanges(object:on:)` accept a dispatch queue to deliver notifications on ([#219](https://github.com/RxSwiftCommunity/RxRealm/pull/219)).
+- SPM exposes both a static `RxRealm` product and a dynamic `RxRealm-Dynamic` product ([#214](https://github.com/RxSwiftCommunity/RxRealm/issues/214)).
+
+### Changed
+
+- The CocoaPods dependency is now `RealmSwift` only (it pulls in `Realm`), with RxSwift/RxCocoa `~> 6.9`.
+- New CI: SwiftLint, `swift test` on macOS, `xcodebuild test` on iOS and tvOS, a watchOS build and `pod lib lint`. Releases are created from `vX.Y.Z` tags on `main` (see RELEASING.md).
+- Documentation is hosted on the [Swift Package Index](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm/documentation).
 
 ## [5.1.0](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.1.0%0Dv5.0.7) (2024-05-07)
 
