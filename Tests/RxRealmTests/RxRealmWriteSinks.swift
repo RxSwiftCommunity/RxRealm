@@ -96,6 +96,21 @@ class RxRealmWriteSinks: XCTestCase {
     XCTAssertEqual((error! as NSError).code, 3)
   }
 
+  func testStaticAddWithoutErrorHandlerIgnoresUnopenableRealm() {
+    var conf = Realm.Configuration()
+    conf.fileURL = URL(string: "/asdasdasdsad")!
+
+    var completed = 0
+    _ = Observable.just(Message("0"))
+      .do(onCompleted: { completed += 1 })
+      .subscribe(Realm.rx.add(configuration: conf))
+    _ = Observable.just([Message("0")])
+      .do(onCompleted: { completed += 1 })
+      .subscribe(Realm.rx.add(configuration: conf))
+
+    XCTAssertEqual(completed, 2)
+  }
+
   func testRxAddUpdateObjectsWithSucess() throws {
     let realm = realmInMemory(#function)
     let items = Observable.array(from: realm.objects(UniqueObject.self).sorted(byKeyPath: "id"))

@@ -39,7 +39,9 @@ jobs:
           key: spm-${{ runner.os }}-xcode26.6-${{ hashFiles('Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-xcode26.6-
       - run: swift --version
-      - run: swift test
+      - run: swift test --enable-code-coverage
+      - name: Coverage
+        run: python3 scripts/coverage-report.py "$(swift test --show-codecov-path)" --min-lines 90
 
   xcodebuild:
     name: xcodebuild (${{ matrix.platform }})
