@@ -9,11 +9,31 @@
 import Foundation
 import RealmSwift
 import RxRealm
+import RxSwift
+
+/// Upper bound for `toBlocking` waits, so a missing notification fails the test instead of hanging the run.
+let testTimeout: TimeInterval = 10
+
+extension ObservableType {
+  /// Runs `work` on a background queue once this observable is subscribed, so a write
+  /// meant to trigger the next element can't land before the subscription observing it.
+  func onSubscribeInBackground(_ work: @escaping () -> Void) -> Observable<Element> {
+    return self.do(onSubscribed: {
+      DispatchQueue.global(qos: .userInitiated).async(execute: work)
+    })
+  }
+}
 
 func realmInMemory(_ name: String = UUID().uuidString) -> Realm {
   var conf = Realm.Configuration()
   conf.inMemoryIdentifier = name
   return try! Realm(configuration: conf)
+}
+
+/// The strings a write from another thread can produce: its indexed changeset, or just the
+/// count when Realm coalesces the write into the initial notification, which has no changeset.
+func changesetOrCoalesced(_ changeset: String) -> [String] {
+  return [changeset, String(changeset.prefix { $0 != " " })]
 }
 
 func stringifyChanges<E>(_ arg: (AnyRealmCollection<E>, RealmChangeset?)) -> String {

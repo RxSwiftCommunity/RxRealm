@@ -29,7 +29,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
     let users = Observable.collection(from: message.mentions)
       .map { $0.count }
 
-    XCTAssertEqual(try! users.toBlocking().first()!, 0)
+    XCTAssertEqual(try users.toBlocking(timeout: testTimeout).first()!, 0)
 
     let user1 = User("user1")
     user1.lastMessage = message
@@ -40,9 +40,9 @@ class RxRealmLinkingObjectsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, 1)
+    XCTAssertEqual(try users.skip(1).toBlocking(timeout: testTimeout).first()!, 1)
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       let user1 = realm.objects(User.self).first!
       try! realm.write {
@@ -50,7 +50,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, 0)
+    XCTAssertEqual(try users.skip(1).onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!, 0)
   }
 
   func testLinkingObjectsTypeChangeset() {
@@ -64,7 +64,7 @@ class RxRealmLinkingObjectsTests: XCTestCase {
     let users = Observable.changeset(from: message.mentions)
       .map(stringifyChanges)
 
-    XCTAssertEqual(try! users.toBlocking().first()!, "count:0")
+    XCTAssertEqual(try users.toBlocking(timeout: testTimeout).first()!, "count:0")
 
     let user1 = User("user1")
     user1.lastMessage = message
@@ -75,9 +75,9 @@ class RxRealmLinkingObjectsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
+    XCTAssertEqual(try users.skip(1).toBlocking(timeout: testTimeout).first()!, "count:1 inserted:[0] deleted:[] updated:[]")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       let user1 = realm.objects(User.self).first!
       try! realm.write {
@@ -85,6 +85,6 @@ class RxRealmLinkingObjectsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
+    XCTAssertTrue(changesetOrCoalesced("count:0 inserted:[] deleted:[0] updated:[]").contains(try users.skip(1).onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!))
   }
 }

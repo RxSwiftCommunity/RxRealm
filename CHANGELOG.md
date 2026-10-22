@@ -1,16 +1,38 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org).
 
-### [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
+## [6.0.0](https://github.com/RxSwiftCommunity/RxRealm/compare/v5.1.0...v6.0.0) (2026-10-22)
 
-### [5.0.6](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.6%0Dv5.0.5) (2023-10-29)
+### Breaking changes
 
-### 5.0.5 (2022-03-09)
+- Requires RealmSwift 20.0.6 or newer (Realm 20.x). RealmSwift 20.0.2 does not build with Xcode 27; 20.0.6 does ([#222](https://github.com/RxSwiftCommunity/RxRealm/issues/222), [#220](https://github.com/RxSwiftCommunity/RxRealm/pull/220), [#223](https://github.com/RxSwiftCommunity/RxRealm/pull/223)).
+- Minimum deployment targets raised to match RealmSwift 20: iOS 15, macOS 12, tvOS 15, watchOS 9.
+- Removed the public `Obs` typealias. Use `RxSwift.Observable` instead.
+- Carthage is no longer supported. Use Swift Package Manager.
 
-## [5.0.8](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.8%0Dv5.0.7) (2024-05-07)
+### Fixed
 
-- Merge pull request #210 from trmquang93/main; override namespace Observable
+- `Observable.collection(from:)`, `array(from:)`, `changeset(from:)` and `arrayWithChangeset(from:)` with `synchronousStart: true` (the default) no longer lose a write that another thread commits between subscribing and Realm's first notification. Realm folds such a write into its initial notification, which these observables used to drop as a duplicate of the synchronous value. Now the initial notification is emitted when it's at a newer Realm version than the synchronous value. In that case `changeset(from:)` emits it with a `nil` changeset ([#74](https://github.com/RxSwiftCommunity/RxRealm/issues/74)).
+
+### Added
+
+- `Observable.from(object:emitInitialValue:properties:on:)` and `Observable.propertyChanges(object:on:)` accept a dispatch queue to deliver notifications on ([#219](https://github.com/RxSwiftCommunity/RxRealm/pull/219)).
+- SPM exposes both a static `RxRealm` product and a dynamic `RxRealm-Dynamic` product ([#214](https://github.com/RxSwiftCommunity/RxRealm/issues/214)).
+
+### Changed
+
+- The CocoaPods dependency is now `RealmSwift` only (it pulls in `Realm`), with RxSwift/RxCocoa `~> 6.9`.
+- New CI: SwiftLint, `swift test` on macOS, `xcodebuild test` on iOS and tvOS, a watchOS build and `pod lib lint`. Releases are created from `vX.Y.Z` tags on `main` (see RELEASING.md).
+- Tests trigger background writes only after subscribing, which removes a race that could hang the suite, and every blocking wait now times out after 10 seconds.
+- Documentation is hosted on the [Swift Package Index](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm/documentation).
+
+## [5.1.0](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.1.0%0Dv5.0.7) (2024-05-07)
+
+### Fixes
+
+- Update SPM and CocoaPods packages for updated `Realm.swift` packaging linking
+
 
 ## [5.0.7](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.0.7%0Dv5.0.6) (2024-03-08)
 

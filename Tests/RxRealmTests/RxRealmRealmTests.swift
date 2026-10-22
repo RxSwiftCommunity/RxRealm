@@ -29,16 +29,16 @@ class RxRealmRealmTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.didChange)
+    XCTAssertEqual(try realmNotifications.toBlocking(timeout: testTimeout).first()!.1, Realm.Notification.didChange)
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.add(Message("second"))
       }
     }
 
-    XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.didChange)
+    XCTAssertEqual(try realmNotifications.onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!.1, Realm.Notification.didChange)
   }
 
   func testRealmRefreshRequiredNotifications() {
@@ -54,9 +54,9 @@ class RxRealmRealmTests: XCTestCase {
     }
 
     // on same thread change is delivered
-    XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.didChange)
+    XCTAssertEqual(try realmNotifications.toBlocking(timeout: testTimeout).first()!.1, Realm.Notification.didChange)
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.add(Message("second"))
@@ -64,6 +64,6 @@ class RxRealmRealmTests: XCTestCase {
     }
 
     // on different thread - refresh required
-    XCTAssertEqual(try! realmNotifications.toBlocking().first()!.1, Realm.Notification.refreshRequired)
+    XCTAssertEqual(try realmNotifications.onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!.1, Realm.Notification.refreshRequired)
   }
 }

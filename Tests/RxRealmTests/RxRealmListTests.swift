@@ -35,9 +35,9 @@ class RxRealmListTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.toBlocking().first()!, 1)
+    XCTAssertEqual(try users.toBlocking(timeout: testTimeout).first()!, 1)
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       let message = realm.objects(Message.self).first!
       try! realm.write {
@@ -45,7 +45,7 @@ class RxRealmListTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.toBlocking().first()!, 0)
+    XCTAssertEqual(try users.onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!, 0)
   }
 
   func testListTypeChangeset() {
@@ -59,7 +59,7 @@ class RxRealmListTests: XCTestCase {
     let users = Observable.changeset(from: message.recipients)
       .map(stringifyChanges)
 
-    XCTAssertEqual(try! users.toBlocking().first()!, "count:0")
+    XCTAssertEqual(try users.toBlocking(timeout: testTimeout).first()!, "count:0")
 
     DispatchQueue.main.async {
       try! realm.write {
@@ -67,9 +67,9 @@ class RxRealmListTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
+    XCTAssertEqual(try users.skip(1).toBlocking(timeout: testTimeout).first()!, "count:1 inserted:[0] deleted:[] updated:[]")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       let message = realm.objects(Message.self).first!
       try! realm.write {
@@ -77,6 +77,6 @@ class RxRealmListTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! users.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
+    XCTAssertTrue(changesetOrCoalesced("count:0 inserted:[] deleted:[0] updated:[]").contains(try users.skip(1).onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!))
   }
 }

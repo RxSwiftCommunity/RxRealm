@@ -1,7 +1,6 @@
 Pod::Spec.new do |s|
   s.name = "RxRealm"
-  # Version to always follow latest tag, with fallback to major
-  s.version = "5.0.8"
+  s.version = "6.0.0"
   s.license = "MIT"
   s.description = <<-DESC
     This is an Rx extension that provides an easy and straight-forward way
@@ -12,20 +11,19 @@ Pod::Spec.new do |s|
   s.homepage = "https://github.com/RxSwiftCommunity/RxRealm"
   s.authors = { "RxSwift Community" => "community@rxswift.org" }
   s.source = { :git => "https://github.com/RxSwiftCommunity/RxRealm.git", :tag => "v" + s.version.to_s }
-  s.swift_version = "5.1"
+  s.swift_version = "5.9"
 
-  s.ios.deployment_target = "12.0"
-  s.osx.deployment_target = "10.13"
-  s.tvos.deployment_target = "12.0"
-  s.watchos.deployment_target = "4.0"
+  s.ios.deployment_target = "15.0"
+  s.osx.deployment_target = "12.0"
+  s.tvos.deployment_target = "15.0"
+  s.watchos.deployment_target = "9.0"
 
   s.requires_arc = true
 
   s.source_files = "Sources/RxRealm/*.swift"
 
   s.frameworks = "Foundation"
-  s.dependency "Realm", "~> 10.50"
-  s.dependency "RealmSwift", "~> 10.50"
-  s.dependency "RxSwift", "~> 6.1"
-  s.dependency "RxCocoa", "~> 6.1"
+  s.dependency "RealmSwift", "~> 20.0", ">= 20.0.6"
+  s.dependency "RxSwift", "~> 6.9"
+  s.dependency "RxCocoa", "~> 6.9"
 end

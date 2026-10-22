@@ -11,7 +11,7 @@ def common_tests
 end
 
 target "RxRealmDemo-iOS" do
-  platform :ios, "12.0"
+  platform :ios, "15.0"
   common
 end
 
@@ -28,8 +28,8 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      if Gem::Version.new('12.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      if Gem::Version.new('15.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       end
     end
   end
