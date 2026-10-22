@@ -24,6 +24,38 @@ extension ObservableType {
   }
 }
 
+/// Runs the current run loop until `condition` holds or `testTimeout` passes.
+@discardableResult
+func runRunLoop(until condition: () -> Bool) -> Bool {
+  let deadline = Date().addingTimeInterval(testTimeout)
+  while !condition() && Date() < deadline {
+    RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+  }
+  return condition()
+}
+
+/// Performs `write` and runs the run loop until an unfiltered observer of all `T` objects has
+/// been notified of it. Notifications for the same Realm are delivered together, so a filtered
+/// observer that stayed quiet by then really skipped the change.
+///
+/// The barrier observes its own `Results`: an unfiltered observer on the same `Results` instance
+/// as a key path filtered one makes Realm report every change to both.
+func writeAndWaitForDelivery<T: Object>(_ realm: Realm, _ type: T.Type, _ write: () -> Void) -> Bool {
+  var initialDelivered = false
+  var updateDelivered = false
+  let token = realm.objects(type).observe { change in
+    switch change {
+    case .initial: initialDelivered = true
+    case .update: updateDelivered = true
+    case .error: break
+    }
+  }
+  defer { token.invalidate() }
+  guard runRunLoop(until: { initialDelivered }) else { return false }
+  write()
+  return runRunLoop(until: { updateDelivered })
+}
+
 func realmInMemory(_ name: String = UUID().uuidString) -> Realm {
   var conf = Realm.Configuration()
   conf.inMemoryIdentifier = name
@@ -81,5 +113,16 @@ class UniqueObject: Object {
 
   override class func primaryKey() -> String? {
     return "id"
+  }
+}
+
+// MARK: Dog
+class Dog: Object {
+  @objc dynamic var name = ""
+  @objc dynamic var age = 0
+
+  convenience init(_ name: String) {
+    self.init()
+    self.name = name
   }
 }

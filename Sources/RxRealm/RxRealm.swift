@@ -185,13 +185,14 @@ public extension ObservableType where Element: NotificationEmitter {
 
    - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
    - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+   - parameter keyPaths: Only changes to these properties emit a new element. If `nil`, any change does.
    - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
    - returns: `Observable<Array<Element.Element>>`, e.g. when called on `Results<Model>` it will return `Observable<Array<Model>>`, on a `List<User>` it will return `Observable<Array<User>>`, etc.
    */
-  static func array(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
+  static func array(from collection: Element, synchronousStart: Bool = true, keyPaths: [String]? = nil, on queue: DispatchQueue? = nil)
     -> Observable<[Element.ElementType]> {
-    return Observable.collection(from: collection, synchronousStart: synchronousStart, on: queue)
+    return Observable.collection(from: collection, synchronousStart: synchronousStart, keyPaths: keyPaths, on: queue)
       .map { $0.toArray() }
   }
 
@@ -209,11 +210,12 @@ public extension ObservableType where Element: NotificationEmitter {
 
    - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
    - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+   - parameter keyPaths: Only changes to these properties emit a new element. If `nil`, any change does.
    - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
    - returns: `Observable<(AnyRealmCollection<Element.Element>, RealmChangeset?)>`
    */
-  static func changeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
+  static func changeset(from collection: Element, synchronousStart: Bool = true, keyPaths: [String]? = nil, on queue: DispatchQueue? = nil)
     -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
     return Observable.create { observer in
       var synchronousVersion: Realm?
@@ -222,7 +224,7 @@ public extension ObservableType where Element: NotificationEmitter {
         observer.onNext((collection.toAnyCollection(), nil))
       }
 
-      let token = collection.toAnyCollection().observe(on: queue) { changeset in
+      let token = collection.toAnyCollection().observe(keyPaths: keyPaths, on: queue) { changeset in
 
         switch changeset {
         case let .initial(value):
@@ -261,13 +263,14 @@ public extension ObservableType where Element: NotificationEmitter {
 
    - parameter from: A Realm collection of type `Element`: either `Results`, `List`, `LinkingObjects` or `AnyRealmCollection`.
    - parameter synchronousStart: whether the resulting Observable should emit its first element synchronously (e.g. better for UI bindings)
+   - parameter keyPaths: Only changes to these properties emit a new element. If `nil`, any change does.
    - parameter queue: The serial dispatch queue to receive notification on. If `nil`, notifications are delivered to the current thread.
 
    - returns: `Observable<(Array<Element.Element>, RealmChangeset?)>`
    */
-  static func arrayWithChangeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
+  static func arrayWithChangeset(from collection: Element, synchronousStart: Bool = true, keyPaths: [String]? = nil, on queue: DispatchQueue? = nil)
     -> Observable<([Element.ElementType], RealmChangeset?)> {
-    return Observable.changeset(from: collection, on: queue)
+    return Observable.changeset(from: collection, synchronousStart: synchronousStart, keyPaths: keyPaths, on: queue)
       .map { ($0.toArray(), $1) }
   }
 }

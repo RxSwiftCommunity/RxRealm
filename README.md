@@ -103,6 +103,19 @@ Observable.arrayWithChangeset(from: laps)
   })
 ```
 
+### Only observing some properties
+
+`collection(from:)`, `array(from:)`, `changeset(from:)` and `arrayWithChangeset(from:)` take a `keyPaths:` argument. With it, only changes to those properties emit:
+
+```swift
+Observable.changeset(from: dogs, keyPaths: ["name", "age"])
+  .subscribe(onNext: { results, changes in
+    // not called when only other properties of a dog change
+  })
+```
+
+Realm shares one notifier per collection instance. If the same `Results` instance is also observed without key paths, every change is reported to both. Observe a separate `Results` (for example, call `realm.objects(Dog.self)` again) to keep the filter.
+
 ## Observing a single object
 
 There's a separate API to make it easier to observe a single object:
