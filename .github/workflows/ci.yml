@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 10
     container: ghcr.io/realm/swiftlint:0.65.1
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: swiftlint lint --reporter github-actions-logging
 
   spm:
@@ -32,7 +32,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/cache@v6
         with:
           path: .build
@@ -56,7 +56,7 @@ jobs:
           - platform: watchOS
             action: build
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Pick simulator
         id: sim
         run: |
@@ -85,7 +85,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: pod lib lint --allow-warnings --platforms=ios --fail-fast
 
   # Single required status check for branch protection.
