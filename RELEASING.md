@@ -17,11 +17,13 @@ Merge with merge commits, not squash or rebase, when merging `develop` into `mai
 - `xcodebuild test` on iOS and tvOS simulators, and a watchOS build
 - `pod lib lint`
 
+The `CI passed` job succeeds only when every other job does. It's the one check to mark as required in branch protection. With no second maintainer to review, a green `CI passed` is the merge gate.
+
 ## Cutting a release
 
 1. On `develop`, open a PR that:
    - sets `s.version` in `RxRealm.podspec` to the new version
-   - adds a `## [X.Y.Z]` section to `CHANGELOG.md`
+   - adds a `## [X.Y.Z]` section to `CHANGELOG.md` (replace `unreleased` with the release date)
    - updates the version in the README's installation snippet if the major version changed
 2. Once that PR is merged, open a PR from `develop` into `main` titled `Release X.Y.Z`. Merge it with a merge commit when CI is green.
 3. Tag the merge commit on `main` and push the tag:
@@ -44,7 +46,10 @@ Merge with merge commits, not squash or rebase, when merging `develop` into `mai
 
 CocoaPods trunk becomes read-only on December 2, 2026, so publishing to trunk is a manual step done by a trunk owner (`pod trunk info RxRealm` lists them):
 
+CI only lints the iOS platform, but a trunk push validates every platform in the podspec. Lint all of them first with Xcode 26.6. RxSwift's podspec still targets iOS 9, which Xcode 27 rejects.
+
 ```sh
+DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer pod lib lint --allow-warnings
 pod trunk push RxRealm.podspec --allow-warnings
 ```
 

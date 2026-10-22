@@ -6,10 +6,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Breaking changes
 
-- Requires RealmSwift 20.0.6 or newer (Realm 20.x). RealmSwift 20.0.6 is the first version that builds with Xcode 26.4+ and Xcode 27 ([#222](https://github.com/RxSwiftCommunity/RxRealm/issues/222), [#220](https://github.com/RxSwiftCommunity/RxRealm/pull/220), [#223](https://github.com/RxSwiftCommunity/RxRealm/pull/223)).
+- Requires RealmSwift 20.0.6 or newer (Realm 20.x). RealmSwift 20.0.2 does not build with Xcode 27; 20.0.6 does ([#222](https://github.com/RxSwiftCommunity/RxRealm/issues/222), [#220](https://github.com/RxSwiftCommunity/RxRealm/pull/220), [#223](https://github.com/RxSwiftCommunity/RxRealm/pull/223)).
 - Minimum deployment targets raised to match RealmSwift 20: iOS 15, macOS 12, tvOS 15, watchOS 9.
 - Removed the public `Obs` typealias. Use `RxSwift.Observable` instead.
 - Carthage is no longer supported. Use Swift Package Manager.
+
+### Fixed
+
+- `Observable.collection(from:)`, `array(from:)`, `changeset(from:)` and `arrayWithChangeset(from:)` with `synchronousStart: true` (the default) no longer lose a write that another thread commits between subscribing and Realm's first notification. Realm folds such a write into its initial notification, which these observables used to drop as a duplicate of the synchronous value. Now the initial notification is emitted when it's at a newer Realm version than the synchronous value. In that case `changeset(from:)` emits it with a `nil` changeset ([#74](https://github.com/RxSwiftCommunity/RxRealm/issues/74)).
 
 ### Added
 
@@ -20,6 +24,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - The CocoaPods dependency is now `RealmSwift` only (it pulls in `Realm`), with RxSwift/RxCocoa `~> 6.9`.
 - New CI: SwiftLint, `swift test` on macOS, `xcodebuild test` on iOS and tvOS, a watchOS build and `pod lib lint`. Releases are created from `vX.Y.Z` tags on `main` (see RELEASING.md).
+- Tests trigger background writes only after subscribing, which removes a race that could hang the suite, and every blocking wait now times out after 10 seconds.
 - Documentation is hosted on the [Swift Package Index](https://swiftpackageindex.com/RxSwiftCommunity/RxRealm/documentation).
 
 ## [5.1.0](https://github.com/RxSwiftCommunity/RxRealm/branches/compare/v5.1.0%0Dv5.0.7) (2024-05-07)

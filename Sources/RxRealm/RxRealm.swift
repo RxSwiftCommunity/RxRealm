@@ -101,6 +101,23 @@ public struct RealmChangeset {
   public let updated: [Int]
 }
 
+/**
+ Whether Realm's `.initial` notification is at a newer Realm version than the value emitted
+ synchronously on subscribe.
+
+ A write committed on another thread after subscribing, but before `.initial` is delivered,
+ is folded into `.initial` with no `.update` after it. Skipping `.initial` as a duplicate of
+ the synchronous value would then lose that write.
+
+ Frozen Realms are cached per version, so equal frozen Realms mean the same version.
+ Releases the pinned synchronous version so it doesn't keep old data alive.
+ */
+private func isNewerThanSynchronousStart<Element>(_ initial: AnyRealmCollection<Element>,
+                                                   _ synchronousVersion: inout Realm?) -> Bool {
+  defer { synchronousVersion = nil }
+  return initial.realm?.freeze() != synchronousVersion
+}
+
 public extension ObservableType where Element: NotificationEmitter {
   @available(*, deprecated, renamed: "collection(from:synchronousStart:)")
   static func from(_ collection: Element, scheduler: ImmediateSchedulerType = CurrentThreadScheduler.instance) -> Observable<Element> {
@@ -122,7 +139,9 @@ public extension ObservableType where Element: NotificationEmitter {
   static func collection(from collection: Element, synchronousStart: Bool = true, keyPaths: [String]? = nil, on queue: DispatchQueue? = nil)
     -> Observable<Element> {
     return Observable.create { observer in
+      var synchronousVersion: Realm?
       if synchronousStart {
+        synchronousVersion = collection.toAnyCollection().realm?.freeze()
         observer.onNext(collection)
       }
 
@@ -132,7 +151,10 @@ public extension ObservableType where Element: NotificationEmitter {
 
         switch changeset {
         case let .initial(latestValue):
-          guard !synchronousStart else { return }
+          if synchronousStart {
+            let isNewer = isNewerThanSynchronousStart(latestValue.toAnyCollection(), &synchronousVersion)
+            guard isNewer else { return }
+          }
           value = latestValue
 
         case let .update(latestValue, _, _, _):
@@ -194,7 +216,9 @@ public extension ObservableType where Element: NotificationEmitter {
   static func changeset(from collection: Element, synchronousStart: Bool = true, on queue: DispatchQueue? = nil)
     -> Observable<(AnyRealmCollection<Element.ElementType>, RealmChangeset?)> {
     return Observable.create { observer in
+      var synchronousVersion: Realm?
       if synchronousStart {
+        synchronousVersion = collection.toAnyCollection().realm?.freeze()
         observer.onNext((collection.toAnyCollection(), nil))
       }
 
@@ -202,7 +226,10 @@ public extension ObservableType where Element: NotificationEmitter {
 
         switch changeset {
         case let .initial(value):
-          guard !synchronousStart else { return }
+          if synchronousStart {
+            let isNewer = isNewerThanSynchronousStart(value, &synchronousVersion)
+            guard isNewer else { return }
+          }
           observer.onNext((value, nil))
         case let .update(value, deletes, inserts, updates):
           observer.onNext((value, RealmChangeset(deleted: deletes, inserted: inserts, updated: updates)))
@@ -280,7 +307,7 @@ public extension Observable {
 
 // MARK: Realm type extensions
 
-extension Realm: ReactiveCompatible {}
+extension Realm: @retroactive ReactiveCompatible {}
 
 public extension Reactive where Base == Realm {
   /**
