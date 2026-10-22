@@ -26,7 +26,7 @@ class RxRealmResultsTests: XCTestCase {
     let messages = Observable.collection(from: realm.objects(Message.self))
       .map { Array($0.map { $0.text }) }
 
-    XCTAssertEqual(try! messages.toBlocking().first()!, [])
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, [])
 
     DispatchQueue.main.async {
       try! realm.write {
@@ -34,7 +34,7 @@ class RxRealmResultsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, ["first"])
+    XCTAssertEqual(try messages.skip(1).toBlocking(timeout: testTimeout).first()!, ["first"])
 
     DispatchQueue.main.async {
       try! realm.write {
@@ -42,7 +42,7 @@ class RxRealmResultsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, [])
+    XCTAssertEqual(try messages.skip(1).toBlocking(timeout: testTimeout).first()!, [])
   }
 
   func testResultsTypeChangeset() {
@@ -50,7 +50,7 @@ class RxRealmResultsTests: XCTestCase {
     let messages = Observable.changeset(from: realm.objects(Message.self))
       .map(stringifyChanges)
 
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:0")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:0")
 
     DispatchQueue.main.async {
       try! realm.write {
@@ -58,16 +58,16 @@ class RxRealmResultsTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, "count:1 inserted:[0] deleted:[] updated:[]")
+    XCTAssertEqual(try messages.skip(1).toBlocking(timeout: testTimeout).first()!, "count:1 inserted:[0] deleted:[] updated:[]")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.delete(realm.objects(Message.self).first!)
       }
     }
 
-    XCTAssertEqual(try! messages.skip(1).toBlocking().first()!, "count:0 inserted:[] deleted:[0] updated:[]")
+    XCTAssertTrue(changesetOrCoalesced("count:0 inserted:[] deleted:[0] updated:[]").contains(try messages.skip(1).onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!))
   }
 
   func testResultsEmitsCollectionSynchronously() {

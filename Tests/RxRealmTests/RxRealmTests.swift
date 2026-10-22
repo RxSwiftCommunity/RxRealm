@@ -41,12 +41,12 @@ class RxRealm_Tests: XCTestCase {
     DispatchQueue.main.async {
       addMessage(realm, text: "first(Results)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, ["first(Results)"])
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, ["first(Results)"])
 
     DispatchQueue.main.async {
       addMessage(realm, text: "second(Results)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, ["first(Results)", "second(Results)"])
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, ["first(Results)", "second(Results)"])
   }
 
   func testEmittedArrayValues() {
@@ -58,12 +58,12 @@ class RxRealm_Tests: XCTestCase {
     DispatchQueue.main.async {
       addMessage(realm, text: "first(Results)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, ["first(Results)"])
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, ["first(Results)"])
 
     DispatchQueue.main.async {
       addMessage(realm, text: "second(Results)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, ["first(Results)", "second(Results)"])
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, ["first(Results)", "second(Results)"])
   }
 
   func testEmittedChangeset() {
@@ -75,7 +75,7 @@ class RxRealm_Tests: XCTestCase {
     let messagesInitial = Observable.changeset(from: realm.objects(Message.self).sorted(byKeyPath: "text"))
       .map(stringifyChanges)
 
-    XCTAssertEqual(try! messagesInitial.toBlocking().first()!, "count:1")
+    XCTAssertEqual(try messagesInitial.toBlocking(timeout: testTimeout).first()!, "count:1")
 
     let messages = messagesInitial.skip(1)
 
@@ -83,7 +83,7 @@ class RxRealm_Tests: XCTestCase {
     DispatchQueue.main.async {
       addMessage(realm, text: "second(Changeset)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[1] deleted:[] updated:[]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[1] deleted:[] updated:[]")
 
     // update
     DispatchQueue.main.async {
@@ -91,7 +91,7 @@ class RxRealm_Tests: XCTestCase {
         realm.objects(Message.self).filter("text='second(Changeset)'").first!.text = "third(Changeset)"
       }
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[] deleted:[] updated:[1]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[] deleted:[] updated:[1]")
 
     // coalesced + delete
     DispatchQueue.main.async {
@@ -100,7 +100,7 @@ class RxRealm_Tests: XCTestCase {
         realm.delete(realm.objects(Message.self).filter("text='first(Changeset)'").first!)
       }
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
   }
 
   func testEmittedArrayChangeset() {
@@ -119,7 +119,7 @@ class RxRealm_Tests: XCTestCase {
         }
       }
 
-    XCTAssertEqual(try! messagesInitial.toBlocking().first()!, "count:1")
+    XCTAssertEqual(try messagesInitial.toBlocking(timeout: testTimeout).first()!, "count:1")
 
     let messages = messagesInitial.skip(1)
 
@@ -127,7 +127,7 @@ class RxRealm_Tests: XCTestCase {
     DispatchQueue.main.async {
       addMessage(realm, text: "second(Changeset)")
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[1] deleted:[] updated:[]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[1] deleted:[] updated:[]")
 
     // update
     DispatchQueue.main.async {
@@ -135,7 +135,7 @@ class RxRealm_Tests: XCTestCase {
         realm.objects(Message.self).filter("text='second(Changeset)'").first!.text = "third(Changeset)"
       }
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[] deleted:[] updated:[1]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[] deleted:[] updated:[1]")
 
     // coalesced + delete
     DispatchQueue.main.async {
@@ -144,6 +144,6 @@ class RxRealm_Tests: XCTestCase {
         realm.delete(realm.objects(Message.self).filter("text='first(Changeset)'").first!)
       }
     }
-    XCTAssertEqual(try! messages.toBlocking().first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
+    XCTAssertEqual(try messages.toBlocking(timeout: testTimeout).first()!, "count:2 inserted:[1] deleted:[0] updated:[]")
   }
 }

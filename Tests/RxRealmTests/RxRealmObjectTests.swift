@@ -33,23 +33,23 @@ class RxRealmObjectTests: XCTestCase {
     let objectNotifications = Observable<UniqueObject>.from(object: obj)
       .map { $0.name }
 
-    XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "")
+    XCTAssertEqual(try objectNotifications.toBlocking(timeout: testTimeout).first()!, "")
 
     DispatchQueue.main.async {
       try! realm.write {
         obj.name = "test1"
       }
     }
-    XCTAssertEqual(try! objectNotifications.skip(1).toBlocking().first()!, "test1")
+    XCTAssertEqual(try objectNotifications.skip(1).toBlocking(timeout: testTimeout).first()!, "test1")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.objects(UniqueObject.self).filter("id == %@", idValue).first!.name = "test2"
       }
     }
 
-    XCTAssertEqual(try! objectNotifications.skip(1).toBlocking().first()!, "test2")
+    XCTAssertEqual(try objectNotifications.skip(1).onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!, "test2")
 
     // delete the object to trigger an error
     DispatchQueue.main.async {
@@ -58,7 +58,7 @@ class RxRealmObjectTests: XCTestCase {
       }
     }
 
-    XCTAssertThrowsError(try objectNotifications.skip(1).toBlocking().first()!) { error in
+    XCTAssertThrowsError(try objectNotifications.skip(1).toBlocking(timeout: testTimeout).first()!) { error in
       XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
     }
   }
@@ -74,12 +74,13 @@ class RxRealmObjectTests: XCTestCase {
     var result = false
 
     // emits upon subscription
-    _ = Observable.from(object: obj, emitInitialValue: true)
+    let subscription = Observable.from(object: obj, emitInitialValue: true)
       .subscribe(onNext: { _ in
         result = true
       })
 
     XCTAssertEqual(result, true)
+    subscription.dispose()
   }
 
   func testObjectDoesntEmitInitialValue() {
@@ -93,12 +94,13 @@ class RxRealmObjectTests: XCTestCase {
     var result = false
 
     // doesn't emit upon subscription
-    _ = Observable.from(object: obj, emitInitialValue: false)
+    let subscription = Observable.from(object: obj, emitInitialValue: false)
       .subscribe(onNext: { _ in
         result = true
       })
 
     XCTAssertEqual(result, false)
+    subscription.dispose()
   }
 
   func testObjectPropertyChangeNotifications() {
@@ -117,15 +119,15 @@ class RxRealmObjectTests: XCTestCase {
         obj.name = "test1"
       }
     }
-    XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "name:test1")
+    XCTAssertEqual(try objectNotifications.toBlocking(timeout: testTimeout).first()!, "name:test1")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.objects(UniqueObject.self).first!.name = "test2"
       }
     }
-    XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "name:test2")
+    XCTAssertEqual(try objectNotifications.onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!, "name:test2")
 
     // delete the object to trigger an error
     DispatchQueue.main.async {
@@ -133,7 +135,7 @@ class RxRealmObjectTests: XCTestCase {
         realm.delete(obj)
       }
     }
-    XCTAssertThrowsError(try objectNotifications.toBlocking().first()!) { error in
+    XCTAssertThrowsError(try objectNotifications.toBlocking(timeout: testTimeout).first()!) { error in
       XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
     }
   }
@@ -154,15 +156,15 @@ class RxRealmObjectTests: XCTestCase {
         obj.name = "test1"
       }
     }
-    XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "test1")
+    XCTAssertEqual(try objectNotifications.toBlocking(timeout: testTimeout).first()!, "test1")
 
-    DispatchQueue.global(qos: .background).async {
+    let backgroundWrite = {
       let realm = realmInMemory(#function)
       try! realm.write {
         realm.objects(UniqueObject.self).first!.name = "test2"
       }
     }
-    XCTAssertEqual(try! objectNotifications.toBlocking().first()!, "test2")
+    XCTAssertEqual(try objectNotifications.onSubscribeInBackground(backgroundWrite).toBlocking(timeout: testTimeout).first()!, "test2")
 
     // delete the object to trigger an error
     DispatchQueue.main.async {
@@ -170,7 +172,7 @@ class RxRealmObjectTests: XCTestCase {
         realm.delete(obj)
       }
     }
-    XCTAssertThrowsError(try objectNotifications.toBlocking().first()!) { error in
+    XCTAssertThrowsError(try objectNotifications.toBlocking(timeout: testTimeout).first()!) { error in
       XCTAssertEqual(error as! RxRealmError, RxRealmError.objectDeleted)
     }
   }

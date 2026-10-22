@@ -43,8 +43,8 @@ final class RxRealmOnQueueTests: XCTestCase {
     }
     let dispatchedOnMainTread = try! factory(realm.objects(UniqueObject.self))
       .map { _ in Thread.isMainThread }
-      .toBlocking(timeout: 2)
+      .toBlocking(timeout: testTimeout)
       .first()
-    XCTAssertFalse(dispatchedOnMainTread!)
+    XCTAssertEqual(dispatchedOnMainTread, false)
   }
 }

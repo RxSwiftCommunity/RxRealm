@@ -21,6 +21,7 @@ jobs:
   lint:
     name: SwiftLint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     container: ghcr.io/realm/swiftlint:0.65.1
     steps:
       - uses: actions/checkout@v6
@@ -29,6 +30,7 @@ jobs:
   spm:
     name: SPM (macOS)
     runs-on: macos-26
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -42,6 +44,7 @@ jobs:
   xcodebuild:
     name: xcodebuild (${{ matrix.platform }})
     runs-on: macos-26
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -80,6 +83,21 @@ jobs:
   cocoapods:
     name: pod lib lint
     runs-on: macos-26
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - run: pod lib lint --allow-warnings --platforms=ios --fail-fast
+
+  # Single required status check for branch protection.
+  ci-passed:
+    name: CI passed
+    if: always()
+    needs: [lint, spm, xcodebuild, cocoapods]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" = "true" ]; then
+            echo "::error::A required CI job did not succeed"
+            exit 1
+          fi
