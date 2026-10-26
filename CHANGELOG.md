@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Added
+
+- `changeset(from:)`, `array(from:)` and `arrayWithChangeset(from:)` take a `keyPaths:` argument, like `collection(from:)`, so only changes to those properties emit ([#172](https://github.com/RxSwiftCommunity/RxRealm/issues/172)).
+
+### Fixed
+
+- `arrayWithChangeset(from:synchronousStart:)` ignored `synchronousStart: false` and always emitted synchronously.
+
+### Changed
+
+- CI reports code coverage for `Sources/` in the job summary and fails below 90% line coverage. New tests cover every collection type, the deprecated APIs and the write sinks' error path, which raises line coverage from 91% to 95%.
+
 ## [6.0.0](https://github.com/RxSwiftCommunity/RxRealm/compare/v5.1.0...v6.0.0) (2026-10-22)
 
 ### Breaking changes
